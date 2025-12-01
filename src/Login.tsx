@@ -1,3 +1,4 @@
+// Arquivo renomeado para Login.tsx para uso com TypeScript.
 import React from "react";
 
 export default function Login() {
