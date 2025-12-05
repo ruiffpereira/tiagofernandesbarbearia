@@ -1,0 +1,16 @@
+{
+  "name": "Barbearia Tiago",
+  "short_name": "Barbearia",
+  "theme_color": "#1e293b",
+  "background_color": "#1e293b",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
