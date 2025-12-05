@@ -7,7 +7,7 @@ import Login from "./Login";
 export default function App() {
   return (
     <Router>
-      <div className="h-dvh flex flex-col">
+      <div className="h-full flex flex-col">
         <header className="flex justify-between items-center px-6 py-4 bg-slate-800 shadow-lg ">
           <Link to="/" className="flex items-center gap-3 group">
             <div className="text-3xl group-hover:scale-110 transition-transform duration-200">💈</div>
