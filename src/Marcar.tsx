@@ -5,12 +5,13 @@ type Service = {
 	id: number;
 	name: string;
 	price: string;
+	duration: string;
 };
 
 const services: Service[] = [
-	{ id: 1, name: "Corte de Cabelo", price: "15€" },
-	{ id: 2, name: "Barba", price: "10€" },
-	{ id: 3, name: "Corte + Barba", price: "20€" },
+	{ id: 1, name: "Corte de Cabelo", price: "15€", duration: "30 min" },
+	{ id: 2, name: "Barba", price: "10€", duration: "15 min" },
+	{ id: 3, name: "Corte + Barba", price: "20€", duration: "45 min" },
 ];
 
 const horarios = [
@@ -23,7 +24,7 @@ const Marcar: React.FC = () => {
 	const [date, setDate] = useState<string>("");
 	const [hora, setHora] = useState<string>("");
 	const [success, setSuccess] = useState<boolean>(false);
-	const [confirmedData, setConfirmedData] = useState<{service: string, price: string, date: string, hora: string} | null>(null);
+	const [confirmedData, setConfirmedData] = useState<{service: string, price: string, duration: string, date: string, hora: string} | null>(null);
 
 	// Simulação de horários ocupados (exemplo)
 	const horariosOcupados = ["12:00", "15:00"];
@@ -36,6 +37,7 @@ const Marcar: React.FC = () => {
 			setConfirmedData({
 				service: selectedService.name,
 				price: selectedService.price,
+				duration: selectedService.duration,
 				date: date,
 				hora: hora
 			});
@@ -74,7 +76,7 @@ const Marcar: React.FC = () => {
 								>
 									<option value="" disabled>Selecione...</option>
 									{services.map(s => (
-										<option key={s.id} value={s.id}>{s.name} ({s.price})</option>
+										<option key={s.id} value={s.id}>{s.name} ({s.duration}) - {s.price}</option>
 									))}
 								</select>
 							</div>
@@ -137,16 +139,14 @@ const Marcar: React.FC = () => {
 							<p className="text-slate-400 text-sm">O seu horário foi reservado com sucesso</p>
 						</div>							{confirmedData && (
 								<div className="bg-slate-800 rounded-xl p-5 space-y-4 border-2 border-amber-500/30">
-									<div className="flex items-start gap-3">
-										<span className="text-2xl">✂️</span>
-										<div className="flex-1">
-											<p className="text-xs text-amber-400 uppercase font-semibold tracking-wide">Serviço</p>
-											<p className="text-white font-semibold text-lg">{confirmedData.service}</p>
-											<p className="text-slate-400 text-sm">{confirmedData.price}</p>
-										</div>
-									</div>
-									
-									<div className="flex items-start gap-3">
+							<div className="flex items-start gap-3">
+								<span className="text-2xl">✂️</span>
+								<div className="flex-1">
+									<p className="text-xs text-amber-400 uppercase font-semibold tracking-wide">Serviço</p>
+									<p className="text-white font-semibold text-lg">{confirmedData.service}</p>
+									<p className="text-slate-400 text-sm">{confirmedData.duration} • {confirmedData.price}</p>
+								</div>
+							</div>									<div className="flex items-start gap-3">
 										<span className="text-2xl">📅</span>
 										<div className="flex-1">
 											<p className="text-xs text-amber-400 uppercase font-semibold tracking-wide">Data</p>
