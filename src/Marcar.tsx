@@ -63,60 +63,117 @@ const Marcar: React.FC = () => {
 				</div>
 				<div className="bg-slate-700/50 backdrop-blur-sm rounded-2xl overflow-auto p-6 shadow-2xl border border-slate-600/50">
 					{!success ? (
-						<form onSubmit={handleSubmit} className="flex flex-col gap-6">
+						<form onSubmit={handleSubmit} className="flex flex-col gap-4">
+							{/* Serviço */}
 							<div className="flex flex-col gap-2">
 								<label className="text-sm font-semibold text-amber-400 uppercase tracking-wide flex items-center gap-2">
 									✂️ Serviço
 								</label>
-								<select
-									className="w-full border-2 border-slate-600 rounded-xl px-4 py-3.5 text-base focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-slate-800 text-white transition-all shadow-inner hover:border-slate-500"
-									value={selected ?? ""}
-									onChange={e => setSelected(Number(e.target.value))}
-									required
-								>
-									<option value="" disabled>Selecione...</option>
-									{services.map(s => (
-										<option key={s.id} value={s.id}>{s.name} ({s.duration}) - {s.price}</option>
-									))}
-								</select>
+								{selected ? (
+									<div className="bg-slate-800 rounded-xl px-4 py-3 border-2 border-amber-500/50 flex items-center justify-between group">
+										<div>
+											<p className="text-white font-semibold">{services.find(s => s.id === selected)?.name}</p>
+											<p className="text-slate-400 text-sm">
+												{services.find(s => s.id === selected)?.duration} • {services.find(s => s.id === selected)?.price}
+											</p>
+										</div>
+										<button
+											type="button"
+											onClick={() => {
+												setSelected(null);
+												setDate("");
+												setHora("");
+											}}
+											className="text-amber-400 hover:text-amber-300 text-sm font-medium"
+										>
+											Alterar
+										</button>
+									</div>
+								) : (
+									<select
+										className="w-full border-2 border-slate-600 rounded-xl px-4 py-3.5 text-base focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-slate-800 text-white transition-all shadow-inner hover:border-slate-500"
+										value={selected ?? ""}
+										onChange={e => setSelected(Number(e.target.value))}
+										required
+									>
+										<option value="" disabled>Selecione...</option>
+										{services.map(s => (
+											<option key={s.id} value={s.id}>{s.name} ({s.duration}) - {s.price}</option>
+										))}
+									</select>
+								)}
 							</div>
 
+							{/* Data */}
 							{selected && (
 								<div className="flex flex-col gap-2 animate-fadeIn">
 									<label className="text-sm font-semibold text-amber-400 uppercase tracking-wide flex items-center gap-2">
 										📅 Data
 									</label>
-									<input
-										type="date"
-										className="w-full border-2 border-slate-600 rounded-xl px-4 py-3.5 text-base focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-slate-800 text-white transition-all shadow-inner hover:border-slate-500"
-										value={date}
-										onChange={e => setDate(e.target.value)}
-										required
-									/>
+									{date ? (
+										<div className="bg-slate-800 rounded-xl px-4 py-3 border-2 border-amber-500/50 flex items-center justify-between">
+											<p className="text-white font-semibold">
+												{new Date(date + 'T00:00:00').toLocaleDateString('pt-PT', { 
+													weekday: 'short', 
+													day: 'numeric', 
+													month: 'short',
+													year: 'numeric'
+												})}
+											</p>
+											<button
+												type="button"
+												onClick={() => {
+													setDate("");
+													setHora("");
+												}}
+												className="text-amber-400 hover:text-amber-300 text-sm font-medium"
+											>
+												Alterar
+											</button>
+										</div>
+									) : (
+										<input
+											type="date"
+											className="w-full border-2 border-slate-600 rounded-xl px-4 py-3.5 text-base focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-slate-800 text-white transition-all shadow-inner hover:border-slate-500"
+											value={date}
+											onChange={e => setDate(e.target.value)}
+											required
+										/>
+									)}
 								</div>
 							)}
 
+							{/* Horário */}
 							{selected && date && (
 								<div className="flex flex-col gap-2 animate-fadeIn">
 									<label className="text-sm font-semibold text-amber-400 uppercase tracking-wide flex items-center gap-2">
 										🕐 Horário
 									</label>
-									<div className="grid grid-cols-3 gap-2">
-										{horariosDisponiveis.map(h => (
+									{hora ? (
+										<div className="bg-slate-800 rounded-xl px-4 py-3 border-2 border-amber-500/50 flex items-center justify-between">
+											<p className="text-white font-semibold text-lg">{hora}</p>
 											<button
 												type="button"
-												key={h}
-												className={`py-3 rounded-xl font-semibold text-sm transition-all duration-200 border-2
-													${hora === h
-														? "bg-amber-500 text-white shadow-lg shadow-amber-500/50 scale-105 border-amber-400"
-														: "bg-slate-800 text-white hover:bg-amber-500 hover:shadow-md border-slate-600 hover:border-amber-500"}
-												`}
-												onClick={() => setHora(h)}
+												onClick={() => setHora("")}
+												className="text-amber-400 hover:text-amber-300 text-sm font-medium"
 											>
-												{h}
+												Alterar
 											</button>
-										))}
-									</div>
+										</div>
+									) : (
+										<div className="grid grid-cols-3 gap-2">
+											{horariosDisponiveis.map(h => (
+												<button
+													type="button"
+													key={h}
+													className="py-3 rounded-xl font-semibold text-sm transition-all duration-200 border-2 bg-slate-800 text-white hover:bg-amber-500 hover:shadow-md border-slate-600 hover:border-amber-500"
+													onClick={() => setHora(h)}
+												>
+													{h}
+												</button>
+											))}
+										</div>
+									)}
 								</div>
 							)}
 
