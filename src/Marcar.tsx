@@ -66,29 +66,30 @@ const Marcar: React.FC = () => {
 						<form onSubmit={handleSubmit} className="flex flex-col gap-4">
 							{/* Serviço */}
 							<div className="flex flex-col gap-2">
-								<label className="text-sm font-semibold text-amber-400 uppercase tracking-wide flex items-center gap-2">
+								<label className="text-sm  font-semibold text-amber-400 uppercase tracking-wide flex items-center gap-2">
 									✂️ Serviço
 								</label>
 								{selected ? (
-									<div className="bg-slate-800 rounded-xl px-4 py-3 border-2 border-amber-500/50 flex items-center justify-between group">
+									<button type="button"
+											onClick={() => {
+												setSelected(null);
+												setDate("");
+												setHora("");
+											}}
+											className="bg-slate-800 cursor-pointer rounded-xl px-4 py-3 border-2 border-amber-500/50 flex items-center justify-between group">
 										<div>
 											<p className="text-white font-semibold">{services.find(s => s.id === selected)?.name}</p>
 											<p className="text-slate-400 text-sm">
 												{services.find(s => s.id === selected)?.duration} • {services.find(s => s.id === selected)?.price}
 											</p>
 										</div>
-										<button
-											type="button"
-											onClick={() => {
-												setSelected(null);
-												setDate("");
-												setHora("");
-											}}
+										<div
+											
 											className="text-amber-400 hover:text-amber-300 text-sm font-medium"
 										>
 											Alterar
-										</button>
-									</div>
+										</div>
+									</button>
 								) : (
 									<select
 										className="w-full border-2 border-slate-600 rounded-xl px-4 py-3.5 text-base focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-slate-800 text-white transition-all shadow-inner hover:border-slate-500"
@@ -111,7 +112,13 @@ const Marcar: React.FC = () => {
 										📅 Data
 									</label>
 									{date ? (
-										<div className="bg-slate-800 rounded-xl px-4 py-3 border-2 border-amber-500/50 flex items-center justify-between">
+										<button
+										type="button"
+												onClick={() => {
+													setDate("");
+													setHora("");
+												}}
+												 className="bg-slate-800 rounded-xl cursor-pointer px-4 py-3 border-2 border-amber-500/50 flex items-center justify-between">
 											<p className="text-white font-semibold">
 												{new Date(date + 'T00:00:00').toLocaleDateString('pt-PT', { 
 													weekday: 'short', 
@@ -120,17 +127,13 @@ const Marcar: React.FC = () => {
 													year: 'numeric'
 												})}
 											</p>
-											<button
-												type="button"
-												onClick={() => {
-													setDate("");
-													setHora("");
-												}}
+											<div
+												
 												className="text-amber-400 hover:text-amber-300 text-sm font-medium"
 											>
 												Alterar
-											</button>
-										</div>
+											</div>
+										</button>
 									) : (
 										<input
 											type="date"
@@ -150,16 +153,17 @@ const Marcar: React.FC = () => {
 										🕐 Horário
 									</label>
 									{hora ? (
-										<div className="bg-slate-800 rounded-xl px-4 py-3 border-2 border-amber-500/50 flex items-center justify-between">
-											<p className="text-white font-semibold text-lg">{hora}</p>
-											<button
-												type="button"
+										<button type="button"
 												onClick={() => setHora("")}
+												 className="bg-slate-800 rounded-xl px-4 py-3 border-2 border-amber-500/50 flex items-center justify-between">
+											<p className="text-white font-semibold text-lg">{hora}</p>
+											<div
+												
 												className="text-amber-400 hover:text-amber-300 text-sm font-medium"
 											>
 												Alterar
-											</button>
-										</div>
+											</div>
+										</button>
 									) : (
 										<div className="grid grid-cols-3 gap-2">
 											{horariosDisponiveis.map(h => (
