@@ -12,7 +12,7 @@ export default function App() {
           <Link to="/" className="flex items-center gap-3 group">
             <div className="text-3xl group-hover:scale-110 transition-transform duration-200">💈</div>
             <div>
-              <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600 tracking-tight">
+              <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-linear-to-r from-amber-400 to-amber-600 tracking-tight">
                 Barbearia Tiago
               </h1>
               <p className="text-xs text-slate-400 font-medium tracking-wide">Estilo & Tradição</p>

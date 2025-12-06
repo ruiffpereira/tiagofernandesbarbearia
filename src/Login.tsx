@@ -104,7 +104,7 @@ export default function Login() {
 
             <button
               type="submit"
-              className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl font-bold text-base hover:from-amber-600 hover:to-amber-700 transition-all duration-200 shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/50 hover:scale-[1.02]"
+              className="w-full py-3.5 bg-linear-to-r from-amber-500 to-amber-600 text-white rounded-xl font-bold text-base hover:from-amber-600 hover:to-amber-700 transition-all duration-200 shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/50 hover:scale-[1.02]"
             >
               Entrar
             </button>

@@ -70,10 +70,10 @@ const Marcar: React.FC = () => {
 
 					{/* Texto de apresentação */}
 					<div className="text-center space-y-4">
-						<h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600 tracking-tight">
+						<h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-linear-to-r from-amber-400 to-amber-600 tracking-tight">
 							Barbearia Tiago
 						</h1>
-						<p className="text-slate-300 text-lg leading-relaxed px-4">
+						<p className="text-slate-300 text-base md:text-lg leading-relaxed px-4">
 							Bem-vindo! Reserve o seu horário de forma rápida e simples.
 						</p>
 					</div>
@@ -81,7 +81,7 @@ const Marcar: React.FC = () => {
 					{/* Botão para marcar */}
 					<button
 						onClick={() => setShowBooking(true)}
-						className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl font-bold text-xl hover:from-amber-600 hover:to-amber-700 transition-all duration-200 shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/50 hover:scale-[1.02]"
+						className="w-full py-3.5 bg-linear-to-r from-amber-500 to-amber-600 text-white rounded-xl font-bold text-base md:text-xl hover:from-amber-600 hover:to-amber-700 transition-all duration-200 shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/50 hover:scale-[1.02]"
 					>
 						Marcar Horário
 					</button>
@@ -94,9 +94,9 @@ const Marcar: React.FC = () => {
 		<div className="flex flex-col grow items-center justify-center bg-slate-800 py-8 px-4">
 			<div className="w-full max-w-md mx-auto flex flex-col gap-6 lg:-mt-24">
 				<div className="text-center space-y-3 ">
-					<div className="text-5xl mb-4">✂️</div>
-					<h1 className="text-3xl font-bold text-white tracking-tight">Marca o teu Corte</h1>
-					<p className="text-slate-400 text-base">Escolha o serviço e horário ideal para si</p>
+					<div className="text-4xl md:text-5xl mb-4">✂️</div>
+					<h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">Marca o teu Corte</h1>
+					<p className="text-slate-400 text-sm md:text-base">Escolha o serviço e horário ideal para si</p>
 				</div>
 				<div className="bg-slate-700/50 backdrop-blur-sm rounded-2xl overflow-auto p-6 shadow-2xl border border-slate-600/50">
 					{!success ? (
@@ -113,7 +113,7 @@ const Marcar: React.FC = () => {
 												setDate("");
 												setHora("");
 											}}
-											className="bg-slate-800 cursor-pointer rounded-xl px-4 py-3 border-2 border-amber-500/50 flex items-center justify-between group">
+											className="bg-slate-800 cursor-pointer text-left rounded-xl px-4 py-3 border-2 border-amber-500/50 flex items-center justify-between group">
 										<div>
 											<p className="text-white font-semibold">{services.find(s => s.id === selected)?.name}</p>
 											<p className="text-slate-400 text-sm">
@@ -221,7 +221,7 @@ const Marcar: React.FC = () => {
 							{selected && date && hora && (
 								<button
 									type="submit"
-									className="w-full mt-4 py-4 bg-linear-to-r from-amber-500 to-amber-600 text-white rounded-xl font-bold text-lg hover:from-amber-600 hover:to-amber-700 transition-all duration-200 shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/50 hover:scale-[1.02] animate-fadeIn"
+									className="w-full mt-4 py-3.5 bg-linear-to-r from-amber-500 to-amber-600 text-white rounded-xl font-bold text-base md:text-lg hover:from-amber-600 hover:to-amber-700 transition-all duration-200 shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/50 hover:scale-[1.02] animate-fadeIn"
 								>
 									Confirmar Marcação
 								</button>
@@ -229,26 +229,29 @@ const Marcar: React.FC = () => {
 						</form>
 					) : (
 						<div className="flex flex-col gap-6 animate-fadeIn">
-						<div className="text-center">
-							<div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-								<span className="text-3xl">✓</span>
+						<div className="text-center flex gap-4">
+							<div className="w-16 h-16 shrink-0 bg-green-500 rounded-full flex items-center justify-center">
+								<span className="text-2xl md:text-3xl">✓</span>
 							</div>
-							<h2 className="text-2xl font-bold text-white mb-2">Marcação Confirmada!</h2>
-							<p className="text-slate-400 text-sm">O seu horário foi reservado com sucesso</p>
+							<div className="flex flex-col self-center text-left grow">
+								<h2 className="text-xl md:text-2xl font-bold text-white">Marcação Confirmada!</h2>
+								<p className="text-slate-400 text-sm">O seu horário foi reservado com sucesso</p>
+							</div>
+							
 						</div>							{confirmedData && (
 								<div className="bg-slate-800 rounded-xl p-5 space-y-4 border-2 border-amber-500/30">
 							<div className="flex items-start gap-3">
-								<span className="text-2xl">✂️</span>
+								<span className="text-xl md:text-2xl">✂️</span>
 								<div className="flex-1">
 									<p className="text-xs text-amber-400 uppercase font-semibold tracking-wide">Serviço</p>
-									<p className="text-white font-semibold text-lg">{confirmedData.service}</p>
+									<p className="text-white font-semibold text-base md:text-lg">{confirmedData.service}</p>
 									<p className="text-slate-400 text-sm">{confirmedData.duration} • {confirmedData.price}</p>
 								</div>
 							</div>									<div className="flex items-start gap-3">
-										<span className="text-2xl">📅</span>
-										<div className="flex-1">
-											<p className="text-xs text-amber-400 uppercase font-semibold tracking-wide">Data</p>
-											<p className="text-white font-semibold text-lg">
+									<span className="text-xl md:text-2xl">📅</span>
+									<div className="flex-1">
+										<p className="text-xs text-amber-400 uppercase font-semibold tracking-wide">Data</p>
+										<p className="text-white font-semibold text-base md:text-lg">
 												{new Date(confirmedData.date + 'T00:00:00').toLocaleDateString('pt-PT', { 
 													weekday: 'long', 
 													year: 'numeric', 
@@ -256,14 +259,14 @@ const Marcar: React.FC = () => {
 													day: 'numeric' 
 												})}
 											</p>
-										</div>
 									</div>
-									
-									<div className="flex items-start gap-3">
-										<span className="text-2xl">🕐</span>
-										<div className="flex-1">
-											<p className="text-xs text-amber-400 uppercase font-semibold tracking-wide">Horário</p>
-											<p className="text-white font-semibold text-lg">{confirmedData.hora}</p>
+								</div>
+								
+								<div className="flex items-start gap-3">
+									<span className="text-xl md:text-2xl">🕐</span>
+									<div className="flex-1">
+										<p className="text-xs text-amber-400 uppercase font-semibold tracking-wide">Horário</p>
+										<p className="text-white font-semibold text-base md:text-lg">{confirmedData.hora}</p>
 										</div>
 									</div>
 								</div>
@@ -271,7 +274,7 @@ const Marcar: React.FC = () => {
 
 							<button
 								onClick={handleNewBooking}
-								className="w-full py-4 bg-linear-to-r from-amber-500 to-amber-600 text-white rounded-xl font-bold text-lg hover:from-amber-600 hover:to-amber-700 transition-all duration-200 shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/50 hover:scale-[1.02]"
+								className="w-full py-3.5 bg-linear-to-r from-amber-500 to-amber-600 text-white rounded-xl font-bold text-base md:text-lg hover:from-amber-600 hover:to-amber-700 transition-all duration-200 shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/50 hover:scale-[1.02]"
 							>
 								Nova Marcação
 							</button>
