@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import Marcar from './schedule';
-import Login from './login';
+import Marcar from './Schedule';
+import Login from './Login';
 
 export default function App() {
 	return (
