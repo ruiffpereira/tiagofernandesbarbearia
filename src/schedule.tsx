@@ -15,7 +15,7 @@ const services: Service[] = [
 
 const horarios = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
 
-const Marcar: React.FC = () => {
+const Schedule: React.FC = () => {
 	const [selected, setSelected] = useState<number | null>(null);
 	const [date, setDate] = useState<string>('');
 	const [hora, setHora] = useState<string>('');
@@ -306,4 +306,4 @@ const Marcar: React.FC = () => {
 	);
 };
 
-export default Marcar;
+export default Schedule;

@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import Marcar from './Schedule';
+import Schedule from './Schedule';
 import Login from './Login';
 
 export default function App() {
@@ -27,7 +27,7 @@ export default function App() {
 				</header>
 				<main className="flex grow">
 					<Routes>
-						<Route path="/" element={<Marcar />} />
+						<Route path="/" element={<Schedule />} />
 						<Route path="/login" element={<Login />} />
 					</Routes>
 				</main>
