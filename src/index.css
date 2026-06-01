@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --accent: #7a261c;       /* bordô (override-able) */
+  --primary: #27333f;      /* navy */
+  --radius: 16px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: #f4f1ea;
+  color: #1f2933;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f4f1ea; }
+::-webkit-scrollbar-thumb { background: #b9bdc1; border-radius: 99px; }
+
+/* Spinner */
+.spinner {
+  width: 18px; height: 18px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  display: inline-block;
+}
+.spinner-dark { border-color: rgba(31,41,51,0.2); border-top-color: #27333f; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Subtle dot grid for the hero left panel */
+.dot-grid {
+  background-image: radial-gradient(circle at 1px 1px, rgba(31,41,51,0.06) 1px, transparent 0);
+  background-size: 24px 24px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, black 28%, black 72%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, black 28%, black 72%, transparent);
+}

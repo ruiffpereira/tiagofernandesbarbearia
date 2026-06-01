@@ -1,0 +1,1 @@
+{"type":"object","properties":{"serviceId":{"type":"string","format":"uuid"},"name":{"type":"string","example":"Corte de cabelo"},"price":{"type":"number","example":15},"duration":{"type":"integer","description":"Duração em minutos","example":30},"description":{"type":"string","nullable":true}},"required":["serviceId","name","price","duration"],"x-readme-ref-name":"Service"}
