@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../AuthContext.jsx'
 import {
   useGetBookingServices,
@@ -13,7 +12,6 @@ const BARBER_ID = import.meta.env.VITE_BARBER_USER_ID
 
 export default function BookingWidget({ onRequireLogin, onBooked }) {
   const { user } = useAuth()
-  const qc = useQueryClient()
   const [step, setStep] = useState(1)
   const [svc, setSvc] = useState(null)
   const [date, setDate] = useState('')
@@ -81,6 +79,22 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
     setStep(1); setSvc(null); setDate(''); setSlot(''); setNotes(''); setDone(null); setErr('')
     if (user) setClient({ name: user.name || '', email: user.email || '', phone: user.phone || '' })
     else setClient({ name: '', email: '', phone: '' })
+  }
+
+  if (!user) {
+    return (
+      <div className="text-center py-8 px-2">
+        <div className="text-4xl mb-3 opacity-30">🔒</div>
+        <p className="text-ink font-semibold mb-1">Precisa de estar ligado</p>
+        <p className="text-ink-soft text-sm mb-5">Inicia sessão para fazer uma marcação.</p>
+        <button
+          onClick={onRequireLogin}
+          className="bg-navy text-cream text-sm font-semibold px-5 py-2.5 rounded-xl"
+        >
+          Entrar / Criar conta
+        </button>
+      </div>
+    )
   }
 
   if (done) {
