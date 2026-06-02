@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "kubb generate && vite",
     "build": "kubb generate && vite build",
+    "start": "node server.js",
     "preview": "vite preview",
     "kubb": "kubb generate",
     "lint": "eslint src",
@@ -14,11 +15,14 @@
   "dependencies": {
     "@tanstack/react-query": "^5.75.1",
     "axios": "^1.16.1",
+    "express": "^5.2.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild"]
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   },
   "devDependencies": {
     "@kubb/cli": "^4.37.0",
