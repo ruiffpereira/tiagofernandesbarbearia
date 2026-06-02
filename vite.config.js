@@ -12,7 +12,7 @@ export default defineConfig({
         name: 'Barbearia Tiago Fernandes',
         short_name: 'Tiago Barbeiro',
         description: 'Agendamento online — Barbearia Tiago Fernandes, Braga',
-        theme_color: '#27333f',
+        theme_color: '#f4f1ea',
         background_color: '#f4f1ea',
         display: 'standalone',
         start_url: '/',

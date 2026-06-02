@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Button } from './ui.jsx'
+import { usePwaInstall } from '../hooks/usePwaInstall.js'
 
 const NAV = [
   ['Início', 'home'],
@@ -9,6 +10,8 @@ const NAV = [
 
 export default function Navbar({ user, view, setView, onLogin, onLogout, onDashboard }) {
   const [open, setOpen] = useState(false)
+  const [iosHint, setIosHint] = useState(false)
+  const pwa = usePwaInstall()
 
   const go = (key) => { setView(key); setOpen(false) }
 
@@ -80,6 +83,27 @@ export default function Navbar({ user, view, setView, onLogin, onLogout, onDashb
             </>
           ) : (
             <Button variant="primary" size="sm" onClick={() => { onLogin(); setOpen(false) }}>Entrar</Button>
+          )}
+          {pwa.show && (
+            <>
+              <div className="h-px bg-line my-1" />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  if (pwa.isIos) { setIosHint((h) => !h); return }
+                  if (pwa.ready) pwa.install()
+                }}
+              >
+                📲 {pwa.isIos ? 'Instalar App' : pwa.ready ? 'Instalar App' : 'Instalar App (abre o menu ⋮)'}
+              </Button>
+              {pwa.isIos && iosHint && (
+                <p className="text-xs text-ink-soft leading-relaxed px-1">
+                  Toca em <strong>Partilhar</strong> (⎙) no Safari e depois em{' '}
+                  <strong>"Adicionar ao ecrã inicial"</strong>.
+                </p>
+              )}
+            </>
           )}
         </div>
       )}

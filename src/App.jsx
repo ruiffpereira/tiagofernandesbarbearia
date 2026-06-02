@@ -6,6 +6,7 @@ import HomePage from './pages/HomePage.jsx'
 import GalleryPage from './pages/GalleryPage.jsx'
 import AboutPage from './pages/AboutPage.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
+import PwaInstallBanner from './components/PwaInstallBanner.jsx'
 
 const TAGLINE =
   'Onde o cuidado tradicional encontra o estilo moderno. Marca já a tua próxima visita — em segundos, sem chamadas.'
@@ -54,6 +55,7 @@ function Inner() {
         </div>
       )}
 
+      <PwaInstallBanner />
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} onSuccess={handleLogin} />}
 
       {view === 'home' && (
