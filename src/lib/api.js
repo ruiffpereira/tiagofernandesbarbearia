@@ -3,7 +3,7 @@
 // Tudo o resto (booking, slots, etc.) vai pelos hooks Kubb em src/servers/booking/.
 
 const BASE = import.meta.env.VITE_API_BASE_URL
-const SITE_KEY = import.meta.env.VITE_SITE_KEY
+const USER_ID = import.meta.env.VITE_BARBER_USER_ID
 
 const TOKEN_KEY = 'btf_access_token'
 const REFRESH_KEY = 'btf_refresh_token'
@@ -23,9 +23,9 @@ export const tokenStore = {
   },
 }
 
-async function siteRequest(url, options = {}) {
-  if (!SITE_KEY) throw new Error('VITE_SITE_KEY não configurado no .env')
-  const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${SITE_KEY}`, ...options.headers }
+async function apiRequest(url, options = {}) {
+  if (!USER_ID) throw new Error('VITE_BARBER_USER_ID não configurado no .env')
+  const headers = { 'Content-Type': 'application/json', ...options.headers }
   const res = await fetch(`${BASE}${url}`, { ...options, headers })
   if (!res.ok) {
     const body = await res.json().catch(() => ({}))
@@ -36,15 +36,15 @@ async function siteRequest(url, options = {}) {
 
 export const auth = {
   register: (name, email, phone, password) =>
-    siteRequest('/websites/customers/autentication/register', {
+    apiRequest('/websites/customers/autentication/register', {
       method: 'POST',
-      body: JSON.stringify({ name, email, contact: phone, password }),
+      body: JSON.stringify({ userId: USER_ID, name, email, contact: phone, password }),
     }),
 
   login: (email, password) =>
-    siteRequest('/websites/customers/autentication/login', {
+    apiRequest('/websites/customers/autentication/login', {
       method: 'POST',
-      body: JSON.stringify({ provider: 'credentials', email, password }),
+      body: JSON.stringify({ userId: USER_ID, provider: 'credentials', email, password }),
     }),
 
   logout: async () => {
