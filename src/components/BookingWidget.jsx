@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useAuth } from '../AuthContext.jsx'
 import {
   useGetBookingServices,
@@ -6,7 +6,7 @@ import {
   usePostBookingAppointment,
 } from '../servers/booking/index.ts'
 import { nextWorkdays, fmtDate, fmtShort } from '../utils.js'
-import { Button, Spinner, Label, Textarea, Input } from './ui.jsx'
+import { Button, Spinner, Label, Textarea } from './ui.jsx'
 
 const BARBER_ID = import.meta.env.VITE_BARBER_USER_ID
 
@@ -17,13 +17,8 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
   const [date, setDate] = useState('')
   const [slot, setSlot] = useState('')
   const [notes, setNotes] = useState('')
-  const [client, setClient] = useState({ name: '', email: '', phone: '' })
   const [done, setDone] = useState(null)
   const [err, setErr] = useState('')
-
-  useEffect(() => {
-    if (user) setClient({ name: user.name || '', email: user.email || '', phone: user.phone || '' })
-  }, [user])
 
   const { data: services = [], isLoading: loadingServices } = useGetBookingServices(
     { userId: BARBER_ID },
@@ -32,7 +27,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
 
   const { data: slotsData, isLoading: loadingSlots } = useGetBookingSlots(
     { userId: BARBER_ID, date, serviceId: svc?.serviceId ?? '' },
-    { query: { enabled: !!date && !!svc?.serviceId } }
+    { query: { enabled: !!date && !!svc?.serviceId && !!user } }
   )
 
   const confirmM = usePostBookingAppointment({
@@ -51,15 +46,17 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
   const free = Array.isArray(slotsData) ? slotsData : []
 
   function next() {
-    if (step === 1 && !svc) return
+    if (step === 1) {
+      if (!svc) return
+      if (!user) { onRequireLogin?.(); return }
+    }
     if (step === 2 && (!date || !slot)) return
     setStep((s) => s + 1)
   }
+
   const back = () => { setStep((s) => Math.max(1, s - 1)); setErr('') }
 
   function handleConfirm() {
-    const { name, email, phone } = client
-    if (!name || !email || !phone) { setErr('Nome, email e telemóvel são obrigatórios.'); return }
     setErr('')
     confirmM.mutate({
       data: {
@@ -68,33 +65,15 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
         date,
         time: slot,
         notes: notes || undefined,
-        clientName: name,
-        clientEmail: email,
-        clientPhone: phone,
+        clientName: user.name,
+        clientEmail: user.email,
+        clientPhone: user.phone,
       },
     })
   }
 
   function reset() {
     setStep(1); setSvc(null); setDate(''); setSlot(''); setNotes(''); setDone(null); setErr('')
-    if (user) setClient({ name: user.name || '', email: user.email || '', phone: user.phone || '' })
-    else setClient({ name: '', email: '', phone: '' })
-  }
-
-  if (!user) {
-    return (
-      <div className="text-center py-8 px-2">
-        <div className="text-4xl mb-3 opacity-30">🔒</div>
-        <p className="text-ink font-semibold mb-1">Precisa de estar ligado</p>
-        <p className="text-ink-soft text-sm mb-5">Inicia sessão para fazer uma marcação.</p>
-        <button
-          onClick={onRequireLogin}
-          className="bg-navy text-cream text-sm font-semibold px-5 py-2.5 rounded-xl"
-        >
-          Entrar / Criar conta
-        </button>
-      </div>
-    )
   }
 
   if (done) {
@@ -203,7 +182,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
         </div>
       )}
 
-      {/* Passo 3 — dados + confirmar */}
+      {/* Passo 3 — confirmar */}
       {step === 3 && (
         <div className="animate-fadeUp">
           <div className="bg-white rounded-[10px] p-4 border border-line mb-3.5">
@@ -215,25 +194,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
               <div><span className="text-ink-faint">Serviço:</span> <span className="text-ink font-medium">{svc.name}</span></div>
               <div><span className="text-ink-faint">Data:</span> <span className="text-ink font-medium">{fmtDate(date)}</span></div>
               <div><span className="text-ink-faint">Hora:</span> <span className="text-ink font-medium">{slot}</span></div>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2.5 mb-3.5">
-            <p className="text-[11px] text-ink-faint font-semibold tracking-wider uppercase">Os teus dados</p>
-            <div className="flex flex-col gap-1.5">
-              <Label>Nome *</Label>
-              <Input value={client.name} onChange={(e) => setClient((c) => ({ ...c, name: e.target.value }))}
-                placeholder="O teu nome" readOnly={!!user} className={user ? 'bg-cream opacity-70' : ''} />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label>Email *</Label>
-              <Input type="email" value={client.email} onChange={(e) => setClient((c) => ({ ...c, email: e.target.value }))}
-                placeholder="email@exemplo.com" readOnly={!!user} className={user ? 'bg-cream opacity-70' : ''} />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label>Telemóvel *</Label>
-              <Input type="tel" value={client.phone} onChange={(e) => setClient((c) => ({ ...c, phone: e.target.value }))}
-                placeholder="+351 9XX XXX XXX" />
+              <div><span className="text-ink-faint">Cliente:</span> <span className="text-ink font-medium">{user.name}</span></div>
             </div>
           </div>
 
