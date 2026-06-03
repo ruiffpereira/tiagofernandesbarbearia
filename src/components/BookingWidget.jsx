@@ -20,7 +20,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
   const qc = useQueryClient();
   const [step, setStep] = useState(1);
   const [svc, setSvc] = useState(null);
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState(() => nextWorkdays(1)[0]);
   const [slot, setSlot] = useState("");
   const [notes, setNotes] = useState("");
   const [done, setDone] = useState(null);
@@ -53,6 +53,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
   });
 
   const [showCalendar, setShowCalendar] = useState(false);
+  const [calMobile, setCalMobile] = useState(false);
   const calendarRef = useRef(null);
   const prevUserRef = useRef(user);
 
@@ -293,7 +294,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
 
               {/* Botão calendário */}
               <button
-                onClick={() => setShowCalendar((c) => !c)}
+                onClick={() => { setCalMobile(window.innerWidth < 1024); setShowCalendar((c) => !c); }}
                 title="Escolher outra data"
                 className={`w-10 shrink-0 rounded-[10px] border-[1.5px] flex items-center justify-center transition-all
                   ${
@@ -338,29 +339,31 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
               </div>
             )}
 
-            {/* Calendário — portal para evitar conflito com transforms dos ancestrais */}
-            {showCalendar && createPortal(
-              <>
-                <div
-                  className="fixed inset-0 z-[950] bg-black/70 animate-fadeIn"
-                  onClick={() => setShowCalendar(false)}
-                />
-                <div
-                  ref={calendarRef}
-                  className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[960]
-                    bg-paper border border-line rounded-xl2 shadow-lift p-3 animate-fadeIn"
-                >
-                  <DayPicker
-                    mode="single"
-                    locale={pt}
-                    selected={selectedDateObj}
-                    onSelect={handleCalendarSelect}
-                    fromDate={tomorrow}
-                    disabled={[{ before: tomorrow }, { dayOfWeek: [0, 1] }]}
-                  />
+            {/* Calendário */}
+            {showCalendar && (calMobile
+              /* Mobile/tablet — modal via portal (evita conflito com transforms) */
+              ? createPortal(
+                  <>
+                    <div className="fixed inset-0 z-[950] bg-black/70 animate-fadeIn"
+                      onClick={() => setShowCalendar(false)} />
+                    <div ref={calendarRef}
+                      className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[960]
+                        bg-paper border border-line rounded-xl2 shadow-lift p-3 animate-fadeIn">
+                      <DayPicker mode="single" locale={pt} selected={selectedDateObj}
+                        onSelect={handleCalendarSelect} fromDate={tomorrow}
+                        disabled={[{ before: tomorrow }, { dayOfWeek: [0, 1] }]} />
+                    </div>
+                  </>,
+                  document.body
+                )
+              /* Desktop — dropdown absoluto */
+              : <div ref={calendarRef}
+                  className="absolute top-full right-0 z-20 mt-1.5
+                    rounded-[10px] border border-line bg-paper shadow-lift p-2">
+                  <DayPicker mode="single" locale={pt} selected={selectedDateObj}
+                    onSelect={handleCalendarSelect} fromDate={tomorrow}
+                    disabled={[{ before: tomorrow }, { dayOfWeek: [0, 1] }]} />
                 </div>
-              </>,
-              document.body
             )}
           </div>
 
