@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { DayPicker } from "react-day-picker";
 import { pt } from "react-day-picker/locale";
@@ -205,7 +206,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
                   return (
                     <button
                       key={s.serviceId}
-                      onClick={() => setSvc(s)}
+                      onClick={() => { setSvc(s); if (!user) { onRequireLogin?.(); } else { setStep(2); } }}
                       className={`flex items-center gap-3 p-3 rounded-[10px] border-[1.5px] text-left w-full transition-all
                       ${active ? "bg-electric border-electric" : "bg-paper border-line hover:border-line-strong hover:bg-cream-dark"}`}
                     >
@@ -325,21 +326,29 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
               </div>
             )}
 
-            {/* Dropdown do calendário */}
-            {showCalendar && (
-              <div
-                ref={calendarRef}
-                className="absolute top-full right-0 z-20 mt-1.5 rounded-[10px] border border-line bg-paper shadow-lift p-2"
-              >
-                <DayPicker
-                  mode="single"
-                  locale={pt}
-                  selected={selectedDateObj}
-                  onSelect={handleCalendarSelect}
-                  fromDate={tomorrow}
-                  disabled={[{ before: tomorrow }, { dayOfWeek: [0, 1] }]}
+            {/* Calendário — portal para evitar conflito com transforms dos ancestrais */}
+            {showCalendar && createPortal(
+              <>
+                <div
+                  className="fixed inset-0 z-[950] bg-black/70 animate-fadeIn"
+                  onClick={() => setShowCalendar(false)}
                 />
-              </div>
+                <div
+                  ref={calendarRef}
+                  className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[960]
+                    bg-paper border border-line rounded-xl2 shadow-lift p-3 animate-fadeIn"
+                >
+                  <DayPicker
+                    mode="single"
+                    locale={pt}
+                    selected={selectedDateObj}
+                    onSelect={handleCalendarSelect}
+                    fromDate={tomorrow}
+                    disabled={[{ before: tomorrow }, { dayOfWeek: [0, 1] }]}
+                  />
+                </div>
+              </>,
+              document.body
             )}
           </div>
 
