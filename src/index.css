@@ -139,7 +139,7 @@ body {
 }
 
 /* Espaço para o bottom nav mobile */
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   main { padding-bottom: 4rem; }
 }
 

@@ -42,7 +42,7 @@ export default function Navbar({
         </button>
 
         {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-7">
+        <div className="hidden lg:flex items-center gap-7">
           {NAV.map(({ label, key }) => (
             <button
               key={key}
@@ -75,8 +75,8 @@ export default function Navbar({
           )}
         </div>
 
-        {/* Mobile — botão de login/conta (top right) */}
-        <div className="md:hidden">
+        {/* Mobile/tablet — botão de login/conta (top right) */}
+        <div className="lg:hidden">
           {user ? (
             <button
               onClick={onDashboard}
@@ -96,9 +96,9 @@ export default function Navbar({
         </div>
       </nav>
 
-      {/* ── Bottom nav mobile ───────────────────────────────────── */}
+      {/* ── Bottom nav mobile + tablet ─────────────────────────── */}
       <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-[900] h-16
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-[900] h-16
         bg-cream border-t border-line flex items-center justify-around px-2 safe-area-inset-bottom"
       >
         {NAV.map(({ label, key, icon: Icon }) => (
