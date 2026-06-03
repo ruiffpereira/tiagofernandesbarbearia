@@ -44,6 +44,11 @@ function Inner() {
     setHomeKey((k) => k + 1)
   }
 
+  useEffect(() => {
+    document.body.style.overflow = showAuth ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [showAuth])
+
   // Redireciona para home se tentar ver dashboard sem login
   useEffect(() => {
     if (view === 'dashboard' && !user) setView('home')
