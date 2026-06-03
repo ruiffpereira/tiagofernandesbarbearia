@@ -100,7 +100,7 @@ export default function Navbar({
       {/* ── Bottom nav mobile + tablet ─────────────────────────── */}
       <nav
         className="lg:hidden fixed bottom-0 left-0 right-0 z-[900] h-16
-        bg-cream border-t border-line flex items-center justify-around px-2 safe-area-inset-bottom"
+        bg-cream-dark border-t border-line flex items-center justify-around px-2 safe-area-inset-bottom"
       >
         {NAV.map(({ label, key, icon: Icon }) => (
           <button
