@@ -383,7 +383,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
                   {free.map((sl) => (
                     <button
                       key={sl}
-                      onClick={() => setSlot(sl)}
+                      onClick={() => { setSlot(sl); setStep(3); }}
                       className={`py-2.5 px-1 rounded-[10px] border-[1.5px] text-[13px] font-medium transition-all
                         ${slot === sl ? "bg-electric border-electric text-white" : "bg-paper border-line text-ink hover:border-line-strong"}`}
                     >
