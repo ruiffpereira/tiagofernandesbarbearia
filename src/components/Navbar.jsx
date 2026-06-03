@@ -18,12 +18,13 @@ export default function Navbar({
 
   return (
     <>
-      {/* ── Top bar (desktop + mobile) ──────────────────────────── */}
+      {/* ── Top bar ─────────────────────────────────────────────── */}
       <nav
-        className="sticky top-0 z-[900] h-16 bg-cream border-b border-line
+        className="lg:sticky lg:top-0 z-[900] h-16
+        bg-cream-dark lg:bg-cream lg:border-b lg:border-line
         px-4 sm:px-6 lg:px-10 flex items-center justify-between"
       >
-        {/* Logo */}
+        {/* Logo — em mobile/tablet só o ícone, em desktop aparece o nome */}
         <button
           onClick={() => go("home")}
           className="flex items-center gap-2.5"
@@ -33,7 +34,7 @@ export default function Navbar({
             alt="Logo Tiago Fernandes"
             className="h-11 w-11 object-contain"
           />
-          <span className="text-[15px] font-extrabold text-navy tracking-tight leading-none hidden xs:block sm:block">
+          <span className="text-[15px] font-extrabold text-navy tracking-tight leading-none">
             TIAGO FERNANDES
             <span className="block text-[9px] font-semibold tracking-[0.25em] text-maroon mt-0.5">
               BARBEARIA
