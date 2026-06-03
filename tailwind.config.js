@@ -23,8 +23,8 @@ export default {
         xl2: '1.25rem',
       },
       boxShadow: {
-        soft: '0 4px 20px rgba(0,0,0,0.35)',
-        lift: '0 16px 48px rgba(0,0,0,0.55)',
+        soft: '0 4px 20px rgba(8,8,18,0.45)',
+        lift: '0 16px 48px rgba(8,8,18,0.65)',
       },
       keyframes: {
         fadeUp:    { '0%': { opacity: 0, transform: 'translateY(16px)' }, '100%': { opacity: 1, transform: 'translateY(0)' } },

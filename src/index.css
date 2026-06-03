@@ -9,20 +9,20 @@
    (necessário para as opacidades Tailwind: bg-maroon/20, etc.)
    ══════════════════════════════════════════════════════════════ */
 :root {
-  /* Fundos — Carvão quente */
-  --bg:      33  33  33;    /* #212121 — fundo principal          */
-  --bg-alt:  24  24  24;    /* #181818 — secções / painéis        */
-  --surface: 46  46  46;    /* #2e2e2e — cards / widgets          */
+  /* Fundos — Slate frio, cinzas que fogem para o preto */
+  --bg:      22  22  28;    /* #16161c — fundo principal: grafite frio  */
+  --bg-alt:  15  15  20;    /* #0f0f14 — secções / painéis: mais fundo  */
+  --surface: 32  32  40;    /* #202028 — cards / widgets: elevado       */
 
   /* Texto */
-  --ink:       200 200 200; /* cinzento claro neutro              */
-  --ink-soft:  130 130 130; /* cinzento médio                     */
-  --ink-faint:  80  80  80; /* cinzento subtil                    */
+  --ink:       208 208 218; /* quase branco, ligeiro azul-frio           */
+  --ink-soft:  136 136 150; /* médio, frio                               */
+  --ink-faint:  82  82  98; /* subtil, frio                              */
 
-  /* Primário — headings, near-white */
-  --primary:    235 235 235; /* quase branco neutro               */
-  --primary-dk: 248 248 248; /* mais brilhante                    */
-  --primary-lt: 180 180 180; /* mais suave                        */
+  /* Primário — headings */
+  --primary:    230 230 242; /* quase branco frio                        */
+  --primary-dk: 248 248 255; /* brilhante                                */
+  --primary-lt: 178 178 196; /* suave                                    */
 
   /* Vermelho — accent rebelde, CTAs */
   --red:    165  25  25;    /* #a51919 — vermelho escuro           */
@@ -38,7 +38,7 @@
   --line:    200 200 200;   /* branco neutro                      */
 
   /* Muted */
-  --silver:  42  42  42;    /* cinzento muted                     */
+  --silver:  52  52  64;    /* grafite frio muted                 */
 
   --radius: 16px;
 }
