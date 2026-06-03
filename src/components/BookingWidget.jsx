@@ -72,7 +72,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
     return d;
   }, []);
 
-  const quickDays = useMemo(() => nextWorkdays(5), []);
+  const quickDays = useMemo(() => nextWorkdays(3), []);
   const selectedDateObj = date ? new Date(date + "T12:00:00") : undefined;
   const dateIsQuick = quickDays.includes(date);
 
@@ -346,7 +346,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
           {/* Horas disponíveis — altura fixa para não saltar ao trocar datas */}
           <div className="mt-3">
             <Label>Hora disponível</Label>
-            <div className="mt-2 h-[148px] overflow-y-auto">
+            <div className="mt-2 md:h-[148px] md:overflow-y-auto">
               {!date ? (
                 <p className="text-ink-faint text-[13px] p-3.5 text-center">
                   Escolhe uma data primeiro.
