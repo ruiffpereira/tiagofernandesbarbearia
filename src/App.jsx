@@ -21,6 +21,7 @@ function Inner() {
 
   const goTo = useCallback((v) => {
     if (v === view) return
+    window.scrollTo({ top: 0, behavior: 'instant' })
     setNavLoading(true)
     setView(v)
     setTimeout(() => setNavLoading(false), 400)
