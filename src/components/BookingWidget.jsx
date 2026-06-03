@@ -54,16 +54,28 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
 
   const [showCalendar, setShowCalendar] = useState(false);
   const calendarRef = useRef(null);
+  const prevUserRef = useRef(user);
+
+  useEffect(() => {
+    if (!prevUserRef.current && user && step === 1 && svc) {
+      setStep(2);
+    }
+    prevUserRef.current = user;
+  }, [user]);
 
   useEffect(() => {
     if (!showCalendar) return;
+    document.body.style.overflow = "hidden";
     function onMousedown(e) {
       if (calendarRef.current && !calendarRef.current.contains(e.target)) {
         setShowCalendar(false);
       }
     }
     document.addEventListener("mousedown", onMousedown);
-    return () => document.removeEventListener("mousedown", onMousedown);
+    return () => {
+      document.body.style.overflow = "";
+      document.removeEventListener("mousedown", onMousedown);
+    };
   }, [showCalendar]);
 
   const tomorrow = useMemo(() => {

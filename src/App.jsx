@@ -34,6 +34,7 @@ function Inner() {
 
   function handleLogin(u) {
     setShowAuth(false)
+    setView('home')
     showToast(`Bem-vindo, ${u.name.split(' ')[0]}!`)
   }
 
