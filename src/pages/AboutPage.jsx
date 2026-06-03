@@ -5,7 +5,7 @@ export default function AboutPage() {
       <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-12 items-center">
         <div className="aspect-[4/5] bg-cream-dark rounded-xl2 border border-line relative overflow-hidden
           flex flex-col items-center justify-center gap-2.5
-          [background-image:repeating-linear-gradient(135deg,transparent,transparent_18px,rgba(31,41,51,0.04)_18px,rgba(31,41,51,0.04)_36px)]">
+          [background-image:repeating-linear-gradient(135deg,transparent,transparent_18px,rgba(255,255,255,0.04)_18px,rgba(255,255,255,0.04)_36px)]">
           <img src="/logo.png" alt="Logo Tiago Fernandes" className="w-32 h-32 object-contain opacity-90 relative" />
           <span className="text-[11px] text-ink-faint tracking-wider uppercase relative">Foto do Tiago</span>
         </div>

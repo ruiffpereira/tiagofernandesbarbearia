@@ -1,10 +1,10 @@
 // Pequenos blocos de UI reutilizáveis (botões, modais)
 
 const VARIANTS = {
-  primary: 'bg-navy text-cream hover:bg-navy-light shadow-soft',
-  accent:  'bg-maroon text-white hover:bg-maroon-light shadow-soft',
-  ghost:   'bg-transparent text-navy border border-line hover:bg-navy/5 hover:border-line-strong',
-  surface: 'bg-white text-ink border border-line hover:bg-cream',
+  primary: 'bg-maroon text-white hover:bg-maroon-light shadow-soft',
+  accent:  'bg-electric text-white hover:bg-electric-light shadow-soft',
+  ghost:   'bg-transparent text-navy border border-line hover:bg-navy/10 hover:border-line-strong',
+  surface: 'bg-paper text-ink border border-line hover:bg-cream-dark',
   danger:  'bg-maroon/10 text-maroon border border-maroon/25 hover:bg-maroon/20',
 }
 
@@ -30,7 +30,7 @@ export function Spinner({ dark }) {
 export function Modal({ title, onClose, children, maxWidth = 'max-w-md' }) {
   return (
     <div
-      className="fixed inset-0 z-[1000] flex items-center justify-center p-5 bg-navy-dark/50 backdrop-blur-sm animate-fadeIn"
+      className="fixed inset-0 z-[1000] flex items-center justify-center p-5 bg-black/70 backdrop-blur-sm animate-fadeIn"
       onClick={onClose}
     >
       <div
@@ -42,8 +42,8 @@ export function Modal({ title, onClose, children, maxWidth = 'max-w-md' }) {
           <h2 className="text-[19px] font-bold text-navy tracking-tight">{title}</h2>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full border border-line bg-white text-ink-soft
-              flex items-center justify-center hover:bg-cream transition-colors text-[15px]"
+            className="w-8 h-8 rounded-full border border-line bg-paper text-ink-soft
+              flex items-center justify-center hover:bg-cream-dark transition-colors text-[15px]"
           >
             ✕
           </button>
@@ -61,8 +61,8 @@ export function Label({ children }) {
 export function Input(props) {
   return (
     <input
-      className="w-full bg-white border-[1.5px] border-line rounded-[10px] text-ink text-sm
-        px-3.5 py-2.5 outline-none transition-colors focus:border-navy placeholder:text-ink-faint"
+      className="w-full bg-paper border-[1.5px] border-line rounded-[10px] text-ink text-sm
+        px-3.5 py-2.5 outline-none transition-colors focus:border-electric placeholder:text-ink-faint"
       {...props}
     />
   )
@@ -71,8 +71,8 @@ export function Input(props) {
 export function Textarea(props) {
   return (
     <textarea
-      className="w-full bg-white border-[1.5px] border-line rounded-[10px] text-ink text-sm
-        px-3.5 py-2.5 outline-none transition-colors focus:border-navy placeholder:text-ink-faint
+      className="w-full bg-paper border-[1.5px] border-line rounded-[10px] text-ink text-sm
+        px-3.5 py-2.5 outline-none transition-colors focus:border-electric placeholder:text-ink-faint
         resize-y min-h-[70px]"
       {...props}
     />

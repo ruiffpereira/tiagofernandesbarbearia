@@ -7,23 +7,33 @@ import {
   usePatchBookingAppointmentCancel,
 } from '../servers/booking/index.ts'
 import BookingCard from '../components/BookingCard.jsx'
-import { Button, Spinner } from '../components/ui.jsx'
+import { Button, Spinner, Label, Input } from '../components/ui.jsx'
 
 export default function DashboardPage({ user, onBook, onHome, onLogout }) {
-  const { user: authUser } = useAuth()
+  const { user: authUser, updateProfile } = useAuth()
   const qc = useQueryClient()
 
+  // staleTime: 0 + refetchOnMount: 'always' garante dados frescos sempre que se navega para cá
   const { data: upcoming = [], isLoading: loadingUp } = useGetBookingMyAppointments(
     { status: 'upcoming' },
-    { query: { enabled: !!authUser } }
+    { query: { enabled: !!authUser, staleTime: 0, refetchOnMount: 'always' } }
   )
-
   const { data: past = [], isLoading: loadingPast } = useGetBookingMyAppointments(
     { status: 'past' },
-    { query: { enabled: !!authUser } }
+    { query: { enabled: !!authUser, staleTime: 0, refetchOnMount: 'always' } }
   )
 
   const [cancelId, setCancelId] = useState(null)
+  const [editing, setEditing] = useState(false)
+  const [editForm, setEditForm] = useState({
+    name: user.name,
+    email: user.email,
+    phone: user.phone || '',
+    nif: user.nif || '',
+  })
+  const [editLoading, setEditLoading] = useState(false)
+  const [editErr, setEditErr] = useState('')
+  const [editOk, setEditOk] = useState(false)
 
   const cancelM = usePatchBookingAppointmentCancel({
     mutation: {
@@ -36,10 +46,40 @@ export default function DashboardPage({ user, onBook, onHome, onLogout }) {
     },
   })
 
+  async function handleUpdateProfile(e) {
+    e.preventDefault()
+    setEditErr('')
+    setEditOk(false)
+    if (!editForm.name || !editForm.email || !editForm.phone) {
+      setEditErr('Nome, email e telemóvel são obrigatórios.')
+      return
+    }
+    if (editForm.nif && !/^\d{9}$/.test(editForm.nif)) {
+      setEditErr('NIF deve ter 9 dígitos.')
+      return
+    }
+    setEditLoading(true)
+    try {
+      await updateProfile({
+        name: editForm.name,
+        email: editForm.email,
+        phone: editForm.phone,
+        nif: editForm.nif || null,
+      })
+      setEditOk(true)
+      setEditing(false)
+    } catch (e) {
+      setEditErr(e.message || 'Erro ao guardar. Tenta novamente.')
+    } finally {
+      setEditLoading(false)
+    }
+  }
+
   const account = [
     ['Nome', user.name],
     ['Email', user.email],
     ['Telemóvel', user.phone || '—'],
+    ['NIF', user.nif || '—'],
   ]
 
   return (
@@ -119,22 +159,65 @@ export default function DashboardPage({ user, onBook, onHome, onLogout }) {
 
         {/* Dados da conta */}
         <section className="bg-paper border border-line rounded-xl2 p-6">
-          <h3 className="text-[17px] font-bold text-navy mb-4">Dados da conta</h3>
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-3.5">
-            {account.map(([k, v]) => (
-              <div key={k} className="bg-white rounded-[10px] px-3.5 py-3 border border-line">
-                <p className="text-ink-faint text-[10px] font-bold tracking-wider uppercase mb-1">{k}</p>
-                <p className="text-ink text-sm font-medium break-all">{v}</p>
-              </div>
-            ))}
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-[17px] font-bold text-navy">Dados da conta</h3>
+            <Button variant="ghost" size="sm" onClick={() => { setEditing(!editing); setEditErr(''); setEditOk(false) }}>
+              {editing ? 'Cancelar' : 'Editar'}
+            </Button>
           </div>
+
+          {editOk && !editing && (
+            <div className="mb-4 px-3.5 py-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-[10px] text-emerald-400 text-[13px]">
+              Perfil actualizado com sucesso.
+            </div>
+          )}
+
+          {editing ? (
+            <form onSubmit={handleUpdateProfile} className="flex flex-col gap-3.5">
+              <div className="grid sm:grid-cols-2 gap-3.5">
+                <div className="flex flex-col gap-1.5">
+                  <Label>Nome *</Label>
+                  <Input value={editForm.name} onChange={(e) => setEditForm(f => ({ ...f, name: e.target.value }))} />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label>Email *</Label>
+                  <Input type="email" value={editForm.email} onChange={(e) => setEditForm(f => ({ ...f, email: e.target.value }))} />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label>Telemóvel *</Label>
+                  <Input type="tel" placeholder="+351 9XX XXX XXX" value={editForm.phone} onChange={(e) => setEditForm(f => ({ ...f, phone: e.target.value }))} />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label>NIF</Label>
+                  <Input placeholder="000000000" maxLength={9} value={editForm.nif} onChange={(e) => setEditForm(f => ({ ...f, nif: e.target.value.replace(/\D/g, '') }))} />
+                </div>
+              </div>
+              {editErr && (
+                <div className="bg-maroon/[0.08] border border-maroon/25 rounded-[10px] px-3.5 py-2.5 text-maroon text-[13px]">
+                  {editErr}
+                </div>
+              )}
+              <Button variant="primary" type="submit" disabled={editLoading} className="self-start">
+                {editLoading ? <Spinner /> : 'Guardar alterações'}
+              </Button>
+            </form>
+          ) : (
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-3.5">
+              {account.map(([k, v]) => (
+                <div key={k} className="bg-paper rounded-[10px] px-3.5 py-3 border border-line">
+                  <p className="text-ink-faint text-[10px] font-bold tracking-wider uppercase mb-1">{k}</p>
+                  <p className="text-ink text-sm font-medium break-all">{v}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
       </div>
 
       {/* Modal de confirmação de cancelamento */}
       {cancelId && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9000] p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9000] p-4">
+          <div className="bg-paper rounded-2xl p-6 max-w-sm w-full shadow-lift border border-line">
             <h3 className="text-lg font-bold text-navy mb-2">Cancelar marcação</h3>
             <p className="text-ink-soft text-sm leading-relaxed mb-5">Tens a certeza? Esta ação não pode ser revertida.</p>
             <div className="flex gap-2">

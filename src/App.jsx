@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { AuthProvider, useAuth } from './AuthContext.jsx'
 import Navbar from './components/Navbar.jsx'
 import AuthModal from './components/AuthModal.jsx'
@@ -14,8 +14,17 @@ const TAGLINE =
 function Inner() {
   const { user, logout } = useAuth()
   const [view, setView] = useState('home')
+  const [homeKey, setHomeKey] = useState(0)
+  const [navLoading, setNavLoading] = useState(false)
   const [showAuth, setShowAuth] = useState(false)
   const [toast, setToast] = useState(null)
+
+  const goTo = useCallback((v) => {
+    if (v === view) return
+    setNavLoading(true)
+    setView(v)
+    setTimeout(() => setNavLoading(false), 400)
+  }, [view])
 
   function showToast(msg) {
     setToast(msg)
@@ -30,6 +39,7 @@ function Inner() {
   async function handleLogout() {
     await logout()
     setView('home')
+    setHomeKey((k) => k + 1)
   }
 
   // Redireciona para home se tentar ver dashboard sem login
@@ -39,13 +49,16 @@ function Inner() {
 
   return (
     <>
+      {navLoading && (
+        <div className="fixed top-0 left-0 right-0 z-[9999] h-0.5 bg-maroon animate-pageLoad" />
+      )}
       <Navbar
         user={user}
         view={view}
-        setView={setView}
+        setView={goTo}
         onLogin={() => setShowAuth(true)}
         onLogout={handleLogout}
-        onDashboard={() => setView('dashboard')}
+        onDashboard={() => goTo('dashboard')}
       />
 
       {toast && (
@@ -60,6 +73,7 @@ function Inner() {
 
       {view === 'home' && (
         <HomePage
+          key={homeKey}
           user={user}
           tagline={TAGLINE}
           onRequireLogin={() => setShowAuth(true)}
@@ -71,8 +85,8 @@ function Inner() {
       {view === 'dashboard' && user && (
         <DashboardPage
           user={user}
-          onBook={() => setView('home')}
-          onHome={() => setView('home')}
+          onBook={() => goTo('home')}
+          onHome={() => goTo('home')}
           onLogout={handleLogout}
         />
       )}

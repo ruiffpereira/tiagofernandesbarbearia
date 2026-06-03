@@ -14,7 +14,7 @@ export default function GalleryPage() {
           {Array.from({ length: 9 }).map((_, i) => (
             <div key={i} className="aspect-[1/1.15] bg-cream-dark rounded-xl2 border border-line
               flex items-center justify-center text-4xl opacity-50 text-ink-faint
-              [background-image:repeating-linear-gradient(45deg,transparent,transparent_16px,rgba(31,41,51,0.03)_16px,rgba(31,41,51,0.03)_32px)]">
+              [background-image:repeating-linear-gradient(45deg,transparent,transparent_16px,rgba(255,255,255,0.03)_16px,rgba(255,255,255,0.03)_32px)]">
               💈
             </div>
           ))}

@@ -1,10 +1,45 @@
+@import 'react-day-picker/style.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ══════════════════════════════════════════════════════════════
+   PALETA — muda aqui para experimentar temas.
+   Formato: canais R G B separados por espaço
+   (necessário para as opacidades Tailwind: bg-maroon/20, etc.)
+   ══════════════════════════════════════════════════════════════ */
 :root {
-  --accent: #7a261c;       /* bordô (override-able) */
-  --primary: #27333f;      /* navy */
+  /* Fundos — Carvão quente */
+  --bg:      33  33  33;    /* #212121 — fundo principal          */
+  --bg-alt:  24  24  24;    /* #181818 — secções / painéis        */
+  --surface: 46  46  46;    /* #2e2e2e — cards / widgets          */
+
+  /* Texto */
+  --ink:       200 200 200; /* cinzento claro neutro              */
+  --ink-soft:  130 130 130; /* cinzento médio                     */
+  --ink-faint:  80  80  80; /* cinzento subtil                    */
+
+  /* Primário — headings, near-white */
+  --primary:    235 235 235; /* quase branco neutro               */
+  --primary-dk: 248 248 248; /* mais brilhante                    */
+  --primary-lt: 180 180 180; /* mais suave                        */
+
+  /* Vermelho — accent rebelde, CTAs */
+  --red:    165  25  25;    /* #a51919 — vermelho escuro           */
+  --red-dk: 128  16  16;    /* #801010 — hover mais fundo         */
+  --red-lt: 190  35  35;    /* #be2323 — hover mais claro         */
+
+  /* Accent secundário — estados activos, focus (mesmo vermelho) */
+  --blue:    212  40  40;   /* igual ao --red                     */
+  --blue-dk: 176  30  30;
+  --blue-lt: 232  64  64;
+
+  /* Bordas — cor base; opacidade definida no Tailwind */
+  --line:    200 200 200;   /* branco neutro                      */
+
+  /* Muted */
+  --silver:  42  42  42;    /* cinzento muted                     */
+
   --radius: 16px;
 }
 
@@ -14,31 +49,103 @@ html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
-  background: #f4f1ea;
-  color: #1f2933;
+  background: rgb(var(--bg));
+  color: rgb(var(--ink));
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #f4f1ea; }
-::-webkit-scrollbar-thumb { background: #b9bdc1; border-radius: 99px; }
+::-webkit-scrollbar-track { background: rgb(var(--bg)); }
+::-webkit-scrollbar-thumb { background: rgb(var(--silver)); border-radius: 99px; }
 
 /* Spinner */
 .spinner {
   width: 18px; height: 18px;
-  border: 2px solid rgba(255,255,255,0.3);
+  border: 2px solid rgba(255,255,255,0.25);
   border-top-color: #fff;
   border-radius: 50%;
   animation: spin .7s linear infinite;
   display: inline-block;
 }
-.spinner-dark { border-color: rgba(31,41,51,0.2); border-top-color: #27333f; }
+.spinner-dark {
+  border-color: rgb(var(--primary) / 0.2);
+  border-top-color: rgb(var(--primary));
+}
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Subtle dot grid for the hero left panel */
+/* ── react-day-picker — tema escuro ──────────────── */
+.rdp-root {
+  --rdp-accent-color:             rgb(var(--red));
+  --rdp-accent-background-color:  rgb(var(--red) / 0.12);
+  --rdp-today-color:              rgb(var(--red));
+  --rdp-day_button-border-radius: 8px;
+  --rdp-day-height:               38px;
+  --rdp-day-width:                38px;
+  --rdp-day_button-height:        36px;
+  --rdp-day_button-width:         36px;
+  --rdp-nav_button-height:        2rem;
+  --rdp-nav_button-width:         2rem;
+  color: rgb(var(--ink));
+  font-family: inherit;
+}
+/* Botões de navegação prev/next */
+.rdp-root .rdp-button_previous,
+.rdp-root .rdp-button_next {
+  background: rgb(var(--surface));
+  border: 1px solid rgb(var(--line) / 0.09);
+  border-radius: 8px;
+  color: rgb(var(--ink-soft));
+}
+.rdp-root .rdp-button_previous:hover,
+.rdp-root .rdp-button_next:hover {
+  background: rgb(var(--bg-alt));
+  color: rgb(var(--primary));
+}
+/* Dias normais */
+.rdp-root .rdp-day_button {
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgb(var(--ink));
+}
+.rdp-root .rdp-day_button:hover:not(:disabled) {
+  background: rgb(var(--bg-alt));
+}
+/* Fora do mês */
+.rdp-root .rdp-outside .rdp-day_button {
+  color: rgb(var(--ink-faint));
+}
+/* Cabeçalhos dos dias da semana */
+.rdp-root .rdp-weekday {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgb(var(--ink-faint));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+/* Caption (mês/ano) */
+.rdp-root .rdp-caption_label {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgb(var(--primary));
+}
+/* Largura fixa */
+.rdp-root,
+.rdp-root .rdp-months,
+.rdp-root .rdp-month,
+.rdp-root .rdp-month_grid {
+  width: 280px;
+}
+
+/* Espaço para o bottom nav mobile */
+@media (max-width: 767px) {
+  main { padding-bottom: 4rem; }
+}
+
+/* Dot grid subtil para o painel esquerdo do hero */
 .dot-grid {
-  background-image: radial-gradient(circle at 1px 1px, rgba(31,41,51,0.06) 1px, transparent 0);
+  background-image: radial-gradient(circle at 1px 1px, rgba(200,215,240,0.07) 1px, transparent 0);
   background-size: 24px 24px;
   -webkit-mask-image: linear-gradient(to bottom, transparent, black 28%, black 72%, transparent);
   mask-image: linear-gradient(to bottom, transparent, black 28%, black 72%, transparent);

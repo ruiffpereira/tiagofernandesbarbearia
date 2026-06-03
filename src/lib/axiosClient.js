@@ -16,11 +16,18 @@ const requestInterceptor = (config) => {
   return config
 }
 
+function dispatchSessionExpired() {
+  window.dispatchEvent(new CustomEvent('auth:session-expired'))
+}
+
 const responseErrorInterceptor = async (error) => {
   const original = error.config
   if (error.response?.status === 401 && !original._retry) {
     const refreshToken = localStorage.getItem(REFRESH_KEY)
-    if (!refreshToken) return Promise.reject(error)
+    if (!refreshToken) {
+      dispatchSessionExpired()
+      return Promise.reject(error)
+    }
     original._retry = true
     if (!refreshing) {
       refreshing = axiosInstance
@@ -34,6 +41,7 @@ const responseErrorInterceptor = async (error) => {
           localStorage.removeItem(TOKEN_KEY)
           localStorage.removeItem(REFRESH_KEY)
           localStorage.removeItem('btf_user')
+          dispatchSessionExpired()
           return Promise.reject(new Error('Sessão expirada'))
         })
         .finally(() => { refreshing = null })

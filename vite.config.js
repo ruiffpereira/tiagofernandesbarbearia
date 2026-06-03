@@ -7,6 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      devOptions: { enabled: false },
       includeAssets: ['logo.png'],
       manifest: {
         name: 'Barbearia Tiago Fernandes',
