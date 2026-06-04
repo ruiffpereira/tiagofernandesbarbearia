@@ -6,7 +6,7 @@ const DISMISSED_KEY = 'pwa_banner_dismissed_until'
 export default function PwaInstallBanner() {
   const pwa = usePwaInstall()
   const [visible, setVisible] = useState(false)
-  const [iosExpanded, setIosExpanded] = useState(false)
+  const [hint, setHint] = useState(false) // instruções iOS ou "abre no Chrome"
 
   useEffect(() => {
     if (!pwa.show) return
@@ -18,19 +18,22 @@ export default function PwaInstallBanner() {
 
   const dismiss = () => {
     setVisible(false)
+    setHint(false)
     localStorage.setItem(DISMISSED_KEY, Date.now() + 7 * 24 * 60 * 60 * 1000)
   }
 
   const handleInstall = async () => {
-    if (pwa.isIos) { setIosExpanded((v) => !v); return }
-    if (!pwa.ready) return
+    if (pwa.isIos || !pwa.ready) {
+      setHint((v) => !v)
+      return
+    }
     await pwa.install()
     setVisible(false)
   }
 
-  // banner só aparece quando o browser está pronto para instalar (Android)
-  // ou em iOS (instruções manuais)
-  if (!visible || (!pwa.ready && !pwa.isIos)) return null
+  if (!visible || !pwa.show) return null
+
+  const isIosOrNotReady = pwa.isIos || !pwa.ready
 
   return (
     <div className="fixed bottom-20 left-4 right-4 z-[9998] flex justify-center pointer-events-none lg:bottom-4">
@@ -46,24 +49,35 @@ export default function PwaInstallBanner() {
           <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onClick={handleInstall}
+              aria-expanded={isIosOrNotReady ? hint : undefined}
               className="bg-maroon text-cream text-xs font-semibold px-3 py-1.5 rounded-lg"
             >
-              {pwa.isIos ? 'Como?' : 'Instalar'}
+              {pwa.ready && !pwa.isIos ? 'Instalar' : 'Como?'}
             </button>
             <button
               onClick={dismiss}
-              className="text-cream/50 hover:text-cream text-lg leading-none px-1"
               aria-label="Fechar"
+              className="text-cream/50 hover:text-cream text-lg leading-none px-1"
             >
-              ✕
+              <span aria-hidden="true">✕</span>
             </button>
           </div>
         </div>
 
-        {pwa.isIos && iosExpanded && (
+        {hint && (
           <p className="text-[12px] text-cream/80 mt-3 leading-relaxed border-t border-cream/10 pt-3">
-            No Safari, toca em <strong className="text-cream">Partilhar</strong> (⎙) na barra inferior
-            e depois em <strong className="text-cream">"Adicionar ao ecrã inicial"</strong>.
+            {pwa.isIos ? (
+              <>
+                No Safari, toca em <strong className="text-cream">Partilhar</strong>{' '}
+                <span aria-hidden="true">⎙</span> e depois em{' '}
+                <strong className="text-cream">"Adicionar ao ecrã inicial"</strong>.
+              </>
+            ) : (
+              <>
+                Abre este site no <strong className="text-cream">Google Chrome</strong> e volta
+                a tentar — o Chrome permite instalar a app directamente.
+              </>
+            )}
           </p>
         )}
       </div>

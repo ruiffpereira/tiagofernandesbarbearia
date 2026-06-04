@@ -42,7 +42,11 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
       onSuccess: (result) => {
         setDone({ ...result, serviceName: svc.name });
         qc.invalidateQueries({
-          queryKey: getBookingSlotsQueryKey({ userId: BARBER_ID, date, serviceId: svc.serviceId }),
+          queryKey: getBookingSlotsQueryKey({
+            userId: BARBER_ID,
+            date,
+            serviceId: svc.serviceId,
+          }),
         });
         onBooked?.();
       },
@@ -96,7 +100,11 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
     setShowCalendar(false);
     if (svc?.serviceId) {
       qc.invalidateQueries({
-        queryKey: getBookingSlotsQueryKey({ userId: BARBER_ID, date: d, serviceId: svc.serviceId }),
+        queryKey: getBookingSlotsQueryKey({
+          userId: BARBER_ID,
+          date: d,
+          serviceId: svc.serviceId,
+        }),
       });
     }
   }
@@ -219,7 +227,14 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
                   return (
                     <button
                       key={s.serviceId}
-                      onClick={() => { setSvc(s); if (!user) { onRequireLogin?.(); } else { setStep(2); } }}
+                      onClick={() => {
+                        setSvc(s);
+                        if (!user) {
+                          onRequireLogin?.();
+                        } else {
+                          setStep(2);
+                        }
+                      }}
                       className={`flex items-center gap-3 p-3 rounded-[10px] border-[1.5px] text-left w-full transition-all
                       ${active ? "bg-electric border-electric" : "bg-paper border-line hover:border-line-strong hover:bg-cream-dark"}`}
                     >
@@ -294,7 +309,10 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
 
               {/* Botão calendário */}
               <button
-                onClick={() => { setCalMobile(window.innerWidth < 1024); setShowCalendar((c) => !c); }}
+                onClick={() => {
+                  setCalMobile(window.innerWidth < 1024);
+                  setShowCalendar((c) => !c);
+                }}
                 title="Escolher outra data"
                 className={`w-10 shrink-0 rounded-[10px] border-[1.5px] flex items-center justify-center transition-all
                   ${
@@ -340,31 +358,49 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
             )}
 
             {/* Calendário */}
-            {showCalendar && (calMobile
-              /* Mobile/tablet — modal via portal (evita conflito com transforms) */
-              ? createPortal(
+            {showCalendar &&
+              (calMobile ? (
+                /* Mobile/tablet — modal via portal (evita conflito com transforms) */
+                createPortal(
                   <>
-                    <div className="fixed inset-0 z-[950] bg-black/70 animate-fadeIn"
-                      onClick={() => setShowCalendar(false)} />
-                    <div ref={calendarRef}
+                    <div
+                      className="fixed inset-0 z-[950] bg-black/70 animate-fadeIn"
+                      onClick={() => setShowCalendar(false)}
+                    />
+                    <div
+                      ref={calendarRef}
                       className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[960]
-                        bg-paper border border-line rounded-xl2 shadow-lift p-3 animate-fadeIn">
-                      <DayPicker mode="single" locale={pt} selected={selectedDateObj}
-                        onSelect={handleCalendarSelect} fromDate={tomorrow}
-                        disabled={[{ before: tomorrow }, { dayOfWeek: [0, 1] }]} />
+                        bg-paper border border-line rounded-xl2 shadow-lift p-3 animate-fadeIn"
+                    >
+                      <DayPicker
+                        mode="single"
+                        locale={pt}
+                        selected={selectedDateObj}
+                        onSelect={handleCalendarSelect}
+                        fromDate={tomorrow}
+                        disabled={[{ before: tomorrow }, { dayOfWeek: [0, 1] }]}
+                      />
                     </div>
                   </>,
-                  document.body
+                  document.body,
                 )
-              /* Desktop — dropdown absoluto */
-              : <div ref={calendarRef}
+              ) : (
+                /* Desktop — dropdown absoluto */
+                <div
+                  ref={calendarRef}
                   className="absolute top-full right-0 z-20 mt-1.5
-                    rounded-[10px] border border-line bg-paper shadow-lift p-2">
-                  <DayPicker mode="single" locale={pt} selected={selectedDateObj}
-                    onSelect={handleCalendarSelect} fromDate={tomorrow}
-                    disabled={[{ before: tomorrow }, { dayOfWeek: [0, 1] }]} />
+                    rounded-[10px] border border-line bg-paper shadow-lift p-2"
+                >
+                  <DayPicker
+                    mode="single"
+                    locale={pt}
+                    selected={selectedDateObj}
+                    onSelect={handleCalendarSelect}
+                    fromDate={tomorrow}
+                    disabled={[{ before: tomorrow }, { dayOfWeek: [0, 1] }]}
+                  />
                 </div>
-            )}
+              ))}
           </div>
 
           {/* Horas disponíveis — altura fixa para não saltar ao trocar datas */}
@@ -376,7 +412,9 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
                   Escolhe uma data primeiro.
                 </p>
               ) : loadingSlots ? (
-                <div className="flex justify-center py-4"><Spinner /></div>
+                <div className="flex justify-center py-4">
+                  <Spinner />
+                </div>
               ) : free.length === 0 ? (
                 <p className="text-ink-faint text-[13px] p-3.5 text-center bg-paper rounded-[10px]">
                   Sem horários disponíveis.
@@ -386,7 +424,10 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
                   {free.map((sl) => (
                     <button
                       key={sl}
-                      onClick={() => { setSlot(sl); setStep(3); }}
+                      onClick={() => {
+                        setSlot(sl);
+                        setStep(3);
+                      }}
                       className={`py-2.5 px-1 rounded-[10px] border-[1.5px] text-[13px] font-medium transition-all
                         ${slot === sl ? "bg-electric border-electric text-white" : "bg-paper border-line text-ink hover:border-line-strong"}`}
                     >
