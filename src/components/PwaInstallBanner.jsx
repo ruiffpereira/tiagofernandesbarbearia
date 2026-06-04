@@ -33,7 +33,7 @@ export default function PwaInstallBanner() {
   if (!visible || (!pwa.ready && !pwa.isIos)) return null
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-[9998] flex justify-center pointer-events-none">
+    <div className="fixed bottom-20 left-4 right-4 z-[9998] flex justify-center pointer-events-none lg:bottom-4">
       <div className="bg-navy text-cream rounded-2xl shadow-soft px-5 py-4 w-full max-w-sm pointer-events-auto">
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="" className="h-10 w-10 rounded-xl object-contain flex-shrink-0" />
