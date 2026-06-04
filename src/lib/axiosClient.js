@@ -20,9 +20,14 @@ function dispatchSessionExpired() {
   window.dispatchEvent(new CustomEvent('auth:session-expired'))
 }
 
+const AUTH_ENDPOINTS = ['/autentication/login', '/autentication/register']
+
 const responseErrorInterceptor = async (error) => {
   const original = error.config
-  if (error.response?.status === 401 && !original._retry) {
+  const isAuthEndpoint = AUTH_ENDPOINTS.some(e => original?.url?.includes(e))
+
+  // Não tenta refresh em endpoints de autenticação — 401 aí significa credenciais erradas
+  if (error.response?.status === 401 && !original._retry && !isAuthEndpoint) {
     const refreshToken = localStorage.getItem(REFRESH_KEY)
     if (!refreshToken) {
       dispatchSessionExpired()

@@ -211,7 +211,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
               <Spinner />
             </div>
           ) : (
-            <div className="flex flex-col gap-2 max-h-[46vh] overflow-y-auto pr-1">
+            <div className="flex flex-col gap-2 max-h-[calc(100dvh-26rem)] overflow-y-auto pr-1">
               {services
                 .filter((s) => s.active !== false)
                 .map((s) => {
@@ -370,7 +370,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
           {/* Horas disponíveis — altura fixa para não saltar ao trocar datas */}
           <div className="mt-3">
             <Label>Hora disponível</Label>
-            <div className="mt-2 md:h-[148px] md:overflow-y-auto">
+            <div className="mt-2 max-h-[calc(100dvh-34rem)] overflow-y-auto md:h-[148px] md:max-h-none">
               {!date ? (
                 <p className="text-ink-faint text-[13px] p-3.5 text-center">
                   Escolhe uma data primeiro.

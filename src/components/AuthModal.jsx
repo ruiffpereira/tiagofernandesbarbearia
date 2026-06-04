@@ -36,7 +36,19 @@ export default function AuthModal({ onClose, onSuccess }) {
       }
       onSuccess(u)
     } catch (e) {
-      setErr(e.message || 'Ocorreu um erro. Tenta novamente.')
+      const status = e?.response?.status
+      const serverMsg = e?.response?.data?.message
+      if (status === 401) {
+        setErr('Email ou palavra-passe incorretos.')
+      } else if (status === 409) {
+        setErr('Este email já está registado. Tenta entrar.')
+      } else if (status === 422) {
+        setErr(serverMsg || 'Dados inválidos. Verifica os campos.')
+      } else if (serverMsg) {
+        setErr(serverMsg)
+      } else {
+        setErr(e.message || 'Ocorreu um erro. Tenta novamente.')
+      }
     } finally {
       setLoading(false)
     }
