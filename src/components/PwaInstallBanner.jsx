@@ -52,7 +52,7 @@ export default function PwaInstallBanner() {
               aria-expanded={isIosOrNotReady ? hint : undefined}
               className="bg-maroon text-cream text-xs font-semibold px-3 py-1.5 rounded-lg"
             >
-              {pwa.ready && !pwa.isIos ? 'Instalar' : 'Como?'}
+              {pwa.isIos ? 'Como?' : 'Instalar'}
             </button>
             <button
               onClick={dismiss}
