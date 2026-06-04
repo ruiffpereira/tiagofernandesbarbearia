@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../AuthContext.jsx'
+import { profileFormSchema, firstZodError } from '../lib/formSchemas.ts'
 import {
   useGetBookingMyAppointments,
   getBookingMyAppointmentsQueryKey,
@@ -85,14 +86,13 @@ export default function DashboardPage({ user, onBook, onHome, onLogout }) {
     e.preventDefault()
     setEditErr('')
     setEditOk(false)
-    if (!editForm.name || !editForm.email || !editForm.phone) {
-      setEditErr('Nome, email e telemóvel são obrigatórios.')
-      return
-    }
-    if (editForm.nif && !/^\d{9}$/.test(editForm.nif)) {
-      setEditErr('NIF deve ter 9 dígitos.')
-      return
-    }
+    const r = profileFormSchema.safeParse({
+      name:  editForm.name,
+      email: editForm.email,
+      phone: editForm.phone,
+      nif:   editForm.nif || '',
+    })
+    if (!r.success) { setEditErr(firstZodError(r.error)); return }
     setEditLoading(true)
     try {
       await updateProfile({

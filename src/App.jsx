@@ -19,13 +19,27 @@ const PAGE_TITLES = {
 const TAGLINE =
   'Onde o cuidado tradicional encontra o estilo moderno. Marca já a tua próxima visita — em segundos, sem chamadas.'
 
+function getResetToken() {
+  const params = new URLSearchParams(window.location.search)
+  return params.get('token') || null
+}
+
 function Inner() {
   const { user, logout } = useAuth()
   const [view, setView] = useState('home')
   const [homeKey, setHomeKey] = useState(0)
   const [navLoading, setNavLoading] = useState(false)
   const [showAuth, setShowAuth] = useState(false)
+  const [resetToken, setResetToken] = useState(getResetToken)
   const [toast, setToast] = useState(null)
+
+  // Abre o modal de reset se vier token na URL, e limpa o param
+  useEffect(() => {
+    if (resetToken) {
+      setShowAuth(true)
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+  }, [])
 
   const goTo = useCallback((v) => {
     if (v === view) return
@@ -101,7 +115,13 @@ function Inner() {
       </div>
 
       <PwaInstallBanner />
-      {showAuth && <AuthModal onClose={() => setShowAuth(false)} onSuccess={handleLogin} />}
+      {showAuth && (
+        <AuthModal
+          onClose={() => { setShowAuth(false); setResetToken(null) }}
+          onSuccess={handleLogin}
+          resetToken={resetToken}
+        />
+      )}
 
       <div id="main-content" tabIndex={-1} className="outline-none">
         {view === 'home' && (

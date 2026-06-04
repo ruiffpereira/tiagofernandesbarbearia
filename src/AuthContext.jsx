@@ -6,6 +6,8 @@ import {
   usePostWebsitesCustomersAutenticationRegister,
   usePostWebsitesCustomersAutenticationLogout,
   usePutWebsitesCustomersAutenticationProfile,
+  usePostWebsitesCustomersAutenticationForgotPassword,
+  usePostWebsitesCustomersAutenticationResetPassword,
 } from './servers/customers/index.ts'
 
 const USER_ID = import.meta.env.VITE_BARBER_USER_ID
@@ -43,10 +45,12 @@ export function AuthProvider({ children }) {
     setUser(u)
   }
 
-  const loginM    = usePostWebsitesCustomersAutenticationLogin()
-  const registerM = usePostWebsitesCustomersAutenticationRegister()
-  const logoutM   = usePostWebsitesCustomersAutenticationLogout()
-  const updateM   = usePutWebsitesCustomersAutenticationProfile()
+  const loginM        = usePostWebsitesCustomersAutenticationLogin()
+  const registerM     = usePostWebsitesCustomersAutenticationRegister()
+  const logoutM       = usePostWebsitesCustomersAutenticationLogout()
+  const updateM       = usePutWebsitesCustomersAutenticationProfile()
+  const forgotM       = usePostWebsitesCustomersAutenticationForgotPassword()
+  const resetM        = usePostWebsitesCustomersAutenticationResetPassword()
 
   useEffect(() => {
     function onSessionExpired() {
@@ -99,8 +103,16 @@ export function AuthProvider({ children }) {
     return u
   }, [user, updateM])
 
+  const forgotPassword = useCallback(async (email) => {
+    await forgotM.mutateAsync({ data: { email, userId: USER_ID } })
+  }, [forgotM])
+
+  const resetPassword = useCallback(async (token, newPassword) => {
+    await resetM.mutateAsync({ data: { token, newPassword } })
+  }, [resetM])
+
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, updateProfile }}>
+    <AuthContext.Provider value={{ user, login, register, logout, updateProfile, forgotPassword, resetPassword }}>
       {children}
     </AuthContext.Provider>
   )

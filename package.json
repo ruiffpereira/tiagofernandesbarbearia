@@ -19,7 +19,8 @@
     "react": "^18.3.1",
     "react-day-picker": "^10.0.1",
     "react-dom": "^18.3.1",
-    "react-helmet-async": "^3.0.0"
+    "react-helmet-async": "^3.0.0",
+    "zod": "^4.4.3"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -33,6 +34,7 @@
     "@kubb/plugin-oas": "^4.37.0",
     "@kubb/plugin-react-query": "^4.37.0",
     "@kubb/plugin-ts": "^4.37.0",
+    "@kubb/plugin-zod": "4.37.0",
     "@types/node": "^25.9.1",
     "@types/react": "^18.3.29",
     "@types/react-dom": "^18.3.7",
