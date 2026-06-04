@@ -17,7 +17,7 @@
   /* Texto */
   --ink:       208 208 218; /* quase branco, ligeiro azul-frio           */
   --ink-soft:  136 136 150; /* médio, frio                               */
-  --ink-faint:  82  82  98; /* subtil, frio                              */
+  --ink-faint: 135 135 153; /* subtil, frio — mínimo 4.5:1 WCAG AA       */
 
   /* Primário — headings */
   --primary:    230 230 242; /* quase branco frio                        */
@@ -53,6 +53,40 @@ body {
   color: rgb(var(--ink));
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Anel de foco visível — acessibilidade teclado */
+:focus-visible {
+  outline: 2px solid rgb(var(--red));
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Skip link — oculto até receber foco */
+.skip-link {
+  position: absolute;
+  top: -60px;
+  left: 8px;
+  z-index: 99999;
+  padding: 8px 18px;
+  background: rgb(var(--red));
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  border-radius: 0 0 8px 8px;
+  text-decoration: none;
+  transition: top 0.15s ease;
+}
+.skip-link:focus { top: 0; }
+
+/* Respeitar preferência de movimento reduzido */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 ::-webkit-scrollbar { width: 6px; }

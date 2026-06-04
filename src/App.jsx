@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { Helmet } from 'react-helmet-async'
 import { AuthProvider, useAuth } from './AuthContext.jsx'
 import Navbar from './components/Navbar.jsx'
 import AuthModal from './components/AuthModal.jsx'
@@ -7,6 +8,13 @@ import GalleryPage from './pages/GalleryPage.jsx'
 import AboutPage from './pages/AboutPage.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
 import PwaInstallBanner from './components/PwaInstallBanner.jsx'
+
+const PAGE_TITLES = {
+  home:      'Barbearia Tiago Fernandes · Braga',
+  gallery:   'Galeria de Trabalhos · Barbearia Tiago Fernandes',
+  about:     'Sobre · Barbearia Tiago Fernandes',
+  dashboard: 'A minha conta · Barbearia Tiago Fernandes',
+}
 
 const TAGLINE =
   'Onde o cuidado tradicional encontra o estilo moderno. Marca já a tua próxima visita — em segundos, sem chamadas.'
@@ -56,8 +64,17 @@ function Inner() {
 
   return (
     <>
+      <Helmet>
+        <title>{PAGE_TITLES[view] ?? PAGE_TITLES.home}</title>
+      </Helmet>
+
+      {/* Skip link — utilizadores de teclado/leitor de ecrã */}
+      <a href="#main-content" className="skip-link">
+        Saltar para conteúdo principal
+      </a>
+
       {navLoading && (
-        <div className="fixed top-0 left-0 right-0 z-[9999] h-0.5 bg-maroon animate-pageLoad" />
+        <div className="fixed top-0 left-0 right-0 z-[9999] h-0.5 bg-maroon animate-pageLoad" aria-hidden="true" />
       )}
       <Navbar
         user={user}
@@ -68,35 +85,45 @@ function Inner() {
         onDashboard={() => goTo('dashboard')}
       />
 
-      {toast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-navy text-cream px-5 py-3 rounded-full
-          text-sm font-medium z-[9999] shadow-soft whitespace-nowrap animate-fadeUp">
-          {toast}
-        </div>
-      )}
+      {/* Região de notificações — anunciada por leitores de ecrã */}
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none"
+      >
+        {toast && (
+          <div className="bg-navy text-cream px-5 py-3 rounded-full
+            text-sm font-medium shadow-soft whitespace-nowrap animate-fadeUp pointer-events-auto">
+            {toast}
+          </div>
+        )}
+      </div>
 
       <PwaInstallBanner />
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} onSuccess={handleLogin} />}
 
-      {view === 'home' && (
-        <HomePage
-          key={homeKey}
-          user={user}
-          tagline={TAGLINE}
-          onRequireLogin={() => setShowAuth(true)}
-          onBooked={() => {}}
-        />
-      )}
-      {view === 'gallery' && <GalleryPage />}
-      {view === 'about' && <AboutPage />}
-      {view === 'dashboard' && user && (
-        <DashboardPage
-          user={user}
-          onBook={() => goTo('home')}
-          onHome={() => goTo('home')}
-          onLogout={handleLogout}
-        />
-      )}
+      <div id="main-content" tabIndex={-1} className="outline-none">
+        {view === 'home' && (
+          <HomePage
+            key={homeKey}
+            user={user}
+            tagline={TAGLINE}
+            onRequireLogin={() => setShowAuth(true)}
+            onBooked={() => {}}
+          />
+        )}
+        {view === 'gallery' && <GalleryPage />}
+        {view === 'about' && <AboutPage />}
+        {view === 'dashboard' && user && (
+          <DashboardPage
+            user={user}
+            onBook={() => goTo('home')}
+            onHome={() => goTo('home')}
+            onLogout={handleLogout}
+          />
+        )}
+      </div>
     </>
   )
 }

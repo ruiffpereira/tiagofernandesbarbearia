@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../AuthContext.jsx'
 import {
@@ -9,11 +9,12 @@ import {
 import BookingCard from '../components/BookingCard.jsx'
 import { Button, Spinner, Label, Input } from '../components/ui.jsx'
 
+const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
 export default function DashboardPage({ user, onBook, onHome, onLogout }) {
   const { user: authUser, updateProfile } = useAuth()
   const qc = useQueryClient()
 
-  // staleTime: 0 + refetchOnMount: 'always' garante dados frescos sempre que se navega para cá
   const { data: upcoming = [], isLoading: loadingUp } = useGetBookingMyAppointments(
     { status: 'upcoming' },
     { query: { enabled: !!authUser, staleTime: 0, refetchOnMount: 'always' } }
@@ -34,6 +35,40 @@ export default function DashboardPage({ user, onBook, onHome, onLogout }) {
   const [editLoading, setEditLoading] = useState(false)
   const [editErr, setEditErr] = useState('')
   const [editOk, setEditOk] = useState(false)
+
+  const cancelDialogRef = useRef(null)
+  const cancelTriggerRef = useRef(null)
+
+  // Gestão de foco no modal de cancelamento
+  useEffect(() => {
+    if (!cancelId) return
+    const el = cancelDialogRef.current
+    if (!el) return
+
+    const prev = document.activeElement
+    const focusable = el.querySelectorAll(FOCUSABLE)
+    if (focusable.length) focusable[0].focus()
+
+    function trapFocus(e) {
+      if (e.key === 'Escape') { setCancelId(null); return }
+      if (e.key !== 'Tab') return
+      const els = Array.from(el.querySelectorAll(FOCUSABLE))
+      if (!els.length) return
+      const first = els[0]
+      const last = els[els.length - 1]
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus() }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first.focus() }
+      }
+    }
+
+    document.addEventListener('keydown', trapFocus)
+    return () => {
+      document.removeEventListener('keydown', trapFocus)
+      prev?.focus()
+    }
+  }, [cancelId])
 
   const cancelM = usePatchBookingAppointmentCancel({
     mutation: {
@@ -83,11 +118,15 @@ export default function DashboardPage({ user, onBook, onHome, onLogout }) {
   ]
 
   return (
-    <main className="min-h-[calc(100vh-64px)]">
-      <div className="bg-cream-dark border-b border-line px-5 sm:px-10 lg:px-16 py-7">
+    <main aria-label="A minha conta" className="min-h-[calc(100vh-64px)]">
+      <header className="bg-cream-dark border-b border-line px-5 sm:px-10 lg:px-16 py-7">
         <div className="max-w-4xl mx-auto">
-          <button onClick={onHome} className="text-ink-faint text-[13px] font-medium mb-3.5 inline-flex items-center gap-1.5">
-            ← Página inicial
+          <button
+            onClick={onHome}
+            aria-label="Voltar à página inicial"
+            className="text-ink-faint text-[13px] font-medium mb-3.5 inline-flex items-center gap-1.5"
+          >
+            <span aria-hidden="true">←</span> Página inicial
           </button>
           <div className="flex justify-between items-end flex-wrap gap-4">
             <div>
@@ -102,38 +141,38 @@ export default function DashboardPage({ user, onBook, onHome, onLogout }) {
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
       <div className="max-w-4xl mx-auto px-5 sm:px-10 lg:px-16 py-7 lg:py-10">
 
         {/* Próximas marcações */}
-        <section className="mb-10">
+        <section aria-labelledby="upcoming-heading" className="mb-10">
           <div className="flex items-center gap-2.5 mb-1.5">
-            <h2 className="text-xl font-bold text-navy">Próximas marcações</h2>
+            <h2 id="upcoming-heading" className="text-xl font-bold text-navy">Próximas marcações</h2>
             {upcoming.length > 0 && (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold
+              <span aria-label={`${upcoming.length} marcações`} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold
                 tracking-wider uppercase bg-emerald-500/15 text-emerald-600">{upcoming.length}</span>
             )}
           </div>
-          <p className="text-ink-faint text-[13px] mb-4">
+          <p className="text-ink-faint text-[13px] mb-4" aria-live="polite">
             {upcoming.length === 0 && !loadingUp ? 'Nenhuma agendada.' : 'Podes cancelar até à data.'}
           </p>
 
           {loadingUp ? (
-            <div className="flex justify-center py-8"><Spinner /></div>
+            <div className="flex justify-center py-8" aria-label="A carregar marcações…" role="status"><Spinner /></div>
           ) : upcoming.length === 0 ? (
             <div className="bg-paper border-[1.5px] border-dashed border-line-strong rounded-xl2 py-10 px-6 text-center">
-              <div className="text-3xl mb-2.5 opacity-40">📅</div>
+              <div aria-hidden="true" className="text-3xl mb-2.5 opacity-40">📅</div>
               <p className="text-ink-faint mb-4 text-sm">Sem marcações</p>
               <Button variant="primary" size="sm" onClick={onBook}>Marcar agora</Button>
             </div>
           ) : (
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col gap-2.5" role="list" aria-label="Próximas marcações">
               {upcoming.map((b) => (
                 <BookingCard
                   key={b.appointmentId}
                   booking={normalise(b)}
-                  onCancel={() => setCancelId(b.cancelToken)}
+                  onCancel={() => { cancelTriggerRef.current = document.activeElement; setCancelId(b.cancelToken) }}
                 />
               ))}
             </div>
@@ -142,14 +181,14 @@ export default function DashboardPage({ user, onBook, onHome, onLogout }) {
 
         {/* Histórico */}
         {(past.length > 0 || loadingPast) && (
-          <section className="mb-10">
-            <h2 className="text-xl font-bold text-navy mb-1.5">Histórico</h2>
+          <section aria-labelledby="history-heading" className="mb-10">
+            <h2 id="history-heading" className="text-xl font-bold text-navy mb-1.5">Histórico</h2>
             {loadingPast ? (
-              <div className="flex justify-center py-4"><Spinner /></div>
+              <div className="flex justify-center py-4" aria-label="A carregar histórico…" role="status"><Spinner /></div>
             ) : (
               <>
                 <p className="text-ink-faint text-[13px] mb-4">{past.length} marcação(ões)</p>
-                <div className="flex flex-col gap-2.5">
+                <div className="flex flex-col gap-2.5" role="list" aria-label="Histórico de marcações">
                   {past.map((b) => <BookingCard key={b.appointmentId} booking={normalise(b)} isPast />)}
                 </div>
               </>
@@ -158,74 +197,149 @@ export default function DashboardPage({ user, onBook, onHome, onLogout }) {
         )}
 
         {/* Dados da conta */}
-        <section className="bg-paper border border-line rounded-xl2 p-6">
+        <section aria-labelledby="account-heading" className="bg-paper border border-line rounded-xl2 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-[17px] font-bold text-navy">Dados da conta</h3>
-            <Button variant="ghost" size="sm" onClick={() => { setEditing(!editing); setEditErr(''); setEditOk(false) }}>
+            <h2 id="account-heading" className="text-[17px] font-bold text-navy">Dados da conta</h2>
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-expanded={editing}
+              onClick={() => { setEditing(!editing); setEditErr(''); setEditOk(false) }}
+            >
               {editing ? 'Cancelar' : 'Editar'}
             </Button>
           </div>
 
           {editOk && !editing && (
-            <div className="mb-4 px-3.5 py-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-[10px] text-emerald-400 text-[13px]">
+            <div
+              role="status"
+              aria-live="polite"
+              className="mb-4 px-3.5 py-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-[10px] text-emerald-400 text-[13px]"
+            >
               Perfil actualizado com sucesso.
             </div>
           )}
 
           {editing ? (
-            <form onSubmit={handleUpdateProfile} className="flex flex-col gap-3.5">
+            <form
+              onSubmit={handleUpdateProfile}
+              className="flex flex-col gap-3.5"
+              noValidate
+              aria-describedby={editErr ? 'edit-error' : undefined}
+            >
               <div className="grid sm:grid-cols-2 gap-3.5">
                 <div className="flex flex-col gap-1.5">
-                  <Label>Nome *</Label>
-                  <Input value={editForm.name} onChange={(e) => setEditForm(f => ({ ...f, name: e.target.value }))} />
+                  <Label htmlFor="edit-name">Nome *</Label>
+                  <Input
+                    id="edit-name"
+                    value={editForm.name}
+                    onChange={(e) => setEditForm(f => ({ ...f, name: e.target.value }))}
+                    aria-required="true"
+                    autoComplete="name"
+                  />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label>Email *</Label>
-                  <Input type="email" value={editForm.email} onChange={(e) => setEditForm(f => ({ ...f, email: e.target.value }))} />
+                  <Label htmlFor="edit-email">Email *</Label>
+                  <Input
+                    id="edit-email"
+                    type="email"
+                    value={editForm.email}
+                    onChange={(e) => setEditForm(f => ({ ...f, email: e.target.value }))}
+                    aria-required="true"
+                    autoComplete="email"
+                  />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label>Telemóvel *</Label>
-                  <Input type="tel" placeholder="+351 9XX XXX XXX" value={editForm.phone} onChange={(e) => setEditForm(f => ({ ...f, phone: e.target.value }))} />
+                  <Label htmlFor="edit-phone">Telemóvel *</Label>
+                  <Input
+                    id="edit-phone"
+                    type="tel"
+                    placeholder="+351 9XX XXX XXX"
+                    value={editForm.phone}
+                    onChange={(e) => setEditForm(f => ({ ...f, phone: e.target.value }))}
+                    aria-required="true"
+                    autoComplete="tel"
+                  />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label>NIF</Label>
-                  <Input placeholder="000000000" maxLength={9} value={editForm.nif} onChange={(e) => setEditForm(f => ({ ...f, nif: e.target.value.replace(/\D/g, '') }))} />
+                  <Label htmlFor="edit-nif">NIF</Label>
+                  <Input
+                    id="edit-nif"
+                    placeholder="000000000"
+                    maxLength={9}
+                    value={editForm.nif}
+                    onChange={(e) => setEditForm(f => ({ ...f, nif: e.target.value.replace(/\D/g, '') }))}
+                    inputMode="numeric"
+                  />
                 </div>
               </div>
               {editErr && (
-                <div className="bg-maroon/[0.08] border border-maroon/25 rounded-[10px] px-3.5 py-2.5 text-maroon text-[13px]">
+                <div
+                  id="edit-error"
+                  role="alert"
+                  aria-live="assertive"
+                  className="bg-maroon/[0.08] border border-maroon/25 rounded-[10px] px-3.5 py-2.5 text-maroon text-[13px]"
+                >
                   {editErr}
                 </div>
               )}
-              <Button variant="primary" type="submit" disabled={editLoading} className="self-start">
-                {editLoading ? <Spinner /> : 'Guardar alterações'}
+              <Button
+                variant="primary"
+                type="submit"
+                disabled={editLoading}
+                aria-disabled={editLoading}
+                aria-busy={editLoading}
+                className="self-start"
+              >
+                {editLoading ? <><Spinner /> A guardar…</> : 'Guardar alterações'}
               </Button>
             </form>
           ) : (
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-3.5">
+            <dl className="grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-3.5">
               {account.map(([k, v]) => (
                 <div key={k} className="bg-paper rounded-[10px] px-3.5 py-3 border border-line">
-                  <p className="text-ink-faint text-[10px] font-bold tracking-wider uppercase mb-1">{k}</p>
-                  <p className="text-ink text-sm font-medium break-all">{v}</p>
+                  <dt className="text-ink-faint text-[10px] font-bold tracking-wider uppercase mb-1">{k}</dt>
+                  <dd className="text-ink text-sm font-medium break-all">{v}</dd>
                 </div>
               ))}
-            </div>
+            </dl>
           )}
         </section>
       </div>
 
       {/* Modal de confirmação de cancelamento */}
       {cancelId && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9000] p-4">
-          <div className="bg-paper rounded-2xl p-6 max-w-sm w-full shadow-lift border border-line">
-            <h3 className="text-lg font-bold text-navy mb-2">Cancelar marcação</h3>
-            <p className="text-ink-soft text-sm leading-relaxed mb-5">Tens a certeza? Esta ação não pode ser revertida.</p>
+        <div
+          className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9000] p-4"
+          onClick={() => setCancelId(null)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cancel-dialog-title"
+            ref={cancelDialogRef}
+            className="bg-paper rounded-2xl p-6 max-w-sm w-full shadow-lift border border-line"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 id="cancel-dialog-title" className="text-lg font-bold text-navy mb-2">Cancelar marcação</h3>
+            <p className="text-ink-soft text-sm leading-relaxed mb-5" id="cancel-dialog-desc">
+              Tens a certeza? Esta ação não pode ser revertida.
+            </p>
             <div className="flex gap-2">
-              <Button variant="danger" className="flex-1" disabled={cancelM.isPending}
-                onClick={() => cancelM.mutate({ cancelToken: cancelId })}>
-                {cancelM.isPending ? <Spinner /> : 'Sim, cancelar'}
+              <Button
+                variant="danger"
+                className="flex-1"
+                disabled={cancelM.isPending}
+                aria-disabled={cancelM.isPending}
+                aria-busy={cancelM.isPending}
+                aria-describedby="cancel-dialog-desc"
+                onClick={() => cancelM.mutate({ cancelToken: cancelId })}
+              >
+                {cancelM.isPending ? <><Spinner /> A cancelar…</> : 'Sim, cancelar'}
               </Button>
-              <Button variant="surface" className="flex-1" onClick={() => setCancelId(null)}>Voltar</Button>
+              <Button variant="surface" className="flex-1" onClick={() => setCancelId(null)}>
+                Voltar
+              </Button>
             </div>
           </div>
         </div>

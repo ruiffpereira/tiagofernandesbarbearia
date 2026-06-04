@@ -9,6 +9,8 @@ const PinIcon = () => (
     fill="none"
     stroke="currentColor"
     strokeWidth="2.5"
+    aria-hidden="true"
+    focusable="false"
   >
     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
     <circle cx="12" cy="10" r="3" />
@@ -22,6 +24,8 @@ const ClockIcon = () => (
     fill="none"
     stroke="currentColor"
     strokeWidth="2.5"
+    aria-hidden="true"
+    focusable="false"
   >
     <circle cx="12" cy="12" r="10" />
     <polyline points="12 6 12 12 16 14" />
@@ -35,6 +39,8 @@ const PhoneIcon = () => (
     fill="none"
     stroke="currentColor"
     strokeWidth="2.5"
+    aria-hidden="true"
+    focusable="false"
   >
     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.33 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" />
   </svg>
@@ -52,29 +58,33 @@ const SOCIAL_PATHS = {
 export default function HomePage({ user, tagline, onRequireLogin, onBooked }) {
   return (
     <main>
-      <section className="grid lg:grid-cols-[1.1fr_1fr] min-h-[calc(100vh-64px)]">
+      <section
+        aria-label="Apresentação e marcação"
+        className="grid lg:grid-cols-[1.1fr_1fr] min-h-[calc(100vh-64px)]"
+      >
         {/* ESQUERDA — marca / info. Em mobile vai para baixo (order-2) */}
         <div
-          className="order-2 justify-center lg:order-1 relative flex flex-col 
+          className="order-2 justify-center lg:order-1 relative flex flex-col
           px-6 sm:px-10 lg:px-16 py-10 lg:py-0 bg-cream"
         >
           <div
-            aria-hidden
+            aria-hidden="true"
             className="absolute inset-0 dot-grid pointer-events-none"
           />
           <div className="relative max-w-[520px] self-center">
-            <span
+            <p
+              aria-label="A aceitar marcações em Braga"
               className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-maroon/[0.1] border border-maroon/25
               rounded-full text-xs font-semibold text-maroon tracking-wide animate-fadeUp"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-maroon" />A aceitar
-              marcações · Braga
-            </span>
+              <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-maroon" />
+              A aceitar marcações · Braga
+            </p>
 
             <div className="flex items-center gap-4 mt-6 mb-4 animate-fadeUp [animation-delay:.05s]">
               <img
                 src="/logo.png"
-                alt="Logo"
+                alt="Barbearia Tiago Fernandes — logótipo"
                 className="h-20 w-20 object-contain shrink-0"
               />
               <h1 className="text-[clamp(30px,4.5vw,52px)] font-extrabold leading-[1.02] tracking-tight text-navy">
@@ -94,16 +104,16 @@ export default function HomePage({ user, tagline, onRequireLogin, onBooked }) {
             </p>
 
             {/* Cartão contacto / horário */}
-            <div className="bg-paper border border-line rounded-xl2 p-5 shadow-soft animate-fadeUp [animation-delay:.25s]">
+            <address className="not-italic bg-paper border border-line rounded-xl2 p-5 shadow-soft animate-fadeUp [animation-delay:.25s]">
               <div className="flex items-center gap-2 mb-3.5">
-                <span className="inline-block w-8 h-0.5 bg-navy rounded-full" />
+                <span aria-hidden="true" className="inline-block w-8 h-0.5 bg-navy rounded-full" />
                 <span className="text-[11px] font-bold tracking-[0.1em] uppercase text-navy">
-                  Contacto & Horário
+                  Contacto &amp; Horário
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-3.5 mb-4">
                 <div>
-                  <div className="flex items-center gap-1.5 text-ink-faint text-[11px] font-semibold tracking-wider uppercase mb-1">
+                  <div aria-hidden="true" className="flex items-center gap-1.5 text-ink-faint text-[11px] font-semibold tracking-wider uppercase mb-1">
                     <PinIcon /> Morada
                   </div>
                   <p className="text-sm text-ink font-medium leading-snug">
@@ -113,30 +123,32 @@ export default function HomePage({ user, tagline, onRequireLogin, onBooked }) {
                   </p>
                 </div>
                 <div>
-                  <div className="flex items-center gap-1.5 text-ink-faint text-[11px] font-semibold tracking-wider uppercase mb-1">
+                  <div aria-hidden="true" className="flex items-center gap-1.5 text-ink-faint text-[11px] font-semibold tracking-wider uppercase mb-1">
                     <ClockIcon /> Horário
                   </div>
                   <p className="text-sm text-ink font-medium leading-snug">
-                    Ter–Sáb
+                    <time>Ter–Sáb</time>
                     <br />
-                    9h–12h · 13h–19h
+                    <time>9h–12h</time> · <time>13h–19h</time>
                   </p>
                 </div>
               </div>
-              <div className="h-px bg-line mb-4" />
+              <div aria-hidden="true" className="h-px bg-line mb-4" />
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <a
                   href={`tel:${BUSINESS.phoneHref}`}
+                  aria-label={`Ligar para ${BUSINESS.phone}`}
                   className="flex items-center gap-1.5 text-navy font-semibold text-sm"
                 >
                   <PhoneIcon /> {BUSINESS.phone}
                 </a>
-                <div className="flex gap-1.5">
+                <div className="flex gap-1.5" role="list" aria-label="Redes sociais">
                   {Object.entries(SOCIAL_PATHS).map(([name, d]) => (
                     <a
                       key={name}
+                      role="listitem"
                       href={BUSINESS.socials[name.toLowerCase()] || "#"}
-                      title={name}
+                      aria-label={`${name} da Barbearia Tiago Fernandes`}
                       className="w-8 h-8 rounded-lg bg-cream-dark text-navy flex items-center justify-center
                         transition-colors hover:bg-navy hover:text-cream"
                     >
@@ -145,6 +157,8 @@ export default function HomePage({ user, tagline, onRequireLogin, onBooked }) {
                         height="14"
                         viewBox="0 0 24 24"
                         fill="currentColor"
+                        aria-hidden="true"
+                        focusable="false"
                       >
                         <path d={d} />
                       </svg>
@@ -152,25 +166,26 @@ export default function HomePage({ user, tagline, onRequireLogin, onBooked }) {
                   ))}
                 </div>
               </div>
-            </div>
+            </address>
 
             {/* Stats rápidos */}
-            <div className="flex gap-8 mt-8 animate-fadeUp [animation-delay:.35s]">
+            <dl className="flex gap-8 mt-8 animate-fadeUp [animation-delay:.35s]">
               {[
-                ["7+", "Anos"],
-                ["2k+", "Clientes"],
-                ["5.0", "★ Reviews"],
+                ["7+", "Anos de experiência"],
+                ["2k+", "Clientes satisfeitos"],
+                ["5.0", "Estrelas em reviews"],
               ].map(([n, l]) => (
                 <div key={l}>
-                  <div className="text-2xl font-extrabold text-navy tracking-tight">
+                  <dt className="sr-only">{l}</dt>
+                  <dd className="text-2xl font-extrabold text-navy tracking-tight" aria-label={`${n} ${l}`}>
                     {n}
-                  </div>
-                  <div className="text-[11px] text-ink-faint font-semibold tracking-wider uppercase mt-0.5">
-                    {l}
-                  </div>
+                    <span aria-hidden="true" className="block text-[11px] text-ink-faint font-semibold tracking-wider uppercase mt-0.5">
+                      {l.split(' ')[0]}
+                    </span>
+                  </dd>
                 </div>
               ))}
-            </div>
+            </dl>
           </div>
         </div>
 
@@ -185,8 +200,8 @@ export default function HomePage({ user, tagline, onRequireLogin, onBooked }) {
           >
             <div className="mb-4">
               <div className="flex items-center gap-2 mb-1.5">
-                <span className="inline-block w-8 h-0.5 bg-maroon rounded-full" />
-                <span className="text-[11px] font-bold tracking-[0.1em] uppercase text-maroon">
+                <span aria-hidden="true" className="inline-block w-8 h-0.5 bg-maroon rounded-full" />
+                <span aria-hidden="true" className="text-[11px] font-bold tracking-[0.1em] uppercase text-maroon">
                   Marcar
                 </span>
               </div>
