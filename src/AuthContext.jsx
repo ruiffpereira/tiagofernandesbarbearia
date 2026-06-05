@@ -12,10 +12,6 @@ import {
 
 const USER_ID = import.meta.env.VITE_BARBER_USER_ID
 
-async function hashPassword(raw, salt) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw + salt))
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('')
-}
 
 const AuthContext = createContext(null)
 
@@ -62,9 +58,8 @@ export function AuthProvider({ children }) {
   }, [])
 
   const login = useCallback(async (email, password) => {
-    const pw = await hashPassword(password, email)
     const data = await loginM.mutateAsync({
-      data: { userId: USER_ID, provider: 'credentials', email, password: pw },
+      data: { userId: USER_ID, provider: 'credentials', email, password },
     })
     tokenStore.save(data.accessToken, data.refreshToken)
     const u = toUser(data)
@@ -73,13 +68,12 @@ export function AuthProvider({ children }) {
   }, [loginM])
 
   const register = useCallback(async (name, email, phone, password) => {
-    const pw = await hashPassword(password, email)
     await registerM.mutateAsync({
-      data: { userId: USER_ID, name, email, contact: phone, password: pw },
+      data: { userId: USER_ID, name, email, contact: phone, password },
     })
     // register returns 201 — auto-login a seguir
     const data = await loginM.mutateAsync({
-      data: { userId: USER_ID, provider: 'credentials', email, password: pw },
+      data: { userId: USER_ID, provider: 'credentials', email, password },
     })
     tokenStore.save(data.accessToken, data.refreshToken)
     const u = toUser(data)

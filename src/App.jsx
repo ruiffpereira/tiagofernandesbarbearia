@@ -7,6 +7,7 @@ import HomePage from './pages/HomePage.jsx'
 import GalleryPage from './pages/GalleryPage.jsx'
 import AboutPage from './pages/AboutPage.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
+import CancelPage from './pages/CancelPage.jsx'
 import PwaInstallBanner from './components/PwaInstallBanner.jsx'
 
 const PAGE_TITLES = {
@@ -22,6 +23,11 @@ const TAGLINE =
 function getResetToken() {
   const params = new URLSearchParams(window.location.search)
   return params.get('token') || null
+}
+
+function getCancelToken() {
+  const match = window.location.pathname.match(/^\/cancelar\/([^/]+)/)
+  return match ? match[1] : null
 }
 
 function Inner() {
@@ -149,6 +155,10 @@ function Inner() {
 }
 
 export default function App() {
+  const cancelToken = getCancelToken()
+  if (cancelToken) {
+    return <CancelPage cancelToken={cancelToken} />
+  }
   return (
     <AuthProvider>
       <Inner />
