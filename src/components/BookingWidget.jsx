@@ -222,6 +222,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
             <div className="flex flex-col gap-2 max-h-[calc(100dvh-26rem)] overflow-y-auto pr-1">
               {services
                 .filter((s) => s.active !== false)
+                .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
                 .map((s) => {
                   const active = svc?.serviceId === s.serviceId;
                   return (
