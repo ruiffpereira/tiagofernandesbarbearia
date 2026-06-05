@@ -1,3 +1,5 @@
+import { useOutletContext } from 'react-router-dom'
+import { useAuth } from '../AuthContext.jsx'
 import { BUSINESS } from "../data.js";
 import BookingWidget from "../components/BookingWidget.jsx";
 
@@ -55,7 +57,9 @@ const SOCIAL_PATHS = {
     "M17.47 14.38c-.25-.13-1.51-.74-1.74-.83-.23-.09-.4-.13-.57.13-.17.25-.66.83-.81 1-.15.17-.3.19-.55.06-.25-.13-1.06-.39-2.02-1.24-.75-.66-1.25-1.49-1.4-1.74-.15-.25-.02-.39.11-.51.11-.11.25-.3.38-.45.13-.15.17-.25.25-.42.08-.17.04-.32-.02-.45-.06-.13-.57-1.36-.78-1.86-.21-.49-.41-.42-.57-.43-.15-.01-.32-.01-.49-.01s-.45.06-.69.32c-.23.25-.9.88-.9 2.15s.92 2.49 1.05 2.66c.13.17 1.81 2.77 4.39 3.88.61.26 1.09.42 1.46.54.61.19 1.17.17 1.61.1.49-.07 1.51-.62 1.72-1.21.21-.59.21-1.1.15-1.21-.06-.11-.23-.17-.48-.3zM12 2a10 10 0 0 0-8.6 15.06L2 22l5.04-1.32A10 10 0 1 0 12 2z",
 };
 
-export default function HomePage({ user, tagline, onRequireLogin, onBooked }) {
+export default function HomePage({ tagline }) {
+  const { user } = useAuth()
+  const { onRequireLogin } = useOutletContext()
   return (
     <main>
       <section
@@ -214,7 +218,7 @@ export default function HomePage({ user, tagline, onRequireLogin, onBooked }) {
             <BookingWidget
               user={user}
               onRequireLogin={onRequireLogin}
-              onBooked={onBooked}
+              onBooked={() => {}}
             />
           </div>
         </div>

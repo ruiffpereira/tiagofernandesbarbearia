@@ -20,6 +20,7 @@
     "react-day-picker": "^10.0.1",
     "react-dom": "^18.3.1",
     "react-helmet-async": "^3.0.0",
+    "react-router-dom": "^7.17.0",
     "zod": "^4.4.3"
   },
   "pnpm": {

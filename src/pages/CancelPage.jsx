@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { useGetBookingAppointmentByToken } from '../servers/booking/hooks/useGetBookingAppointmentByToken.ts'
 import { usePatchBookingAppointmentCancel } from '../servers/booking/hooks/usePatchBookingAppointmentCancel.ts'
 import { Button, Spinner } from '../components/ui.jsx'
@@ -11,7 +12,8 @@ const STATUS_LABEL = {
   cancelled: 'Cancelada',
 }
 
-export default function CancelPage({ cancelToken }) {
+export default function CancelPage() {
+  const { token: cancelToken } = useParams()
   const [done, setDone] = useState(false)
 
   const { data: appt, isLoading, isError } = useGetBookingAppointmentByToken(cancelToken)

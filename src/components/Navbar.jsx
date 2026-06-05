@@ -1,22 +1,20 @@
 import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "./ui.jsx";
 import { usePwaInstall } from "../hooks/usePwaInstall.js";
 
 const NAV = [
-  { label: "Início", key: "home", icon: HomeIcon },
-  { label: "Trabalhos", key: "gallery", icon: GridIcon },
-  { label: "Sobre", key: "about", icon: InfoIcon },
+  { label: "Início", path: "/", icon: HomeIcon },
+  { label: "Trabalhos", path: "/galeria", icon: GridIcon },
+  { label: "Sobre", path: "/sobre", icon: InfoIcon },
 ];
 
-export default function Navbar({
-  user,
-  view,
-  setView,
-  onLogin,
-  onLogout,
-  onDashboard,
-}) {
-  const go = (key) => setView(key);
+export default function Navbar({ user, onLogin, onLogout }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const go = (path) => navigate(path);
+  const isActive = (path) =>
+    path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
   const pwa = usePwaInstall();
   const [showIosHint, setShowIosHint] = useState(false);
 
@@ -39,12 +37,12 @@ export default function Navbar({
       <nav
         aria-label="Navegação principal"
         className="lg:sticky lg:top-0 z-[900] h-16
-        bg-cream-dark lg:bg-cream lg:border-b lg:border-line
+        bg-cream-dark border-b border-line-strong
         px-4 sm:px-6 lg:px-10 flex items-center justify-between"
       >
         {/* Logo */}
         <button
-          onClick={() => go("home")}
+          onClick={() => go("/")}
           aria-label="Barbearia Tiago Fernandes — página inicial"
           className="flex items-center gap-2.5"
         >
@@ -64,27 +62,27 @@ export default function Navbar({
 
         {/* Desktop nav */}
         <div className="hidden lg:flex items-center gap-7" role="list">
-          {NAV.map(({ label, key }) => (
+          {NAV.map(({ label, path }) => (
             <button
-              key={key}
+              key={path}
               role="listitem"
-              onClick={() => go(key)}
-              aria-current={view === key ? "page" : undefined}
+              onClick={() => go(path)}
+              aria-current={isActive(path) ? "page" : undefined}
               className={`relative text-sm py-1.5 transition-colors ${
-                view === key
+                isActive(path)
                   ? "text-electric font-semibold"
                   : "text-ink-soft font-medium hover:text-navy"
               }`}
             >
               {label}
-              {view === key && (
+              {isActive(path) && (
                 <span aria-hidden="true" className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-electric rounded-full" />
               )}
             </button>
           ))}
           {user ? (
             <div className="flex gap-2">
-              <Button variant="ghost" size="sm" onClick={onDashboard} aria-current={view === "dashboard" ? "page" : undefined}>
+              <Button variant="ghost" size="sm" onClick={() => go("/dashboard")} aria-current={isActive("/dashboard") ? "page" : undefined}>
                 Conta
               </Button>
               <Button variant="surface" size="sm" onClick={onLogout}>
@@ -102,13 +100,13 @@ export default function Navbar({
         <div className="lg:hidden">
           {user ? (
             <button
-              onClick={onDashboard}
+              onClick={() => go("/dashboard")}
               aria-label="A minha conta"
-              aria-current={view === "dashboard" ? "page" : undefined}
+              aria-current={isActive("/dashboard") ? "page" : undefined}
               className={`flex flex-col items-center gap-0.5 p-2 rounded-lg transition-colors
-                ${view === "dashboard" ? "text-electric" : "text-ink-soft"}`}
+                ${isActive("/dashboard") ? "text-electric" : "text-ink-soft"}`}
             >
-              <UserIcon size={22} active={view === "dashboard"} />
+              <UserIcon size={22} active={isActive("/dashboard")} />
             </button>
           ) : (
             <button
@@ -128,16 +126,16 @@ export default function Navbar({
         className="lg:hidden fixed bottom-0 left-0 right-0 z-[900] h-16
         bg-cream-dark border-t border-line flex items-center justify-around px-2 safe-area-inset-bottom"
       >
-        {NAV.map(({ label, key, icon: Icon }) => (
+        {NAV.map(({ label, path, icon: Icon }) => (
           <button
-            key={key}
-            onClick={() => go(key)}
-            aria-current={view === key ? "page" : undefined}
+            key={path}
+            onClick={() => go(path)}
+            aria-current={isActive(path) ? "page" : undefined}
             aria-label={label}
             className={`flex flex-col items-center gap-1 ${itemPad} py-2 rounded-xl transition-colors
-              ${view === key ? "text-electric" : "text-ink-faint"}`}
+              ${isActive(path) ? "text-electric" : "text-ink-faint"}`}
           >
-            <Icon size={22} active={view === key} aria-hidden="true" />
+            <Icon size={22} active={isActive(path)} aria-hidden="true" />
             <span className="text-[10px] font-semibold tracking-wide" aria-hidden="true">
               {label}
             </span>
@@ -147,13 +145,13 @@ export default function Navbar({
         {/* Conta / Entrar */}
         {user ? (
           <button
-            onClick={onDashboard}
-            aria-current={view === "dashboard" ? "page" : undefined}
+            onClick={() => go("/dashboard")}
+            aria-current={isActive("/dashboard") ? "page" : undefined}
             aria-label="A minha conta"
             className={`flex flex-col items-center gap-1 ${itemPad} py-2 rounded-xl transition-colors
-              ${view === "dashboard" ? "text-electric" : "text-ink-faint"}`}
+              ${isActive("/dashboard") ? "text-electric" : "text-ink-faint"}`}
           >
-            <UserIcon size={22} active={view === "dashboard"} aria-hidden="true" />
+            <UserIcon size={22} active={isActive("/dashboard")} aria-hidden="true" />
             <span className="text-[10px] font-semibold tracking-wide" aria-hidden="true">
               Conta
             </span>

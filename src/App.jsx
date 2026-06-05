@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
+import { Routes, Route, Navigate, Outlet, useNavigate } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { AuthProvider, useAuth } from './AuthContext.jsx'
 import Navbar from './components/Navbar.jsx'
@@ -11,35 +12,24 @@ import CancelPage from './pages/CancelPage.jsx'
 import PwaInstallBanner from './components/PwaInstallBanner.jsx'
 
 const PAGE_TITLES = {
-  home:      'Barbearia Tiago Fernandes · Braga',
-  gallery:   'Galeria de Trabalhos · Barbearia Tiago Fernandes',
-  about:     'Sobre · Barbearia Tiago Fernandes',
-  dashboard: 'A minha conta · Barbearia Tiago Fernandes',
+  '/':          'Barbearia Tiago Fernandes · Braga',
+  '/galeria':   'Galeria de Trabalhos · Barbearia Tiago Fernandes',
+  '/sobre':     'Sobre · Barbearia Tiago Fernandes',
+  '/dashboard': 'A minha conta · Barbearia Tiago Fernandes',
 }
 
 const TAGLINE =
   'Onde o cuidado tradicional encontra o estilo moderno. Marca já a tua próxima visita — em segundos, sem chamadas.'
 
-function getResetToken() {
-  const params = new URLSearchParams(window.location.search)
-  return params.get('token') || null
-}
-
-function getCancelToken() {
-  const match = window.location.pathname.match(/^\/cancelar\/([^/]+)/)
-  return match ? match[1] : null
-}
-
-function Inner() {
+function Layout() {
   const { user, logout } = useAuth()
-  const [view, setView] = useState('home')
-  const [homeKey, setHomeKey] = useState(0)
-  const [navLoading, setNavLoading] = useState(false)
+  const navigate = useNavigate()
   const [showAuth, setShowAuth] = useState(false)
-  const [resetToken, setResetToken] = useState(getResetToken)
+  const [resetToken, setResetToken] = useState(
+    () => new URLSearchParams(window.location.search).get('token')
+  )
   const [toast, setToast] = useState(null)
 
-  // Abre o modal de reset se vier token na URL, e limpa o param
   useEffect(() => {
     if (resetToken) {
       setShowAuth(true)
@@ -47,13 +37,10 @@ function Inner() {
     }
   }, [])
 
-  const goTo = useCallback((v) => {
-    if (v === view) return
-    window.scrollTo({ top: 0, behavior: 'instant' })
-    setNavLoading(true)
-    setView(v)
-    setTimeout(() => setNavLoading(false), 400)
-  }, [view])
+  useEffect(() => {
+    document.body.style.overflow = showAuth ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [showAuth])
 
   function showToast(msg) {
     setToast(msg)
@@ -62,50 +49,22 @@ function Inner() {
 
   function handleLogin(u) {
     setShowAuth(false)
-    setView('home')
     showToast(`Bem-vindo, ${u.name.split(' ')[0]}!`)
   }
 
   async function handleLogout() {
     await logout()
-    setView('home')
-    setHomeKey((k) => k + 1)
+    navigate('/')
   }
-
-  useEffect(() => {
-    document.body.style.overflow = showAuth ? 'hidden' : ''
-    return () => { document.body.style.overflow = '' }
-  }, [showAuth])
-
-  // Redireciona para home se tentar ver dashboard sem login
-  useEffect(() => {
-    if (view === 'dashboard' && !user) setView('home')
-  }, [view, user])
 
   return (
     <>
-      <Helmet>
-        <title>{PAGE_TITLES[view] ?? PAGE_TITLES.home}</title>
-      </Helmet>
-
-      {/* Skip link — utilizadores de teclado/leitor de ecrã */}
-      <a href="#main-content" className="skip-link">
-        Saltar para conteúdo principal
-      </a>
-
-      {navLoading && (
-        <div className="fixed top-0 left-0 right-0 z-[9999] h-0.5 bg-maroon animate-pageLoad" aria-hidden="true" />
-      )}
       <Navbar
         user={user}
-        view={view}
-        setView={goTo}
         onLogin={() => setShowAuth(true)}
         onLogout={handleLogout}
-        onDashboard={() => goTo('dashboard')}
       />
 
-      {/* Região de notificações — anunciada por leitores de ecrã */}
       <div
         role="status"
         aria-live="polite"
@@ -121,6 +80,7 @@ function Inner() {
       </div>
 
       <PwaInstallBanner />
+
       {showAuth && (
         <AuthModal
           onClose={() => { setShowAuth(false); setResetToken(null) }}
@@ -130,38 +90,63 @@ function Inner() {
       )}
 
       <div id="main-content" tabIndex={-1} className="outline-none">
-        {view === 'home' && (
-          <HomePage
-            key={homeKey}
-            user={user}
-            tagline={TAGLINE}
-            onRequireLogin={() => setShowAuth(true)}
-            onBooked={() => {}}
-          />
-        )}
-        {view === 'gallery' && <GalleryPage />}
-        {view === 'about' && <AboutPage />}
-        {view === 'dashboard' && user && (
-          <DashboardPage
-            user={user}
-            onBook={() => goTo('home')}
-            onHome={() => goTo('home')}
-            onLogout={handleLogout}
-          />
-        )}
+        <Outlet context={{ onRequireLogin: () => setShowAuth(true) }} />
       </div>
     </>
   )
 }
 
+function ProtectedDashboard() {
+  const { user } = useAuth()
+  if (!user) return <Navigate to="/" replace />
+  return <DashboardPage />
+}
+
 export default function App() {
-  const cancelToken = getCancelToken()
-  if (cancelToken) {
-    return <CancelPage cancelToken={cancelToken} />
-  }
   return (
     <AuthProvider>
-      <Inner />
+      <Routes>
+        <Route element={<Layout />}>
+          <Route
+            path="/"
+            element={
+              <>
+                <Helmet><title>{PAGE_TITLES['/']}</title></Helmet>
+                <HomePage tagline={TAGLINE} />
+              </>
+            }
+          />
+          <Route
+            path="/galeria"
+            element={
+              <>
+                <Helmet><title>{PAGE_TITLES['/galeria']}</title></Helmet>
+                <GalleryPage />
+              </>
+            }
+          />
+          <Route
+            path="/sobre"
+            element={
+              <>
+                <Helmet><title>{PAGE_TITLES['/sobre']}</title></Helmet>
+                <AboutPage />
+              </>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <>
+                <Helmet><title>{PAGE_TITLES['/dashboard']}</title></Helmet>
+                <ProtectedDashboard />
+              </>
+            }
+          />
+        </Route>
+        <Route path="/cancelar/:token" element={<CancelPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </AuthProvider>
   )
 }

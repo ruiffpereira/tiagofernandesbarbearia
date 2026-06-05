@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../AuthContext.jsx'
 import { profileFormSchema, firstZodError } from '../lib/formSchemas.ts'
@@ -12,17 +13,18 @@ import { Button, Spinner, Label, Input } from '../components/ui.jsx'
 
 const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
-export default function DashboardPage({ user, onBook, onHome, onLogout }) {
-  const { user: authUser, updateProfile } = useAuth()
+export default function DashboardPage() {
+  const { user, logout, updateProfile } = useAuth()
+  const navigate = useNavigate()
   const qc = useQueryClient()
 
   const { data: upcoming = [], isLoading: loadingUp } = useGetBookingMyAppointments(
     { status: 'upcoming' },
-    { query: { enabled: !!authUser, staleTime: 0, refetchOnMount: 'always' } }
+    { query: { enabled: !!user, staleTime: 0, refetchOnMount: 'always' } }
   )
   const { data: past = [], isLoading: loadingPast } = useGetBookingMyAppointments(
     { status: 'past' },
-    { query: { enabled: !!authUser, staleTime: 0, refetchOnMount: 'always' } }
+    { query: { enabled: !!user, staleTime: 0, refetchOnMount: 'always' } }
   )
 
   const [cancelId, setCancelId] = useState(null)
@@ -122,7 +124,7 @@ export default function DashboardPage({ user, onBook, onHome, onLogout }) {
       <header className="bg-cream-dark border-b border-line px-5 sm:px-10 lg:px-16 py-7">
         <div className="max-w-4xl mx-auto">
           <button
-            onClick={onHome}
+            onClick={() => navigate('/')}
             aria-label="Voltar à página inicial"
             className="text-ink-faint text-[13px] font-medium mb-3.5 inline-flex items-center gap-1.5"
           >
@@ -136,8 +138,8 @@ export default function DashboardPage({ user, onBook, onHome, onLogout }) {
               <p className="text-ink-faint text-[13px] mt-1">{user.email}</p>
             </div>
             <div className="flex gap-2">
-              <Button variant="primary" onClick={onBook}>+ Nova marcação</Button>
-              <Button variant="surface" onClick={onLogout}>Sair</Button>
+              <Button variant="primary" onClick={() => navigate('/')}>+ Nova marcação</Button>
+              <Button variant="surface" onClick={async () => { await logout(); navigate('/') }}>Sair</Button>
             </div>
           </div>
         </div>
@@ -164,7 +166,7 @@ export default function DashboardPage({ user, onBook, onHome, onLogout }) {
             <div className="bg-paper border-[1.5px] border-dashed border-line-strong rounded-xl2 py-10 px-6 text-center">
               <div aria-hidden="true" className="text-3xl mb-2.5 opacity-40">📅</div>
               <p className="text-ink-faint mb-4 text-sm">Sem marcações</p>
-              <Button variant="primary" size="sm" onClick={onBook}>Marcar agora</Button>
+              <Button variant="primary" size="sm" onClick={() => navigate('/')}>Marcar agora</Button>
             </div>
           ) : (
             <div className="flex flex-col gap-2.5" role="list" aria-label="Próximas marcações">
