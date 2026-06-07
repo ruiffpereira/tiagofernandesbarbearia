@@ -15,8 +15,6 @@ import {
 import { nextWorkdays, fmtDate, fmtShort } from "../utils.js";
 import { Button, Spinner, Label, Textarea } from "./ui.jsx";
 
-const BARBER_ID = import.meta.env.VITE_BARBER_USER_ID;
-
 export default function BookingWidget({ onRequireLogin, onBooked }) {
   const { user } = useAuth();
   const qc = useQueryClient();
@@ -31,12 +29,12 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
 
   const { data: services = [], isLoading: loadingServices } =
     useGetBookingServices(
-      { userId: BARBER_ID },
+      {},
       { query: { staleTime: 5 * 60 * 1000 } },
     );
 
   const { data: slotsData, isLoading: loadingSlots } = useGetBookingSlots(
-    { userId: BARBER_ID, date, serviceId: svc?.serviceId ?? "" },
+    { date, serviceId: svc?.serviceId ?? "" },
     { query: { enabled: !!date && !!svc?.serviceId && !!user } },
   );
 
@@ -45,11 +43,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
       onSuccess: (result) => {
         setDone({ ...result, serviceName: svc.name });
         qc.invalidateQueries({
-          queryKey: getBookingSlotsQueryKey({
-            userId: BARBER_ID,
-            date,
-            serviceId: svc.serviceId,
-          }),
+          queryKey: getBookingSlotsQueryKey({ date, serviceId: svc.serviceId }),
         });
         qc.invalidateQueries({ queryKey: getBookingMyAppointmentsQueryKey({ status: 'upcoming' }) });
         onBooked?.();
@@ -104,11 +98,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
     setShowCalendar(false);
     if (svc?.serviceId) {
       qc.invalidateQueries({
-        queryKey: getBookingSlotsQueryKey({
-          userId: BARBER_ID,
-          date: d,
-          serviceId: svc.serviceId,
-        }),
+        queryKey: getBookingSlotsQueryKey({ date: d, serviceId: svc.serviceId }),
       });
     }
   }
@@ -141,7 +131,6 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
     setErr("");
     confirmM.mutate({
       data: {
-        userId: BARBER_ID,
         serviceId: svc.serviceId,
         date,
         time: slot,

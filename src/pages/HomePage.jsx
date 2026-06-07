@@ -126,8 +126,8 @@ export default function HomePage() {
 
             {/* Stats */}
             <dl className="flex gap-8 mt-8 animate-fadeUp [animation-delay:.35s]">
-              {stats.map(([n, l]) => (
-                <div key={l}>
+              {stats.map(([n, l], i) => (
+                <div key={i}>
                   <dt className="sr-only">{l}</dt>
                   <dd className="text-2xl font-extrabold text-navy tracking-tight" aria-label={`${n} ${l}`}>
                     {n}

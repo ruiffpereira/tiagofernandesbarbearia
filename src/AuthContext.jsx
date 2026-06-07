@@ -18,9 +18,6 @@ function getJwtExpiry(token) {
   } catch { return 0 }
 }
 
-const USER_ID = import.meta.env.VITE_BARBER_USER_ID
-
-
 const AuthContext = createContext(null)
 
 function loadUser() {
@@ -98,7 +95,7 @@ export function AuthProvider({ children }) {
 
   const login = useCallback(async (email, password) => {
     const data = await loginM.mutateAsync({
-      data: { userId: USER_ID, provider: 'credentials', email, password },
+      data: { provider: 'credentials', email, password },
     })
     tokenStore.save(data.accessToken, data.refreshToken)
     const u = toUser(data)
@@ -108,11 +105,11 @@ export function AuthProvider({ children }) {
 
   const register = useCallback(async (name, email, phone, password) => {
     await registerM.mutateAsync({
-      data: { userId: USER_ID, name, email, contact: phone, password },
+      data: { name, email, contact: phone, password },
     })
     // register returns 201 — auto-login a seguir
     const data = await loginM.mutateAsync({
-      data: { userId: USER_ID, provider: 'credentials', email, password },
+      data: { provider: 'credentials', email, password },
     })
     tokenStore.save(data.accessToken, data.refreshToken)
     const u = toUser(data)
@@ -137,7 +134,7 @@ export function AuthProvider({ children }) {
   }, [user, updateM])
 
   const forgotPassword = useCallback(async (email) => {
-    await forgotM.mutateAsync({ data: { email, userId: USER_ID } })
+    await forgotM.mutateAsync({ data: { email } })
   }, [forgotM])
 
   const resetPassword = useCallback(async (token, newPassword) => {

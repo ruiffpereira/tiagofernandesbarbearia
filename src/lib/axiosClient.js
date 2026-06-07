@@ -3,12 +3,14 @@ import { axiosInstance } from '@kubb/plugin-client/clients/axios'
 
 const TOKEN_KEY = 'btf_access_token'
 const REFRESH_KEY = 'btf_refresh_token'
+const SITE_TOKEN = import.meta.env.VITE_SITE_TOKEN ?? ''
 
 axiosInstance.defaults.baseURL = import.meta.env.VITE_API_BASE_URL
 
 let refreshing = null
 
 const requestInterceptor = (config) => {
+  if (SITE_TOKEN) config.headers['X-Site-Token'] = SITE_TOKEN
   if (!config.headers.Authorization) {
     const token = localStorage.getItem(TOKEN_KEY)
     if (token) config.headers.Authorization = `Bearer ${token}`
