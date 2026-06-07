@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { axiosInstance } from '@kubb/plugin-client/clients/axios'
+import { postWebsitesCustomersAutenticationRefresh } from '../servers/customers/clients/postWebsitesCustomersAutenticationRefresh.ts'
 
 const TOKEN_KEY = 'btf_access_token'
 const REFRESH_KEY = 'btf_refresh_token'
@@ -37,9 +38,8 @@ const responseErrorInterceptor = async (error) => {
     }
     original._retry = true
     if (!refreshing) {
-      refreshing = axiosInstance
-        .post('/websites/customers/autentication/refresh', { refreshToken })
-        .then(({ data }) => {
+      refreshing = postWebsitesCustomersAutenticationRefresh({ refreshToken })
+        .then((data) => {
           localStorage.setItem(TOKEN_KEY, data.accessToken)
           if (data.refreshToken) localStorage.setItem(REFRESH_KEY, data.refreshToken)
           return data.accessToken
