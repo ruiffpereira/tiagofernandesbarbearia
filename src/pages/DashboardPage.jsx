@@ -1,130 +1,154 @@
-import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useQueryClient } from '@tanstack/react-query'
-import { useAuth } from '../AuthContext.jsx'
-import { profileFormSchema, firstZodError } from '../lib/formSchemas.ts'
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "../AuthContext.jsx";
+import { profileFormSchema, firstZodError } from "../lib/formSchemas.ts";
 import {
   useGetBookingMyAppointments,
   getBookingMyAppointmentsQueryKey,
   usePatchBookingAppointmentCancel,
-} from '../servers/booking/index.ts'
-import BookingCard from '../components/BookingCard.jsx'
-import { Button, Spinner, Label, Input } from '../components/ui.jsx'
+} from "../servers/booking/index.ts";
+import BookingCard from "../components/BookingCard.jsx";
+import { Button, Spinner, Label, Input } from "../components/ui.jsx";
 
-const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+const FOCUSABLE =
+  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 export default function DashboardPage() {
-  const { user, logout, updateProfile } = useAuth()
-  const navigate = useNavigate()
-  const qc = useQueryClient()
+  const { user, logout, updateProfile } = useAuth();
+  const navigate = useNavigate();
+  const qc = useQueryClient();
 
-  const { data: upcoming = [], isLoading: loadingUp } = useGetBookingMyAppointments(
-    { status: 'upcoming' },
-    { query: { enabled: !!user, staleTime: 0, refetchOnMount: 'always' } }
-  )
-  const { data: past = [], isLoading: loadingPast } = useGetBookingMyAppointments(
-    { status: 'past' },
-    { query: { enabled: !!user, staleTime: 0, refetchOnMount: 'always' } }
-  )
+  const {
+    data: upcoming = [],
+    isLoading: loadingUp,
+    isError: errorUp,
+    error: upErr,
+  } = useGetBookingMyAppointments(
+    { status: "upcoming" },
+    { query: { enabled: !!user, staleTime: 0, refetchOnMount: "always" } },
+  );
 
-  const [cancelId, setCancelId] = useState(null)
-  const [editing, setEditing] = useState(false)
+  const { data: past = [], isLoading: loadingPast } =
+    useGetBookingMyAppointments(
+      { status: "past" },
+      { query: { enabled: !!user, staleTime: 0, refetchOnMount: "always" } },
+    );
+
+  const [cancelId, setCancelId] = useState(null);
+  const [editing, setEditing] = useState(false);
   const [editForm, setEditForm] = useState({
     name: user.name,
     email: user.email,
-    phone: user.phone || '',
-    nif: user.nif || '',
-  })
-  const [editLoading, setEditLoading] = useState(false)
-  const [editErr, setEditErr] = useState('')
-  const [editOk, setEditOk] = useState(false)
+    phone: user.phone || "",
+    nif: user.nif || "",
+  });
+  const [editLoading, setEditLoading] = useState(false);
+  const [editErr, setEditErr] = useState("");
+  const [editOk, setEditOk] = useState(false);
 
-  const cancelDialogRef = useRef(null)
-  const cancelTriggerRef = useRef(null)
+  const cancelDialogRef = useRef(null);
+  const cancelTriggerRef = useRef(null);
 
   // Gestão de foco no modal de cancelamento
   useEffect(() => {
-    if (!cancelId) return
-    const el = cancelDialogRef.current
-    if (!el) return
+    if (!cancelId) return;
+    const el = cancelDialogRef.current;
+    if (!el) return;
 
-    const prev = document.activeElement
-    const focusable = el.querySelectorAll(FOCUSABLE)
-    if (focusable.length) focusable[0].focus()
+    const prev = document.activeElement;
+    const focusable = el.querySelectorAll(FOCUSABLE);
+    if (focusable.length) focusable[0].focus();
 
     function trapFocus(e) {
-      if (e.key === 'Escape') { setCancelId(null); return }
-      if (e.key !== 'Tab') return
-      const els = Array.from(el.querySelectorAll(FOCUSABLE))
-      if (!els.length) return
-      const first = els[0]
-      const last = els[els.length - 1]
+      if (e.key === "Escape") {
+        setCancelId(null);
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const els = Array.from(el.querySelectorAll(FOCUSABLE));
+      if (!els.length) return;
+      const first = els[0];
+      const last = els[els.length - 1];
       if (e.shiftKey) {
-        if (document.activeElement === first) { e.preventDefault(); last.focus() }
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
       } else {
-        if (document.activeElement === last) { e.preventDefault(); first.focus() }
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
       }
     }
 
-    document.addEventListener('keydown', trapFocus)
+    document.addEventListener("keydown", trapFocus);
     return () => {
-      document.removeEventListener('keydown', trapFocus)
-      prev?.focus()
-    }
-  }, [cancelId])
+      document.removeEventListener("keydown", trapFocus);
+      prev?.focus();
+    };
+  }, [cancelId]);
 
   const cancelM = usePatchBookingAppointmentCancel({
     mutation: {
       onSuccess: () => {
-        qc.invalidateQueries({ queryKey: getBookingMyAppointmentsQueryKey({ status: 'upcoming' }) })
-        qc.invalidateQueries({ queryKey: getBookingMyAppointmentsQueryKey({ status: 'past' }) })
-        setCancelId(null)
+        qc.invalidateQueries({
+          queryKey: getBookingMyAppointmentsQueryKey({ status: "upcoming" }),
+        });
+        qc.invalidateQueries({
+          queryKey: getBookingMyAppointmentsQueryKey({ status: "past" }),
+        });
+        setCancelId(null);
       },
-      onError: (e) => alert(e.message || 'Erro ao cancelar'),
+      onError: (e) => alert(e.message || "Erro ao cancelar"),
     },
-  })
+  });
 
   async function handleUpdateProfile(e) {
-    e.preventDefault()
-    setEditErr('')
-    setEditOk(false)
+    e.preventDefault();
+    setEditErr("");
+    setEditOk(false);
     const r = profileFormSchema.safeParse({
-      name:  editForm.name,
+      name: editForm.name,
       email: editForm.email,
       phone: editForm.phone,
-      nif:   editForm.nif || '',
-    })
-    if (!r.success) { setEditErr(firstZodError(r.error)); return }
-    setEditLoading(true)
+      nif: editForm.nif || "",
+    });
+    if (!r.success) {
+      setEditErr(firstZodError(r.error));
+      return;
+    }
+    setEditLoading(true);
     try {
       await updateProfile({
         name: editForm.name,
         email: editForm.email,
         phone: editForm.phone,
         nif: editForm.nif || null,
-      })
-      setEditOk(true)
-      setEditing(false)
+      });
+      setEditOk(true);
+      setEditing(false);
     } catch (e) {
-      setEditErr(e.message || 'Erro ao guardar. Tenta novamente.')
+      setEditErr(e.message || "Erro ao guardar. Tenta novamente.");
     } finally {
-      setEditLoading(false)
+      setEditLoading(false);
     }
   }
 
   const account = [
-    ['Nome', user.name],
-    ['Email', user.email],
-    ['Telemóvel', user.phone || '—'],
-    ['NIF', user.nif || '—'],
-  ]
+    ["Nome", user.name],
+    ["Email", user.email],
+    ["Telemóvel", user.phone || "—"],
+    ["NIF", user.nif || "—"],
+  ];
 
   return (
     <main aria-label="A minha conta" className="min-h-[calc(100vh-64px)]">
       <header className="bg-cream-dark border-b border-line px-5 sm:px-10 lg:px-16 py-7">
         <div className="max-w-4xl mx-auto">
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate("/")}
             aria-label="Voltar à página inicial"
             className="text-ink-faint text-[13px] font-medium mb-3.5 inline-flex items-center gap-1.5"
           >
@@ -133,48 +157,92 @@ export default function DashboardPage() {
           <div className="flex justify-between items-end flex-wrap gap-4">
             <div>
               <h1 className="text-[clamp(22px,3vw,32px)] font-extrabold text-navy tracking-tight">
-                Olá, <span className="text-maroon">{user.name.split(' ')[0]}</span>
+                Olá,{" "}
+                <span className="text-maroon">{user.name.split(" ")[0]}</span>
               </h1>
               <p className="text-ink-faint text-[13px] mt-1">{user.email}</p>
             </div>
             <div className="flex gap-2">
-              <Button variant="primary" onClick={() => navigate('/')}>+ Nova marcação</Button>
-              <Button variant="surface" onClick={async () => { await logout(); navigate('/') }}>Sair</Button>
+              <Button variant="primary" onClick={() => navigate("/")}>
+                + Nova marcação
+              </Button>
+              <Button
+                variant="surface"
+                onClick={async () => {
+                  await logout();
+                  navigate("/");
+                }}
+              >
+                Sair
+              </Button>
             </div>
           </div>
         </div>
       </header>
 
       <div className="max-w-4xl mx-auto px-5 sm:px-10 lg:px-16 py-7 lg:py-10">
-
         {/* Próximas marcações */}
         <section aria-labelledby="upcoming-heading" className="mb-10">
           <div className="flex items-center gap-2.5 mb-1.5">
-            <h2 id="upcoming-heading" className="text-xl font-bold text-navy">Próximas marcações</h2>
+            <h2 id="upcoming-heading" className="text-xl font-bold text-navy">
+              Próximas marcações
+            </h2>
             {upcoming.length > 0 && (
-              <span aria-label={`${upcoming.length} marcações`} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold
-                tracking-wider uppercase bg-emerald-500/15 text-emerald-600">{upcoming.length}</span>
+              <span
+                aria-label={`${upcoming.length} marcações`}
+                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold
+                tracking-wider uppercase bg-emerald-500/15 text-emerald-600"
+              >
+                {upcoming.length}
+              </span>
             )}
           </div>
           <p className="text-ink-faint text-[13px] mb-4" aria-live="polite">
-            {upcoming.length === 0 && !loadingUp ? 'Nenhuma agendada.' : 'Podes cancelar até à data.'}
+            {upcoming.length === 0 && !loadingUp
+              ? "Nenhuma agendada."
+              : "Podes cancelar até à data."}
           </p>
 
           {loadingUp ? (
-            <div className="flex justify-center py-8" aria-label="A carregar marcações…" role="status"><Spinner /></div>
+            <div
+              className="flex justify-center py-8"
+              aria-label="A carregar marcações…"
+              role="status"
+            >
+              <Spinner />
+            </div>
+          ) : errorUp ? (
+            <div
+              role="alert"
+              className="bg-maroon/[0.08] border border-maroon/25 rounded-[10px] px-3.5 py-2.5 text-maroon text-[13px]"
+            >
+              Erro ao carregar marcações:{" "}
+              {upErr?.message || "tenta recarregar a página."}
+            </div>
           ) : upcoming.length === 0 ? (
             <div className="bg-paper border-[1.5px] border-dashed border-line-strong rounded-xl2 py-10 px-6 text-center">
-              <div aria-hidden="true" className="text-3xl mb-2.5 opacity-40">📅</div>
+              <div aria-hidden="true" className="text-3xl mb-2.5 opacity-40">
+                📅
+              </div>
               <p className="text-ink-faint mb-4 text-sm">Sem marcações</p>
-              <Button variant="primary" size="sm" onClick={() => navigate('/')}>Marcar agora</Button>
+              <Button variant="primary" size="sm" onClick={() => navigate("/")}>
+                Marcar agora
+              </Button>
             </div>
           ) : (
-            <div className="flex flex-col gap-2.5" role="list" aria-label="Próximas marcações">
+            <div
+              className="flex flex-col gap-2.5"
+              role="list"
+              aria-label="Próximas marcações"
+            >
               {upcoming.map((b) => (
                 <BookingCard
                   key={b.appointmentId}
                   booking={normalise(b)}
-                  onCancel={() => { cancelTriggerRef.current = document.activeElement; setCancelId(b.cancelToken) }}
+                  onCancel={() => {
+                    cancelTriggerRef.current = document.activeElement;
+                    setCancelId(b.cancelToken);
+                  }}
                 />
               ))}
             </div>
@@ -184,14 +252,37 @@ export default function DashboardPage() {
         {/* Histórico */}
         {(past.length > 0 || loadingPast) && (
           <section aria-labelledby="history-heading" className="mb-10">
-            <h2 id="history-heading" className="text-xl font-bold text-navy mb-1.5">Histórico</h2>
+            <h2
+              id="history-heading"
+              className="text-xl font-bold text-navy mb-1.5"
+            >
+              Histórico
+            </h2>
             {loadingPast ? (
-              <div className="flex justify-center py-4" aria-label="A carregar histórico…" role="status"><Spinner /></div>
+              <div
+                className="flex justify-center py-4"
+                aria-label="A carregar histórico…"
+                role="status"
+              >
+                <Spinner />
+              </div>
             ) : (
               <>
-                <p className="text-ink-faint text-[13px] mb-4">{past.length} marcação(ões)</p>
-                <div className="flex flex-col gap-2.5" role="list" aria-label="Histórico de marcações">
-                  {past.map((b) => <BookingCard key={b.appointmentId} booking={normalise(b)} isPast />)}
+                <p className="text-ink-faint text-[13px] mb-4">
+                  {past.length} marcação(ões)
+                </p>
+                <div
+                  className="flex flex-col gap-2.5"
+                  role="list"
+                  aria-label="Histórico de marcações"
+                >
+                  {past.map((b) => (
+                    <BookingCard
+                      key={b.appointmentId}
+                      booking={normalise(b)}
+                      isPast
+                    />
+                  ))}
                 </div>
               </>
             )}
@@ -199,16 +290,28 @@ export default function DashboardPage() {
         )}
 
         {/* Dados da conta */}
-        <section aria-labelledby="account-heading" className="bg-paper border border-line rounded-xl2 p-6">
+        <section
+          aria-labelledby="account-heading"
+          className="bg-paper border border-line rounded-xl2 p-6"
+        >
           <div className="flex items-center justify-between mb-4">
-            <h2 id="account-heading" className="text-[17px] font-bold text-navy">Dados da conta</h2>
+            <h2
+              id="account-heading"
+              className="text-[17px] font-bold text-navy"
+            >
+              Dados da conta
+            </h2>
             <Button
               variant="ghost"
               size="sm"
               aria-expanded={editing}
-              onClick={() => { setEditing(!editing); setEditErr(''); setEditOk(false) }}
+              onClick={() => {
+                setEditing(!editing);
+                setEditErr("");
+                setEditOk(false);
+              }}
             >
-              {editing ? 'Cancelar' : 'Editar'}
+              {editing ? "Cancelar" : "Editar"}
             </Button>
           </div>
 
@@ -227,7 +330,7 @@ export default function DashboardPage() {
               onSubmit={handleUpdateProfile}
               className="flex flex-col gap-3.5"
               noValidate
-              aria-describedby={editErr ? 'edit-error' : undefined}
+              aria-describedby={editErr ? "edit-error" : undefined}
             >
               <div className="grid sm:grid-cols-2 gap-3.5">
                 <div className="flex flex-col gap-1.5">
@@ -235,7 +338,9 @@ export default function DashboardPage() {
                   <Input
                     id="edit-name"
                     value={editForm.name}
-                    onChange={(e) => setEditForm(f => ({ ...f, name: e.target.value }))}
+                    onChange={(e) =>
+                      setEditForm((f) => ({ ...f, name: e.target.value }))
+                    }
                     aria-required="true"
                     autoComplete="name"
                   />
@@ -246,7 +351,9 @@ export default function DashboardPage() {
                     id="edit-email"
                     type="email"
                     value={editForm.email}
-                    onChange={(e) => setEditForm(f => ({ ...f, email: e.target.value }))}
+                    onChange={(e) =>
+                      setEditForm((f) => ({ ...f, email: e.target.value }))
+                    }
                     aria-required="true"
                     autoComplete="email"
                   />
@@ -258,7 +365,9 @@ export default function DashboardPage() {
                     type="tel"
                     placeholder="+351 9XX XXX XXX"
                     value={editForm.phone}
-                    onChange={(e) => setEditForm(f => ({ ...f, phone: e.target.value }))}
+                    onChange={(e) =>
+                      setEditForm((f) => ({ ...f, phone: e.target.value }))
+                    }
                     aria-required="true"
                     autoComplete="tel"
                   />
@@ -270,7 +379,12 @@ export default function DashboardPage() {
                     placeholder="000000000"
                     maxLength={9}
                     value={editForm.nif}
-                    onChange={(e) => setEditForm(f => ({ ...f, nif: e.target.value.replace(/\D/g, '') }))}
+                    onChange={(e) =>
+                      setEditForm((f) => ({
+                        ...f,
+                        nif: e.target.value.replace(/\D/g, ""),
+                      }))
+                    }
                     inputMode="numeric"
                   />
                 </div>
@@ -293,15 +407,28 @@ export default function DashboardPage() {
                 aria-busy={editLoading}
                 className="self-start"
               >
-                {editLoading ? <><Spinner /> A guardar…</> : 'Guardar alterações'}
+                {editLoading ? (
+                  <>
+                    <Spinner /> A guardar…
+                  </>
+                ) : (
+                  "Guardar alterações"
+                )}
               </Button>
             </form>
           ) : (
             <dl className="grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-3.5">
               {account.map(([k, v]) => (
-                <div key={k} className="bg-paper rounded-[10px] px-3.5 py-3 border border-line">
-                  <dt className="text-ink-faint text-[10px] font-bold tracking-wider uppercase mb-1">{k}</dt>
-                  <dd className="text-ink text-sm font-medium break-all">{v}</dd>
+                <div
+                  key={k}
+                  className="bg-paper rounded-[10px] px-3.5 py-3 border border-line"
+                >
+                  <dt className="text-ink-faint text-[10px] font-bold tracking-wider uppercase mb-1">
+                    {k}
+                  </dt>
+                  <dd className="text-ink text-sm font-medium break-all">
+                    {v}
+                  </dd>
                 </div>
               ))}
             </dl>
@@ -323,8 +450,16 @@ export default function DashboardPage() {
             className="bg-paper rounded-2xl p-6 max-w-sm w-full shadow-lift border border-line"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 id="cancel-dialog-title" className="text-lg font-bold text-navy mb-2">Cancelar marcação</h3>
-            <p className="text-ink-soft text-sm leading-relaxed mb-5" id="cancel-dialog-desc">
+            <h3
+              id="cancel-dialog-title"
+              className="text-lg font-bold text-navy mb-2"
+            >
+              Cancelar marcação
+            </h3>
+            <p
+              className="text-ink-soft text-sm leading-relaxed mb-5"
+              id="cancel-dialog-desc"
+            >
               Tens a certeza? Esta ação não pode ser revertida.
             </p>
             <div className="flex gap-2">
@@ -337,9 +472,19 @@ export default function DashboardPage() {
                 aria-describedby="cancel-dialog-desc"
                 onClick={() => cancelM.mutate({ cancelToken: cancelId })}
               >
-                {cancelM.isPending ? <><Spinner /> A cancelar…</> : 'Sim, cancelar'}
+                {cancelM.isPending ? (
+                  <>
+                    <Spinner /> A cancelar…
+                  </>
+                ) : (
+                  "Sim, cancelar"
+                )}
               </Button>
-              <Button variant="surface" className="flex-1" onClick={() => setCancelId(null)}>
+              <Button
+                variant="surface"
+                className="flex-1"
+                onClick={() => setCancelId(null)}
+              >
                 Voltar
               </Button>
             </div>
@@ -347,20 +492,20 @@ export default function DashboardPage() {
         </div>
       )}
     </main>
-  )
+  );
 }
 
 function normalise(b) {
   return {
     id: b.appointmentId,
-    serviceName: b.service?.name ?? '—',
+    serviceName: b.service?.name ?? "—",
     servicePrice: b.service?.price ?? 0,
     date: b.date,
     time: b.time,
     status: b.status,
     cancelToken: b.cancelToken,
     notes: b.notes,
-    barberName: 'Tiago Fernandes',
+    barberName: "Tiago Fernandes",
     duration: b.service?.duration,
-  }
+  };
 }

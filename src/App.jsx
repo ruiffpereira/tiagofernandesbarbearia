@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Routes, Route, Navigate, Outlet, useNavigate } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { AuthProvider, useAuth } from './AuthContext.jsx'
+import { CmsProvider, useCms } from './context/CmsContext.jsx'
 import Navbar from './components/Navbar.jsx'
 import AuthModal from './components/AuthModal.jsx'
 import HomePage from './pages/HomePage.jsx'
@@ -11,18 +12,9 @@ import DashboardPage from './pages/DashboardPage.jsx'
 import CancelPage from './pages/CancelPage.jsx'
 import PwaInstallBanner from './components/PwaInstallBanner.jsx'
 
-const PAGE_TITLES = {
-  '/':          'Barbearia Tiago Fernandes · Braga',
-  '/galeria':   'Galeria de Trabalhos · Barbearia Tiago Fernandes',
-  '/sobre':     'Sobre · Barbearia Tiago Fernandes',
-  '/dashboard': 'A minha conta · Barbearia Tiago Fernandes',
-}
-
-const TAGLINE =
-  'Onde o cuidado tradicional encontra o estilo moderno. Marca já a tua próxima visita — em segundos, sem chamadas.'
-
 function Layout() {
   const { user, logout } = useAuth()
+  const { t } = useCms()
   const navigate = useNavigate()
   const [showAuth, setShowAuth] = useState(false)
   const [resetToken, setResetToken] = useState(
@@ -102,51 +94,69 @@ function ProtectedDashboard() {
   return <DashboardPage />
 }
 
+function AppRoutes() {
+  const { t } = useCms()
+  return (
+    <Routes>
+      <Route element={<Layout />}>
+        <Route
+          path="/"
+          element={
+            <>
+              <Helmet><title>{t('seo.titulo')}</title></Helmet>
+              <HomePage />
+            </>
+          }
+        />
+        <Route
+          path="/galeria"
+          element={
+            <>
+              <Helmet><title>{[t('galeria.titulo'), t('hero.titulo')].filter(Boolean).join(' · ')}</title></Helmet>
+              <GalleryPage />
+            </>
+          }
+        />
+        <Route
+          path="/sobre"
+          element={
+            <>
+              <Helmet><title>{[t('sobre.label'), t('hero.titulo')].filter(Boolean).join(' · ')}</title></Helmet>
+              <AboutPage />
+            </>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <>
+              <Helmet><title>{['A minha conta', t('hero.titulo')].filter(Boolean).join(' · ')}</title></Helmet>
+              <ProtectedDashboard />
+            </>
+          }
+        />
+        <Route
+          path="/reset-password"
+          element={
+            <>
+              <Helmet><title>{t('seo.titulo')}</title></Helmet>
+              <HomePage />
+            </>
+          }
+        />
+      </Route>
+      <Route path="/cancelar/:token" element={<CancelPage />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  )
+}
+
 export default function App() {
   return (
     <AuthProvider>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route
-            path="/"
-            element={
-              <>
-                <Helmet><title>{PAGE_TITLES['/']}</title></Helmet>
-                <HomePage tagline={TAGLINE} />
-              </>
-            }
-          />
-          <Route
-            path="/galeria"
-            element={
-              <>
-                <Helmet><title>{PAGE_TITLES['/galeria']}</title></Helmet>
-                <GalleryPage />
-              </>
-            }
-          />
-          <Route
-            path="/sobre"
-            element={
-              <>
-                <Helmet><title>{PAGE_TITLES['/sobre']}</title></Helmet>
-                <AboutPage />
-              </>
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              <>
-                <Helmet><title>{PAGE_TITLES['/dashboard']}</title></Helmet>
-                <ProtectedDashboard />
-              </>
-            }
-          />
-        </Route>
-        <Route path="/cancelar/:token" element={<CancelPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <CmsProvider>
+        <AppRoutes />
+      </CmsProvider>
     </AuthProvider>
   )
 }

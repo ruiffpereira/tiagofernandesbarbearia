@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { DayPicker } from "react-day-picker";
 import { pt } from "react-day-picker/locale";
 import { useAuth } from "../AuthContext.jsx";
@@ -9,6 +10,7 @@ import {
   useGetBookingSlots,
   usePostBookingAppointment,
   getBookingSlotsQueryKey,
+  getBookingMyAppointmentsQueryKey,
 } from "../servers/booking/index.ts";
 import { nextWorkdays, fmtDate, fmtShort } from "../utils.js";
 import { Button, Spinner, Label, Textarea } from "./ui.jsx";
@@ -18,6 +20,7 @@ const BARBER_ID = import.meta.env.VITE_BARBER_USER_ID;
 export default function BookingWidget({ onRequireLogin, onBooked }) {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [svc, setSvc] = useState(null);
   const [date, setDate] = useState(() => nextWorkdays(1)[0]);
@@ -48,6 +51,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
             serviceId: svc.serviceId,
           }),
         });
+        qc.invalidateQueries({ queryKey: getBookingMyAppointmentsQueryKey({ status: 'upcoming' }) });
         onBooked?.();
       },
       onError: (e) => {
@@ -178,9 +182,14 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
         <p className="text-[12px] text-ink-faint mb-5">
           Receberás um email com os detalhes e link de cancelamento.
         </p>
-        <Button variant="ghost" size="sm" onClick={reset}>
-          Nova marcação
-        </Button>
+        <div className="flex flex-col gap-2">
+          <Button variant="primary" size="sm" onClick={() => navigate('/dashboard')}>
+            Ver as minhas marcações
+          </Button>
+          <Button variant="ghost" size="sm" onClick={reset}>
+            Nova marcação
+          </Button>
+        </div>
       </div>
     );
   }

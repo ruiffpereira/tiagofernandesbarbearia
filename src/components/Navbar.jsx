@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "./ui.jsx";
 import { usePwaInstall } from "../hooks/usePwaInstall.js";
+import { useCms } from "../context/CmsContext.jsx";
 
 const NAV = [
   { label: "Início", path: "/", icon: HomeIcon },
@@ -12,6 +13,7 @@ const NAV = [
 export default function Navbar({ user, onLogin, onLogout }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useCms();
   const go = (path) => navigate(path);
   const isActive = (path) =>
     path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
@@ -43,19 +45,19 @@ export default function Navbar({ user, onLogin, onLogout }) {
         {/* Logo */}
         <button
           onClick={() => go("/")}
-          aria-label="Barbearia Tiago Fernandes — página inicial"
+          aria-label={`${t('hero.titulo', 'Barbearia Tiago Fernandes')} — página inicial`}
           className="flex items-center gap-2.5"
         >
           <img
-            src="/logo.png"
+            src={t('hero.logo', '/logo.png')}
             alt=""
             aria-hidden="true"
             className="h-11 w-11 object-contain"
           />
           <span className="text-[15px] font-extrabold text-navy tracking-tight leading-none">
-            TIAGO FERNANDES
+            {t('hero.titulo', 'Barbearia Tiago Fernandes').split(' ').slice(1).join(' ').toUpperCase()}
             <span className="block text-[9px] font-semibold tracking-[0.25em] text-maroon mt-0.5">
-              BARBEARIA
+              {t('hero.titulo', 'Barbearia Tiago Fernandes').split(' ')[0].toUpperCase()}
             </span>
           </span>
         </button>
