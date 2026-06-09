@@ -1,6 +1,6 @@
 // @refresh reset
-import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react'
-import { tokenStore, USER_KEY } from './lib/api.js'
+import { createContext, useContext, useState, useCallback, useEffect } from 'react'
+import { USER_KEY } from './lib/api.js'
 import {
   usePostWebsitesCustomersAutenticationLogin,
   usePostWebsitesCustomersAutenticationRegister,
@@ -8,15 +8,7 @@ import {
   usePutWebsitesCustomersAutenticationProfile,
   usePostWebsitesCustomersAutenticationForgotPassword,
   usePostWebsitesCustomersAutenticationResetPassword,
-  postWebsitesCustomersAutenticationRefresh,
 } from './servers/customers/index.ts'
-
-function getJwtExpiry(token) {
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]))
-    return payload.exp * 1000
-  } catch { return 0 }
-}
 
 const AuthContext = createContext(null)
 
@@ -39,7 +31,6 @@ function toUser(data) {
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(loadUser)
-  const isRefreshingRef = useRef(false)
 
   function persist(u) {
     if (u) localStorage.setItem(USER_KEY, JSON.stringify(u))
@@ -54,50 +45,18 @@ export function AuthProvider({ children }) {
   const forgotM       = usePostWebsitesCustomersAutenticationForgotPassword()
   const resetM        = usePostWebsitesCustomersAutenticationResetPassword()
 
-  const tryRefreshNow = useCallback(async () => {
-    if (isRefreshingRef.current) return
-    const access = tokenStore.getAccess()
-    const refresh = tokenStore.getRefresh()
-    if (!access || !refresh) return
-    const expiry = getJwtExpiry(access)
-    if (expiry - Date.now() > 90_000) return
-
-    isRefreshingRef.current = true
-    try {
-      const data = await postWebsitesCustomersAutenticationRefresh({ refreshToken: refresh })
-      if (data?.accessToken) {
-        tokenStore.save(data.accessToken, data.refreshToken ?? refresh)
-      }
-    } catch {
-      tokenStore.clear()
-      persist(null)
-    } finally {
-      isRefreshingRef.current = false
-    }
-  }, [])
-
   useEffect(() => {
     function onSessionExpired() {
-      tokenStore.clear()
       persist(null)
     }
     window.addEventListener('auth:session-expired', onSessionExpired)
     return () => window.removeEventListener('auth:session-expired', onSessionExpired)
   }, [])
 
-  useEffect(() => {
-    const handleVisibility = () => {
-      if (document.visibilityState === 'visible') tryRefreshNow()
-    }
-    document.addEventListener('visibilitychange', handleVisibility)
-    return () => document.removeEventListener('visibilitychange', handleVisibility)
-  }, [tryRefreshNow])
-
   const login = useCallback(async (email, password) => {
     const data = await loginM.mutateAsync({
       data: { provider: 'credentials', email, password },
     })
-    tokenStore.save(data.accessToken, data.refreshToken)
     const u = toUser(data)
     persist(u)
     return u
@@ -111,7 +70,6 @@ export function AuthProvider({ children }) {
     const data = await loginM.mutateAsync({
       data: { provider: 'credentials', email, password },
     })
-    tokenStore.save(data.accessToken, data.refreshToken)
     const u = toUser(data)
     persist(u)
     return u
@@ -119,7 +77,6 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(async () => {
     await logoutM.mutateAsync({}).catch(() => {})
-    tokenStore.clear()
     persist(null)
   }, [logoutM])
 

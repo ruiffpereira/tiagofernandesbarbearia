@@ -1,21 +1,19 @@
 import axios from 'axios'
 import { axiosInstance } from '@kubb/plugin-client/clients/axios'
 import { postWebsitesCustomersAutenticationRefresh } from '../servers/customers/clients/postWebsitesCustomersAutenticationRefresh.ts'
+import { USER_KEY } from './api.js'
 
-const TOKEN_KEY = 'btf_access_token'
-const REFRESH_KEY = 'btf_refresh_token'
 const SITE_TOKEN = import.meta.env.VITE_SITE_TOKEN ?? ''
 
 axiosInstance.defaults.baseURL = import.meta.env.VITE_API_BASE_URL
+axiosInstance.defaults.withCredentials = true
+axios.defaults.withCredentials = true
 
 let refreshing = null
 
 const requestInterceptor = (config) => {
   if (SITE_TOKEN) config.headers['X-Site-Token'] = SITE_TOKEN
-  if (!config.headers.Authorization) {
-    const token = localStorage.getItem(TOKEN_KEY)
-    if (token) config.headers.Authorization = `Bearer ${token}`
-  }
+  config.withCredentials = true
   return config
 }
 
@@ -23,44 +21,41 @@ function dispatchSessionExpired() {
   window.dispatchEvent(new CustomEvent('auth:session-expired'))
 }
 
-const AUTH_ENDPOINTS = ['/autentication/login', '/autentication/register']
+const AUTH_ENDPOINTS = [
+  '/autentication/login',
+  '/autentication/register',
+  '/autentication/refresh',
+  '/autentication/logout',
+]
 
 const responseErrorInterceptor = async (error) => {
   const original = error.config
-  const isAuthEndpoint = AUTH_ENDPOINTS.some(e => original?.url?.includes(e))
+  const isAuthEndpoint = AUTH_ENDPOINTS.some((e) => original?.url?.includes(e))
 
-  // Não tenta refresh em endpoints de autenticação — 401 aí significa credenciais erradas
-  if (error.response?.status === 401 && !original._retry && !isAuthEndpoint) {
-    const refreshToken = localStorage.getItem(REFRESH_KEY)
-    if (!refreshToken) {
-      dispatchSessionExpired()
-      return Promise.reject(error)
-    }
+  if (error.response?.status === 401 && original && !original._retry && !isAuthEndpoint) {
     original._retry = true
+
     if (!refreshing) {
-      refreshing = postWebsitesCustomersAutenticationRefresh({ refreshToken })
-        .then((data) => {
-          localStorage.setItem(TOKEN_KEY, data.accessToken)
-          if (data.refreshToken) localStorage.setItem(REFRESH_KEY, data.refreshToken)
-          return data.accessToken
-        })
+      refreshing = postWebsitesCustomersAutenticationRefresh()
         .catch(() => {
-          localStorage.removeItem(TOKEN_KEY)
-          localStorage.removeItem(REFRESH_KEY)
-          localStorage.removeItem('btf_user')
+          localStorage.removeItem(USER_KEY)
           dispatchSessionExpired()
-          return Promise.reject(new Error('Sessão expirada'))
+          return Promise.reject(new Error('Sessao expirada'))
         })
-        .finally(() => { refreshing = null })
+        .finally(() => {
+          refreshing = null
+        })
     }
+
     try {
-      const newToken = await refreshing
-      original.headers.Authorization = `Bearer ${newToken}`
+      await refreshing
+      original.withCredentials = true
       return axiosInstance(original)
     } catch {
       return Promise.reject(error)
     }
   }
+
   return Promise.reject(error)
 }
 

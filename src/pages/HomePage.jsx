@@ -106,7 +106,7 @@ export default function HomePage() {
                 height="80"
                 loading="eager"
                 decoding="async"
-                fetchPriority="high"
+                fetchpriority="high"
                 className="h-20 w-20 object-contain shrink-0"
               />
               <h1 className="text-[clamp(30px,4.5vw,52px)] font-extrabold leading-[1.02] tracking-tight text-navy">

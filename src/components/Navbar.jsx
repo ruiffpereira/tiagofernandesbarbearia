@@ -58,7 +58,7 @@ export default function Navbar({ user, onLogin, onLogout }) {
             height="44"
             loading="eager"
             decoding="async"
-            fetchPriority="high"
+            fetchpriority="high"
             className="h-11 w-11 object-contain"
           />
           <span className="text-[15px] font-extrabold text-navy tracking-tight leading-none">

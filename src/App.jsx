@@ -13,6 +13,58 @@ import DashboardPage from "./pages/DashboardPage.jsx";
 import CancelPage from "./pages/CancelPage.jsx";
 import PwaInstallBanner from "./components/PwaInstallBanner.jsx";
 
+const SITE_URL = "https://barbearia-tiago.pt";
+const SHARE_IMAGE = `${SITE_URL}/pwa-512x512.png`;
+
+const SEO = {
+  home: {
+    path: "/",
+    title: "Barbearia Tiago Fernandes - Braga",
+    description:
+      "Barbearia Tiago Fernandes em Braga. Degrade, barba, cortes classicos e tratamentos. Marca a tua consulta online em segundos, sem chamadas.",
+  },
+  gallery: {
+    path: "/galeria",
+    title: "Galeria de cortes - Barbearia Tiago Fernandes",
+    description:
+      "Ve trabalhos, cortes, fades e acabamentos da Barbearia Tiago Fernandes em Braga.",
+  },
+  about: {
+    path: "/sobre",
+    title: "Sobre - Barbearia Tiago Fernandes",
+    description:
+      "Conhece a Barbearia Tiago Fernandes em Braga: atendimento, estilo, experiencia e cuidado em cada corte.",
+  },
+};
+
+function Seo({ page, title, description, noindex = false }) {
+  const data = page ? SEO[page] : null;
+  const seoTitle = title ?? data?.title;
+  const seoDescription = description ?? data?.description;
+  const canonical = data ? `${SITE_URL}${data.path}` : null;
+
+  return (
+    <Helmet>
+      {seoTitle && <title>{seoTitle}</title>}
+      {seoDescription && <meta name="description" content={seoDescription} />}
+      {noindex && <meta name="robots" content="noindex, nofollow" />}
+      {canonical && <link rel="canonical" href={canonical} />}
+      {seoTitle && <meta property="og:title" content={seoTitle} />}
+      {seoDescription && (
+        <meta property="og:description" content={seoDescription} />
+      )}
+      {canonical && <meta property="og:url" content={canonical} />}
+      <meta property="og:image" content={SHARE_IMAGE} />
+      <meta name="twitter:card" content="summary" />
+      {seoTitle && <meta name="twitter:title" content={seoTitle} />}
+      {seoDescription && (
+        <meta name="twitter:description" content={seoDescription} />
+      )}
+      <meta name="twitter:image" content={SHARE_IMAGE} />
+    </Helmet>
+  );
+}
+
 function Layout() {
   const { user, logout } = useAuth();
   const { loading } = useCms();
@@ -122,6 +174,7 @@ function ProtectedDashboard() {
 
 function AppRoutes() {
   const { t } = useCms();
+
   return (
     <Routes>
       <Route element={<Layout />}>
@@ -129,9 +182,7 @@ function AppRoutes() {
           path="/"
           element={
             <>
-              <Helmet>
-                <title>{t("seo.titulo")}</title>
-              </Helmet>
+              <Seo page="home" />
               <HomePage />
             </>
           }
@@ -140,13 +191,7 @@ function AppRoutes() {
           path="/galeria"
           element={
             <>
-              <Helmet>
-                <title>
-                  {[t("galeria.titulo"), t("hero.titulo")]
-                    .filter(Boolean)
-                    .join(" · ")}
-                </title>
-              </Helmet>
+              <Seo page="gallery" />
               <GalleryPage />
             </>
           }
@@ -155,13 +200,7 @@ function AppRoutes() {
           path="/sobre"
           element={
             <>
-              <Helmet>
-                <title>
-                  {[t("sobre.label"), t("hero.titulo")]
-                    .filter(Boolean)
-                    .join(" · ")}
-                </title>
-              </Helmet>
+              <Seo page="about" />
               <AboutPage />
             </>
           }
@@ -170,13 +209,12 @@ function AppRoutes() {
           path="/dashboard"
           element={
             <>
-              <Helmet>
-                <title>
-                  {["A minha conta", t("hero.titulo")]
-                    .filter(Boolean)
-                    .join(" · ")}
-                </title>
-              </Helmet>
+              <Seo
+                title={["A minha conta", t("hero.titulo")]
+                  .filter(Boolean)
+                  .join(" - ")}
+                noindex
+              />
               <ProtectedDashboard />
             </>
           }
@@ -185,15 +223,21 @@ function AppRoutes() {
           path="/reset-password"
           element={
             <>
-              <Helmet>
-                <title>{t("seo.titulo")}</title>
-              </Helmet>
+              <Seo title={SEO.home.title} noindex />
               <HomePage />
             </>
           }
         />
       </Route>
-      <Route path="/cancelar/:token" element={<CancelPage />} />
+      <Route
+        path="/cancelar/:token"
+        element={
+          <>
+            <Seo title="Cancelar marcacao - Barbearia Tiago Fernandes" noindex />
+            <CancelPage />
+          </>
+        }
+      />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

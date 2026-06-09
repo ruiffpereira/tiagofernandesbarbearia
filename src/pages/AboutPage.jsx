@@ -28,7 +28,7 @@ export default function AboutPage() {
             height="1000"
             loading="eager"
             decoding="async"
-            fetchPriority="high"
+            fetchpriority="high"
             className="w-full h-full object-cover"
             onError={(e) => {
               e.currentTarget.style.display = "none";
