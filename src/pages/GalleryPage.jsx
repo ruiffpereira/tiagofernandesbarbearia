@@ -25,6 +25,10 @@ export default function GalleryPage() {
                 <img
                   src={src}
                   alt={`Trabalho ${i + 1}`}
+                  width="1000"
+                  height="1150"
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover"
                 />
               ) : (

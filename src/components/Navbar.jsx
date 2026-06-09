@@ -16,7 +16,9 @@ export default function Navbar({ user, onLogin, onLogout }) {
   const { t } = useCms();
   const go = (path) => navigate(path);
   const isActive = (path) =>
-    path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
+    path === "/"
+      ? location.pathname === "/"
+      : location.pathname.startsWith(path);
   const pwa = usePwaInstall();
   const [showIosHint, setShowIosHint] = useState(false);
 
@@ -45,19 +47,24 @@ export default function Navbar({ user, onLogin, onLogout }) {
         {/* Logo */}
         <button
           onClick={() => go("/")}
-          aria-label={`${t('hero.titulo', 'Barbearia Tiago Fernandes')} — página inicial`}
+          aria-label={`${t("hero.titulo")} — página inicial`}
           className="flex items-center gap-2.5"
         >
           <img
-            src={t('hero.logo', '/logo.png')}
-            alt=""
+            src={t("hero.logo")}
+            alt={`${t("hero.titulo")} — logótipo`}
             aria-hidden="true"
+            width="44"
+            height="44"
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
             className="h-11 w-11 object-contain"
           />
           <span className="text-[15px] font-extrabold text-navy tracking-tight leading-none">
-            {t('hero.titulo', 'Barbearia Tiago Fernandes').split(' ').slice(1).join(' ').toUpperCase()}
+            {t("hero.titulo").split(" ").slice(1).join(" ").toUpperCase()}
             <span className="block text-[9px] font-semibold tracking-[0.25em] text-maroon mt-0.5">
-              {t('hero.titulo', 'Barbearia Tiago Fernandes').split(' ')[0].toUpperCase()}
+              {t("hero.titulo").split(" ")[0].toUpperCase()}
             </span>
           </span>
         </button>
@@ -78,13 +85,21 @@ export default function Navbar({ user, onLogin, onLogout }) {
             >
               {label}
               {isActive(path) && (
-                <span aria-hidden="true" className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-electric rounded-full" />
+                <span
+                  aria-hidden="true"
+                  className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-electric rounded-full"
+                />
               )}
             </button>
           ))}
           {user ? (
             <div className="flex gap-2">
-              <Button variant="ghost" size="sm" onClick={() => go("/dashboard")} aria-current={isActive("/dashboard") ? "page" : undefined}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => go("/dashboard")}
+                aria-current={isActive("/dashboard") ? "page" : undefined}
+              >
                 Conta
               </Button>
               <Button variant="surface" size="sm" onClick={onLogout}>
@@ -138,7 +153,10 @@ export default function Navbar({ user, onLogin, onLogout }) {
               ${isActive(path) ? "text-electric" : "text-ink-faint"}`}
           >
             <Icon size={22} active={isActive(path)} aria-hidden="true" />
-            <span className="text-[10px] font-semibold tracking-wide" aria-hidden="true">
+            <span
+              className="text-[10px] font-semibold tracking-wide"
+              aria-hidden="true"
+            >
               {label}
             </span>
           </button>
@@ -153,8 +171,15 @@ export default function Navbar({ user, onLogin, onLogout }) {
             className={`flex flex-col items-center gap-1 ${itemPad} py-2 rounded-xl transition-colors
               ${isActive("/dashboard") ? "text-electric" : "text-ink-faint"}`}
           >
-            <UserIcon size={22} active={isActive("/dashboard")} aria-hidden="true" />
-            <span className="text-[10px] font-semibold tracking-wide" aria-hidden="true">
+            <UserIcon
+              size={22}
+              active={isActive("/dashboard")}
+              aria-hidden="true"
+            />
+            <span
+              className="text-[10px] font-semibold tracking-wide"
+              aria-hidden="true"
+            >
               Conta
             </span>
           </button>
@@ -165,7 +190,10 @@ export default function Navbar({ user, onLogin, onLogout }) {
             className={`flex flex-col items-center gap-1 ${itemPad} py-2 rounded-xl text-ink-faint transition-colors`}
           >
             <LoginIcon size={22} aria-hidden="true" />
-            <span className="text-[10px] font-semibold tracking-wide" aria-hidden="true">
+            <span
+              className="text-[10px] font-semibold tracking-wide"
+              aria-hidden="true"
+            >
               Entrar
             </span>
           </button>
@@ -176,13 +204,22 @@ export default function Navbar({ user, onLogin, onLogout }) {
           <div className="relative">
             <button
               onClick={handleInstall}
-              aria-label={pwa.isIos ? "Como instalar a app" : pwa.ready ? "Instalar app" : "Instalar app (a aguardar…)"}
+              aria-label={
+                pwa.isIos
+                  ? "Como instalar a app"
+                  : pwa.ready
+                    ? "Instalar app"
+                    : "Instalar app (a aguardar…)"
+              }
               aria-expanded={pwa.isIos ? showIosHint : undefined}
               className={`flex flex-col items-center gap-1 ${itemPad} py-2 rounded-xl transition-colors
                 ${pwa.ready || pwa.isIos ? "text-maroon" : "text-ink-faint"}`}
             >
               <InstallIcon size={22} aria-hidden="true" />
-              <span className="text-[10px] font-semibold tracking-wide" aria-hidden="true">
+              <span
+                className="text-[10px] font-semibold tracking-wide"
+                aria-hidden="true"
+              >
                 Instalar
               </span>
             </button>
@@ -201,13 +238,23 @@ export default function Navbar({ user, onLogin, onLogout }) {
                   className="absolute bottom-[calc(100%+12px)] right-0 z-[910] w-64
                     bg-navy text-cream rounded-xl shadow-lift p-4 text-[13px] leading-relaxed"
                 >
-                  <p className="font-semibold mb-1.5">Instalar no iPhone / iPad</p>
+                  <p className="font-semibold mb-1.5">
+                    Instalar no iPhone / iPad
+                  </p>
                   <p className="text-cream/80">
-                    No Safari, toca em <strong className="text-cream">Partilhar</strong> <span aria-hidden="true">⎙</span> e depois em{" "}
-                    <strong className="text-cream">"Adicionar ao ecrã inicial"</strong>.
+                    No Safari, toca em{" "}
+                    <strong className="text-cream">Partilhar</strong>{" "}
+                    <span aria-hidden="true">⎙</span> e depois em{" "}
+                    <strong className="text-cream">
+                      "Adicionar ao ecrã inicial"
+                    </strong>
+                    .
                   </p>
                   {/* Seta apontada para baixo */}
-                  <div aria-hidden="true" className="absolute -bottom-2 right-5 w-4 h-2 overflow-hidden">
+                  <div
+                    aria-hidden="true"
+                    className="absolute -bottom-2 right-5 w-4 h-2 overflow-hidden"
+                  >
                     <div className="w-4 h-4 bg-navy rotate-45 -translate-y-2" />
                   </div>
                 </div>
@@ -223,9 +270,18 @@ export default function Navbar({ user, onLogin, onLogout }) {
 /* ── Ícones SVG ──────────────────────────────────────────────── */
 function HomeIcon({ size = 24, active }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      strokeWidth={active ? 2.2 : 1.8} strokeLinecap="round" strokeLinejoin="round"
-      aria-hidden="true" focusable="false">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={active ? 2.2 : 1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
       <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9.5z" />
       <path d="M9 21V12h6v9" />
     </svg>
@@ -234,9 +290,18 @@ function HomeIcon({ size = 24, active }) {
 
 function GridIcon({ size = 24, active }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      strokeWidth={active ? 2.2 : 1.8} strokeLinecap="round" strokeLinejoin="round"
-      aria-hidden="true" focusable="false">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={active ? 2.2 : 1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
       <rect x="3" y="3" width="7" height="7" rx="1" />
       <rect x="14" y="3" width="7" height="7" rx="1" />
       <rect x="3" y="14" width="7" height="7" rx="1" />
@@ -247,9 +312,18 @@ function GridIcon({ size = 24, active }) {
 
 function InfoIcon({ size = 24, active }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      strokeWidth={active ? 2.2 : 1.8} strokeLinecap="round" strokeLinejoin="round"
-      aria-hidden="true" focusable="false">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={active ? 2.2 : 1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
       <circle cx="12" cy="12" r="10" />
       <line x1="12" y1="16" x2="12" y2="12" />
       <line x1="12" y1="8" x2="12.01" y2="8" />
@@ -259,9 +333,18 @@ function InfoIcon({ size = 24, active }) {
 
 function UserIcon({ size = 24, active }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      strokeWidth={active ? 2.2 : 1.8} strokeLinecap="round" strokeLinejoin="round"
-      aria-hidden="true" focusable="false">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={active ? 2.2 : 1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
       <circle cx="12" cy="7" r="4" />
     </svg>
@@ -270,9 +353,18 @@ function UserIcon({ size = 24, active }) {
 
 function LoginIcon({ size = 24 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"
-      aria-hidden="true" focusable="false">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
       <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
       <polyline points="10 17 15 12 10 7" />
       <line x1="15" y1="12" x2="3" y2="12" />
@@ -282,9 +374,18 @@ function LoginIcon({ size = 24 }) {
 
 function InstallIcon({ size = 24 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"
-      aria-hidden="true" focusable="false">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
       <path d="M12 3v13" />
       <path d="M8 12l4 4 4-4" />
       <path d="M3 18h18" />
