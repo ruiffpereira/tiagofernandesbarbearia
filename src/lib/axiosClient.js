@@ -1,7 +1,8 @@
 import axios from 'axios'
 import { axiosInstance } from '@kubb/plugin-client/clients/axios'
+import { getCsrfToken } from '../servers/customers/clients/getCsrfToken.ts'
 import { postWebsitesCustomersAutenticationRefresh } from '../servers/customers/clients/postWebsitesCustomersAutenticationRefresh.ts'
-import { USER_KEY } from './api.js'
+import { tokenStore } from './api.js'
 
 const SITE_TOKEN = import.meta.env.VITE_SITE_TOKEN ?? ''
 
@@ -11,8 +12,30 @@ axios.defaults.withCredentials = true
 
 let refreshing = null
 
+const AUTH_ENDPOINTS = [
+  '/autentication/login',
+  '/autentication/register',
+  '/autentication/refresh',
+  '/autentication/logout',
+  '/csrf-token',
+]
+
+function isAuthEndpoint(url) {
+  return AUTH_ENDPOINTS.some((endpoint) => url?.includes(endpoint))
+}
+
+async function getCsrfHeader() {
+  const { csrfToken } = await getCsrfToken()
+  return csrfToken ? { 'x-csrf-token': csrfToken } : {}
+}
+
 const requestInterceptor = (config) => {
+  config.headers = config.headers ?? {}
   if (SITE_TOKEN) config.headers['X-Site-Token'] = SITE_TOKEN
+  if (!config.headers.Authorization && !isAuthEndpoint(config.url)) {
+    const token = tokenStore.getAccess()
+    if (token) config.headers.Authorization = `Bearer ${token}`
+  }
   config.withCredentials = true
   return config
 }
@@ -21,26 +44,26 @@ function dispatchSessionExpired() {
   window.dispatchEvent(new CustomEvent('auth:session-expired'))
 }
 
-const AUTH_ENDPOINTS = [
-  '/autentication/login',
-  '/autentication/register',
-  '/autentication/refresh',
-  '/autentication/logout',
-]
-
 const responseErrorInterceptor = async (error) => {
   const original = error.config
-  const isAuthEndpoint = AUTH_ENDPOINTS.some((e) => original?.url?.includes(e))
 
-  if (error.response?.status === 401 && original && !original._retry && !isAuthEndpoint) {
+  if (error.response?.status === 401 && original && !original._retry && !isAuthEndpoint(original.url)) {
     original._retry = true
 
     if (!refreshing) {
-      refreshing = postWebsitesCustomersAutenticationRefresh()
-        .catch(() => {
-          localStorage.removeItem(USER_KEY)
+      refreshing = getCsrfHeader()
+        .then((headers) =>
+          postWebsitesCustomersAutenticationRefresh({ headers }),
+        )
+        .then((data) => {
+          if (!data?.accessToken) throw new Error('Refresh sem accessToken')
+          tokenStore.saveAccess(data.accessToken)
+          return data.accessToken
+        })
+        .catch((refreshError) => {
+          tokenStore.clear()
           dispatchSessionExpired()
-          return Promise.reject(new Error('Sessao expirada'))
+          return Promise.reject(refreshError)
         })
         .finally(() => {
           refreshing = null
@@ -48,7 +71,9 @@ const responseErrorInterceptor = async (error) => {
     }
 
     try {
-      await refreshing
+      const token = await refreshing
+      original.headers = original.headers ?? {}
+      original.headers.Authorization = `Bearer ${token}`
       original.withCredentials = true
       return axiosInstance(original)
     } catch {

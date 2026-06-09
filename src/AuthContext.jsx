@@ -1,13 +1,14 @@
 // @refresh reset
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
-import { USER_KEY } from './lib/api.js'
+import { tokenStore, USER_KEY } from './lib/api.js'
 import {
   usePostWebsitesCustomersAutenticationLogin,
   usePostWebsitesCustomersAutenticationRegister,
-  usePostWebsitesCustomersAutenticationLogout,
   usePutWebsitesCustomersAutenticationProfile,
   usePostWebsitesCustomersAutenticationForgotPassword,
   usePostWebsitesCustomersAutenticationResetPassword,
+  getCsrfToken,
+  postWebsitesCustomersAutenticationLogout,
 } from './servers/customers/index.ts'
 
 const AuthContext = createContext(null)
@@ -40,13 +41,13 @@ export function AuthProvider({ children }) {
 
   const loginM        = usePostWebsitesCustomersAutenticationLogin()
   const registerM     = usePostWebsitesCustomersAutenticationRegister()
-  const logoutM       = usePostWebsitesCustomersAutenticationLogout()
   const updateM       = usePutWebsitesCustomersAutenticationProfile()
   const forgotM       = usePostWebsitesCustomersAutenticationForgotPassword()
   const resetM        = usePostWebsitesCustomersAutenticationResetPassword()
 
   useEffect(() => {
     function onSessionExpired() {
+      tokenStore.clear()
       persist(null)
     }
     window.addEventListener('auth:session-expired', onSessionExpired)
@@ -57,6 +58,7 @@ export function AuthProvider({ children }) {
     const data = await loginM.mutateAsync({
       data: { provider: 'credentials', email, password },
     })
+    tokenStore.saveAccess(data.accessToken)
     const u = toUser(data)
     persist(u)
     return u
@@ -70,15 +72,23 @@ export function AuthProvider({ children }) {
     const data = await loginM.mutateAsync({
       data: { provider: 'credentials', email, password },
     })
+    tokenStore.saveAccess(data.accessToken)
     const u = toUser(data)
     persist(u)
     return u
   }, [registerM, loginM])
 
   const logout = useCallback(async () => {
-    await logoutM.mutateAsync({}).catch(() => {})
+    await getCsrfToken()
+      .then(({ csrfToken }) =>
+        postWebsitesCustomersAutenticationLogout({
+          headers: csrfToken ? { 'x-csrf-token': csrfToken } : {},
+        }),
+      )
+      .catch(() => {})
+    tokenStore.clear()
     persist(null)
-  }, [logoutM])
+  }, [])
 
   const updateProfile = useCallback(async ({ name, email, phone, nif }) => {
     if (!user) return
