@@ -30,31 +30,7 @@ export default function AboutPage() {
             decoding="async"
             fetchpriority="high"
             className="w-full h-full object-cover"
-            onError={(e) => {
-              e.currentTarget.style.display = "none";
-              e.currentTarget.nextSibling.style.display = "flex";
-            }}
           />
-          <div
-            style={{ display: "none" }}
-            className="flex flex-col items-center justify-center gap-2.5 absolute inset-0"
-          >
-            <img
-              src={t("hero.logo")}
-              alt={`${t("hero.titulo")}`}
-              width="128"
-              height="128"
-              loading="lazy"
-              decoding="async"
-              className="w-32 h-32 object-contain opacity-90"
-            />
-            <span
-              aria-hidden="true"
-              className="text-[11px] text-ink-faint tracking-wider uppercase"
-            >
-              Foto do Tiago
-            </span>
-          </div>
         </div>
 
         <article>

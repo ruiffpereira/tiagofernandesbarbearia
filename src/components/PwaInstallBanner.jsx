@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { usePwaInstall } from "../hooks/usePwaInstall.js";
+import { useCms } from "../context/CmsContext.jsx";
 
 const DISMISSED_KEY = "pwa_banner_dismissed_until";
 
 export default function PwaInstallBanner() {
   const pwa = usePwaInstall();
+  const { t } = useCms();
   const [visible, setVisible] = useState(false);
   const [hint, setHint] = useState(false); // instruções iOS ou "abre no Chrome"
 

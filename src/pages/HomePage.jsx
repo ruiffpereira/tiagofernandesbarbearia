@@ -69,9 +69,9 @@ export default function HomePage() {
   ];
 
   const socials = {
-    instagram: t("redes.instagram", "#"),
-    facebook: t("redes.facebook", "#"),
-    whatsapp: t("redes.whatsapp", "#"),
+    instagram: t("redes.instagram"),
+    facebook: t("redes.facebook"),
+    whatsapp: t("redes.whatsapp"),
   };
 
   return (
@@ -119,10 +119,7 @@ export default function HomePage() {
             </div>
 
             <p className="text-[clamp(15px,1.6vw,17px)] text-ink-soft leading-relaxed max-w-[440px] mb-8 animate-fadeUp [animation-delay:.15s]">
-              {t(
-                "hero.tagline",
-                "Onde o cuidado tradicional encontra o estilo moderno. Marca já a tua próxima visita — em segundos, sem chamadas.",
-              )}
+              {t("hero.tagline")}
             </p>
 
             {/* Cartão contacto / horário */}
@@ -145,9 +142,9 @@ export default function HomePage() {
                     <PinIcon /> Morada
                   </div>
                   <p className="text-sm text-ink font-medium leading-snug">
-                    {t("contacto.morada1", "Rua de Exemplo, 25")}
+                    {t("contacto.morada1")}
                     <br />
-                    {t("contacto.morada2", "4700-000 Braga")}
+                    {t("contacto.morada2")}
                   </p>
                 </div>
                 <div>
@@ -183,7 +180,7 @@ export default function HomePage() {
                     <a
                       key={name}
                       role="listitem"
-                      href={socials[name.toLowerCase()] || "#"}
+                      href={socials[name.toLowerCase()]}
                       aria-label={`${name} da ${t("hero.titulo")}`}
                       className="w-8 h-8 rounded-lg bg-cream-dark text-navy flex items-center justify-center transition-colors hover:bg-navy hover:text-cream"
                     >
