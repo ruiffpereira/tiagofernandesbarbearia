@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../AuthContext.jsx'
+import { useCms } from '../context/CmsContext.jsx'
 import { Button, Spinner, Modal, Label, Input } from './ui.jsx'
 import {
   loginFormSchema,
@@ -18,15 +19,9 @@ const GoogleIcon = () => (
   </svg>
 )
 
-const TITLES = {
-  login:    'Bem-vindo de volta',
-  register: 'Criar conta',
-  forgot:   'Recuperar palavra-passe',
-  reset:    'Nova palavra-passe',
-}
-
 export default function AuthModal({ onClose, onSuccess, initialMode = 'login', resetToken = null }) {
   const { login, register, forgotPassword, resetPassword } = useAuth()
+  const { t } = useCms()
   const [mode, setMode] = useState(resetToken ? 'reset' : initialMode)
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', newPassword: '', confirmPassword: '' })
   const [err, setErr] = useState('')
@@ -81,17 +76,17 @@ export default function AuthModal({ onClose, onSuccess, initialMode = 'login', r
       const status = e?.response?.status
       const serverMsg = e?.response?.data?.message
       if (status === 401) {
-        setErr('Email ou palavra-passe incorretos.')
+        setErr(t('auth.erro.credenciais'))
       } else if (status === 400) {
-        setErr(serverMsg || 'Token inválido ou expirado. Pede um novo link.')
+        setErr(serverMsg || t('auth.erro.token'))
       } else if (status === 409) {
-        setErr('Este email já está registado. Tenta entrar.')
+        setErr(t('auth.erro.email_registado'))
       } else if (status === 422) {
-        setErr(serverMsg || 'Dados inválidos. Verifica os campos.')
+        setErr(serverMsg || t('auth.erro.dados'))
       } else if (serverMsg) {
         setErr(serverMsg)
       } else {
-        setErr(e.message || 'Ocorreu um erro. Tenta novamente.')
+        setErr(e.message || t('auth.erro.generico'))
       }
     } finally {
       setLoading(false)
@@ -99,43 +94,43 @@ export default function AuthModal({ onClose, onSuccess, initialMode = 'login', r
   }
 
   return (
-    <Modal title={TITLES[mode]} onClose={onClose}>
+    <Modal title={t(`auth.${mode}.titulo`)} onClose={onClose}>
 
       {/* ── Login ──────────────────────────────────────────── */}
       {mode === 'login' && (
         <>
           <Button variant="surface" disabled className="w-full opacity-50 cursor-not-allowed" aria-disabled="true">
-            <GoogleIcon /> Continuar com Google (brevemente)
+            <GoogleIcon /> {t('auth.google')}
           </Button>
           <div aria-hidden="true" className="flex items-center gap-3 text-[11px] tracking-wider uppercase text-ink-faint font-semibold my-4">
-            <span className="flex-1 h-px bg-line" /> ou <span className="flex-1 h-px bg-line" />
+            <span className="flex-1 h-px bg-line" /> {t('auth.ou')} <span className="flex-1 h-px bg-line" />
           </div>
           <form onSubmit={submit} className="flex flex-col gap-3.5" noValidate aria-describedby={err ? 'auth-error' : undefined}>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="auth-email">Email *</Label>
-              <Input id="auth-email" type="email" placeholder="email@exemplo.com" value={form.email}
+              <Label htmlFor="auth-email">{t('ui.email')}</Label>
+              <Input id="auth-email" type="email" placeholder={t('auth.email.placeholder')} value={form.email}
                 onChange={(e) => set('email', e.target.value)} required autoComplete="email" aria-required="true" />
             </div>
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
-                <Label htmlFor="auth-password">Palavra-passe *</Label>
+                <Label htmlFor="auth-password">{t('auth.password.label')}</Label>
                 <button type="button" onClick={() => switchMode('forgot')}
                   className="text-[11px] text-ink-faint hover:text-navy underline">
-                  Esqueceste?
+                  {t('auth.esqueceu')}
                 </button>
               </div>
-              <Input id="auth-password" type="password" placeholder="••••••••" value={form.password}
+              <Input id="auth-password" type="password" placeholder={t('auth.password.placeholder')} value={form.password}
                 onChange={(e) => set('password', e.target.value)} required autoComplete="current-password" aria-required="true" />
             </div>
             {err && <div id="auth-error" role="alert" aria-live="assertive"
               className="bg-maroon/[0.08] border border-maroon/25 rounded-[10px] px-3.5 py-2.5 text-maroon text-[13px]">{err}</div>}
             <Button variant="primary" type="submit" disabled={loading} aria-busy={loading} className="w-full mt-1">
-              {loading ? <><Spinner /> A processar…</> : 'Entrar'}
+              {loading ? <><Spinner /> {t('ui.a_processar')}</> : t('ui.entrar')}
             </Button>
           </form>
           <div className="text-center mt-4 text-[13px] text-ink-soft">
-            Sem conta?{' '}
-            <button onClick={() => switchMode('register')} className="text-navy font-semibold underline">Regista-te</button>
+            {t('auth.sem_conta')}{' '}
+            <button onClick={() => switchMode('register')} className="text-navy font-semibold underline">{t('auth.registar')}</button>
           </div>
         </>
       )}
@@ -144,41 +139,41 @@ export default function AuthModal({ onClose, onSuccess, initialMode = 'login', r
       {mode === 'register' && (
         <>
           <Button variant="surface" disabled className="w-full opacity-50 cursor-not-allowed" aria-disabled="true">
-            <GoogleIcon /> Continuar com Google (brevemente)
+            <GoogleIcon /> {t('auth.google')}
           </Button>
           <div aria-hidden="true" className="flex items-center gap-3 text-[11px] tracking-wider uppercase text-ink-faint font-semibold my-4">
-            <span className="flex-1 h-px bg-line" /> ou <span className="flex-1 h-px bg-line" />
+            <span className="flex-1 h-px bg-line" /> {t('auth.ou')} <span className="flex-1 h-px bg-line" />
           </div>
           <form onSubmit={submit} className="flex flex-col gap-3.5" noValidate aria-describedby={err ? 'auth-error' : undefined}>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="auth-name">Nome completo *</Label>
-              <Input id="auth-name" type="text" placeholder="O teu nome" value={form.name}
+              <Label htmlFor="auth-name">{t('ui.nome')}</Label>
+              <Input id="auth-name" type="text" placeholder={t('auth.nome.placeholder')} value={form.name}
                 onChange={(e) => set('name', e.target.value)} required autoComplete="name" aria-required="true" />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="auth-phone">Telemóvel</Label>
-              <Input id="auth-phone" type="tel" placeholder="+351 9XX XXX XXX" value={form.phone}
+              <Label htmlFor="auth-phone">{t('ui.telemovel')}</Label>
+              <Input id="auth-phone" type="tel" placeholder={t('auth.telemovel.placeholder')} value={form.phone}
                 onChange={(e) => set('phone', e.target.value)} autoComplete="tel" />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="auth-email">Email *</Label>
-              <Input id="auth-email" type="email" placeholder="email@exemplo.com" value={form.email}
+              <Label htmlFor="auth-email">{t('ui.email')}</Label>
+              <Input id="auth-email" type="email" placeholder={t('auth.email.placeholder')} value={form.email}
                 onChange={(e) => set('email', e.target.value)} required autoComplete="email" aria-required="true" />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="auth-password">Palavra-passe *</Label>
-              <Input id="auth-password" type="password" placeholder="••••••••" value={form.password}
+              <Label htmlFor="auth-password">{t('auth.password.label')}</Label>
+              <Input id="auth-password" type="password" placeholder={t('auth.password.placeholder')} value={form.password}
                 onChange={(e) => set('password', e.target.value)} required autoComplete="new-password" aria-required="true" />
             </div>
             {err && <div id="auth-error" role="alert" aria-live="assertive"
               className="bg-maroon/[0.08] border border-maroon/25 rounded-[10px] px-3.5 py-2.5 text-maroon text-[13px]">{err}</div>}
             <Button variant="primary" type="submit" disabled={loading} aria-busy={loading} className="w-full mt-1">
-              {loading ? <><Spinner /> A processar…</> : 'Criar conta'}
+              {loading ? <><Spinner /> {t('ui.a_processar')}</> : t('auth.criar_conta')}
             </Button>
           </form>
           <div className="text-center mt-4 text-[13px] text-ink-soft">
-            Já tens conta?{' '}
-            <button onClick={() => switchMode('login')} className="text-navy font-semibold underline">Entra</button>
+            {t('auth.ja_tem_conta')}{' '}
+            <button onClick={() => switchMode('login')} className="text-navy font-semibold underline">{t('auth.entra')}</button>
           </div>
         </>
       )}
@@ -192,34 +187,34 @@ export default function AuthModal({ onClose, onSuccess, initialMode = 'login', r
                 flex items-center justify-center text-2xl">
                 ✉️
               </div>
-              <p className="text-ink font-semibold mb-2">Email enviado!</p>
+              <p className="text-ink font-semibold mb-2">{t('auth.email_enviado.titulo')}</p>
               <p className="text-ink-soft text-[13px] leading-relaxed mb-5">
-                Se o email existir na nossa base de dados, receberás um link para redefinir a tua palavra-passe. Verifica também a pasta de spam.
+                {t('auth.email_enviado.mensagem')}
               </p>
               <Button variant="ghost" size="sm" onClick={() => switchMode('login')}>
-                Voltar ao login
+                {t('auth.voltar_login')}
               </Button>
             </div>
           ) : (
             <>
               <p className="text-ink-soft text-[13px] mb-4 leading-relaxed">
-                Introduz o teu email e enviamos um link para redefinires a palavra-passe.
+                {t('auth.instrucoes_email')}
               </p>
               <form onSubmit={submit} className="flex flex-col gap-3.5" noValidate aria-describedby={err ? 'auth-error' : undefined}>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="forgot-email">Email *</Label>
-                  <Input id="forgot-email" type="email" placeholder="email@exemplo.com" value={form.email}
+                  <Label htmlFor="forgot-email">{t('ui.email')}</Label>
+                  <Input id="forgot-email" type="email" placeholder={t('auth.email.placeholder')} value={form.email}
                     onChange={(e) => set('email', e.target.value)} required autoComplete="email" aria-required="true" />
                 </div>
                 {err && <div id="auth-error" role="alert" aria-live="assertive"
                   className="bg-maroon/[0.08] border border-maroon/25 rounded-[10px] px-3.5 py-2.5 text-maroon text-[13px]">{err}</div>}
                 <Button variant="primary" type="submit" disabled={loading} aria-busy={loading} className="w-full">
-                  {loading ? <><Spinner /> A enviar…</> : 'Enviar link'}
+                  {loading ? <><Spinner /> {t('ui.a_enviar')}</> : t('auth.enviar_link')}
                 </Button>
               </form>
               <div className="text-center mt-4 text-[13px] text-ink-soft">
                 <button onClick={() => switchMode('login')} className="text-navy font-semibold underline">
-                  ← Voltar ao login
+                  ← {t('auth.voltar_login')}
                 </button>
               </div>
             </>
@@ -236,34 +231,34 @@ export default function AuthModal({ onClose, onSuccess, initialMode = 'login', r
                 flex items-center justify-center text-2xl text-emerald-600">
                 ✓
               </div>
-              <p className="text-ink font-semibold mb-2">Palavra-passe alterada!</p>
+              <p className="text-ink font-semibold mb-2">{t('auth.password_alterada.titulo')}</p>
               <p className="text-ink-soft text-[13px] leading-relaxed mb-5">
-                Já podes entrar com a tua nova palavra-passe.
+                {t('auth.password_alterada.mensagem')}
               </p>
               <Button variant="primary" size="sm" onClick={() => switchMode('login')}>
-                Entrar
+                {t('ui.entrar')}
               </Button>
             </div>
           ) : (
             <>
               <p className="text-ink-soft text-[13px] mb-4 leading-relaxed">
-                Escolhe uma nova palavra-passe com pelo menos 8 caracteres.
+                {t('auth.instrucoes_reset')}
               </p>
               <form onSubmit={submit} className="flex flex-col gap-3.5" noValidate aria-describedby={err ? 'auth-error' : undefined}>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="reset-password">Nova palavra-passe *</Label>
-                  <Input id="reset-password" type="password" placeholder="Mínimo 8 caracteres" value={form.newPassword}
+                  <Label htmlFor="reset-password">{t('auth.nova_password.label')}</Label>
+                  <Input id="reset-password" type="password" placeholder={t('auth.nova_password.placeholder')} value={form.newPassword}
                     onChange={(e) => set('newPassword', e.target.value)} required autoComplete="new-password" aria-required="true" />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="reset-confirm">Confirmar palavra-passe *</Label>
-                  <Input id="reset-confirm" type="password" placeholder="Repete a nova palavra-passe" value={form.confirmPassword}
+                  <Label htmlFor="reset-confirm">{t('auth.confirmar_password.label')}</Label>
+                  <Input id="reset-confirm" type="password" placeholder={t('auth.confirmar_password.placeholder')} value={form.confirmPassword}
                     onChange={(e) => set('confirmPassword', e.target.value)} required autoComplete="new-password" aria-required="true" />
                 </div>
                 {err && <div id="auth-error" role="alert" aria-live="assertive"
                   className="bg-maroon/[0.08] border border-maroon/25 rounded-[10px] px-3.5 py-2.5 text-maroon text-[13px]">{err}</div>}
                 <Button variant="primary" type="submit" disabled={loading} aria-busy={loading} className="w-full">
-                  {loading ? <><Spinner /> A guardar…</> : 'Guardar nova palavra-passe'}
+                  {loading ? <><Spinner /> {t('ui.a_guardar')}</> : t('auth.guardar_password')}
                 </Button>
               </form>
             </>

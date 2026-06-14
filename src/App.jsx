@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Routes, Route, Navigate, Outlet, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { AuthProvider, useAuth } from "./AuthContext.jsx";
+import { LanguageProvider } from "./context/LanguageContext.jsx";
 import { CmsProvider, useCms } from "./context/CmsContext.jsx";
 import Navbar from "./components/Navbar.jsx";
 import AuthModal from "./components/AuthModal.jsx";
@@ -17,24 +18,9 @@ const SITE_URL = "https://barbearia-tiago.pt";
 const SHARE_IMAGE = `${SITE_URL}/pwa-512x512.png`;
 
 const SEO = {
-  home: {
-    path: "/",
-    title: "Barbearia Tiago Fernandes - Braga",
-    description:
-      "Barbearia Tiago Fernandes em Braga. Degrade, barba, cortes classicos e tratamentos. Marca a tua consulta online em segundos, sem chamadas.",
-  },
-  gallery: {
-    path: "/galeria",
-    title: "Galeria de cortes - Barbearia Tiago Fernandes",
-    description:
-      "Ve trabalhos, cortes, fades e acabamentos da Barbearia Tiago Fernandes em Braga.",
-  },
-  about: {
-    path: "/sobre",
-    title: "Sobre - Barbearia Tiago Fernandes",
-    description:
-      "Conhece a Barbearia Tiago Fernandes em Braga: atendimento, estilo, experiencia e cuidado em cada corte.",
-  },
+  home:    { path: "/" },
+  gallery: { path: "/galeria" },
+  about:   { path: "/sobre" },
 };
 
 function Seo({ page, title, description, noindex = false }) {
@@ -67,7 +53,7 @@ function Seo({ page, title, description, noindex = false }) {
 
 function Layout() {
   const { user, logout } = useAuth();
-  const { loading } = useCms();
+  const { loading, t } = useCms();
   const navigate = useNavigate();
   const [showAuth, setShowAuth] = useState(false);
   const [resetToken, setResetToken] = useState(() =>
@@ -96,7 +82,7 @@ function Layout() {
 
   function handleLogin(u) {
     setShowAuth(false);
-    showToast(`Bem-vindo, ${u.name.split(" ")[0]}!`);
+    showToast(`${t("app.bem_vindo")} ${u.name.split(" ")[0]}!`);
   }
 
   async function handleLogout() {
@@ -158,8 +144,8 @@ function CmsLoading() {
         aria-live="polite"
         className="flex flex-col items-center gap-4 text-center animate-fadeIn"
       >
-        <div className="flex items-center gap-3 text-sm font-semibold text-navy">
-          <Spinner dark />A carregar conteudo...
+        <div className="flex items-center gap-3 text-lg font-semibold text-navy">
+          <Spinner dark />
         </div>
       </div>
     </main>
@@ -182,7 +168,7 @@ function AppRoutes() {
           path="/"
           element={
             <>
-              <Seo page="home" />
+              <Seo page="home" title={t("seo.home.titulo")} description={t("seo.home.descricao")} />
               <HomePage />
             </>
           }
@@ -191,7 +177,7 @@ function AppRoutes() {
           path="/galeria"
           element={
             <>
-              <Seo page="gallery" />
+              <Seo page="gallery" title={t("seo.galeria.titulo")} description={t("seo.galeria.descricao")} />
               <GalleryPage />
             </>
           }
@@ -200,7 +186,7 @@ function AppRoutes() {
           path="/sobre"
           element={
             <>
-              <Seo page="about" />
+              <Seo page="about" title={t("seo.sobre.titulo")} description={t("seo.sobre.descricao")} />
               <AboutPage />
             </>
           }
@@ -210,7 +196,7 @@ function AppRoutes() {
           element={
             <>
               <Seo
-                title={["A minha conta", t("hero.titulo")]
+                title={[t("seo.dashboard.titulo"), t("hero.titulo")]
                   .filter(Boolean)
                   .join(" - ")}
                 noindex
@@ -223,7 +209,7 @@ function AppRoutes() {
           path="/reset-password"
           element={
             <>
-              <Seo title={SEO.home.title} noindex />
+              <Seo title={t("seo.home.titulo")} noindex />
               <HomePage />
             </>
           }
@@ -233,7 +219,7 @@ function AppRoutes() {
         path="/cancelar/:token"
         element={
           <>
-            <Seo title="Cancelar marcacao - Barbearia Tiago Fernandes" noindex />
+            <Seo title={t("seo.cancelar.titulo")} noindex />
             <CancelPage />
           </>
         }
@@ -246,9 +232,11 @@ function AppRoutes() {
 export default function App() {
   return (
     <AuthProvider>
-      <CmsProvider>
-        <AppRoutes />
-      </CmsProvider>
+      <LanguageProvider>
+        <CmsProvider>
+          <AppRoutes />
+        </CmsProvider>
+      </LanguageProvider>
     </AuthProvider>
   );
 }

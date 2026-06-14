@@ -1,11 +1,14 @@
 import { createContext, useContext } from 'react'
 import { useGetContent } from '../servers/booking/hooks/useGetContent.ts'
+import { useLanguage } from './LanguageContext.jsx'
 
 const CmsContext = createContext({ t: () => '', loading: true })
 
 export function CmsProvider({ children }) {
+  const { currentLang } = useLanguage()
+
   const { data: cms, isLoading } = useGetContent(
-    { locale: 'pt' },
+    { locale: currentLang },
     { query: { refetchInterval: 60_000, staleTime: 55_000 } },
   )
 

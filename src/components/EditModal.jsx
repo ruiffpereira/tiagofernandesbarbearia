@@ -2,8 +2,10 @@ import { useState } from 'react'
 import { storage } from '../storage.js'
 import { generateSlots, nextWorkdays, fmtShort } from '../utils.js'
 import { Button, Spinner, Modal, Label, Textarea } from './ui.jsx'
+import { useCms } from '../context/CmsContext.jsx'
 
 export default function EditModal({ booking, onClose, onSaved }) {
+  const { t } = useCms()
   const [date, setDate] = useState(booking.date)
   const [slot, setSlot] = useState(booking.time)
   const [notes, setNotes] = useState(booking.notes || '')
@@ -30,10 +32,10 @@ export default function EditModal({ booking, onClose, onSaved }) {
   }
 
   return (
-    <Modal title="Editar marcação" onClose={onClose} maxWidth="max-w-lg">
+    <Modal title={t('edit.titulo')} onClose={onClose} maxWidth="max-w-lg">
       <div className="flex flex-col gap-4">
         <div>
-          <Label>Nova data</Label>
+          <Label>{t('edit.nova_data')}</Label>
           <div className="flex gap-2 flex-wrap mt-2.5">
             {avail.map((d) => {
               const f = fmtShort(d); const active = date === d
@@ -49,7 +51,7 @@ export default function EditModal({ booking, onClose, onSaved }) {
         </div>
         {date && (
           <div>
-            <Label>Nova hora</Label>
+            <Label>{t('edit.nova_hora')}</Label>
             <div className="flex gap-2 flex-wrap mt-2.5">
               {free.map((sl) => (
                 <button key={sl} onClick={() => setSlot(sl)}
@@ -62,11 +64,11 @@ export default function EditModal({ booking, onClose, onSaved }) {
           </div>
         )}
         <div className="flex flex-col gap-1.5">
-          <Label>Notas</Label>
-          <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notas..." />
+          <Label>{t('ui.notas')}</Label>
+          <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={t('ui.notas.placeholder')} />
         </div>
         <Button variant="primary" disabled={!slot || loading} onClick={save}>
-          {loading ? <Spinner /> : 'Guardar alterações'}
+          {loading ? <Spinner /> : t('edit.guardar')}
         </Button>
       </div>
     </Modal>

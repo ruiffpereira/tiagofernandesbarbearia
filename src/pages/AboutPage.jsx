@@ -12,7 +12,7 @@ export default function AboutPage() {
 
   return (
     <main
-      aria-label="Sobre a barbearia"
+      aria-label={t("sobre.titulo")}
       className="px-5 sm:px-10 lg:px-16 py-10 lg:py-16 min-h-[calc(100vh-64px)]"
     >
       <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-12 items-center">

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { DayPicker } from "react-day-picker";
 import { pt } from "react-day-picker/locale";
 import { useAuth } from "../AuthContext.jsx";
+import { useCms } from "../context/CmsContext.jsx";
 import {
   useGetBookingServices,
   useGetBookingSlots,
@@ -17,6 +18,7 @@ import { Button, Spinner, Label, Textarea } from "./ui.jsx";
 
 export default function BookingWidget({ onRequireLogin, onBooked }) {
   const { user } = useAuth();
+  const { t } = useCms();
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -49,7 +51,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
         onBooked?.();
       },
       onError: (e) => {
-        setErr(e.message || "Erro ao criar marcação. Tenta novamente.");
+        setErr(e.message || t("auth.erro.generico"));
       },
     },
   });
@@ -162,21 +164,21 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
           ✓
         </div>
         <h3 className="text-xl font-bold text-navy mb-2 tracking-tight">
-          Marcação confirmada!
+          {t("booking.sucesso.titulo")}
         </h3>
         <p className="text-ink-soft text-sm mb-1">{done.serviceName}</p>
         <p className="text-ink-soft text-sm mb-2">
           {fmtDate(done.date)} · {done.time}
         </p>
         <p className="text-[12px] text-ink-faint mb-5">
-          Receberás um email com os detalhes e link de cancelamento.
+          {t("booking.sucesso.mensagem")}
         </p>
         <div className="flex flex-col gap-2">
           <Button variant="primary" size="sm" onClick={() => navigate('/dashboard')}>
-            Ver as minhas marcações
+            {t("booking.sucesso.ver")}
           </Button>
           <Button variant="ghost" size="sm" onClick={reset}>
-            Nova marcação
+            {t("booking.sucesso.nova")}
           </Button>
         </div>
       </div>
@@ -203,9 +205,9 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
           </div>
         ))}
         <span className="ml-2.5 text-xs text-ink-faint font-medium">
-          {step === 1 && "Serviço"}
-          {step === 2 && "Data & hora"}
-          {step === 3 && "Confirmar"}
+          {step === 1 && t("booking.passo.1")}
+          {step === 2 && t("booking.passo.2")}
+          {step === 3 && t("booking.passo.3")}
         </span>
       </div>
 
@@ -270,7 +272,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
             onClick={next}
             className="w-full mt-4"
           >
-            Continuar →
+            {t("ui.continuar")}
           </Button>
         </div>
       )}
@@ -278,7 +280,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
       {/* Passo 2 — data e hora */}
       {step === 2 && (
         <div className="animate-fadeUp">
-          <Label>Data</Label>
+          <Label>{t("ui.data")}</Label>
 
           {/* Linha de atalhos + botão calendário */}
           <div className="relative mt-2 mb-1">
@@ -312,7 +314,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
                   setCalMobile(window.innerWidth < 1024);
                   setShowCalendar((c) => !c);
                 }}
-                title="Escolher outra data"
+                title={t("booking.data.outra")}
                 className={`w-10 shrink-0 rounded-[10px] border-[1.5px] flex items-center justify-center transition-all
                   ${
                     showCalendar || (!dateIsQuick && date)
@@ -404,11 +406,11 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
 
           {/* Horas disponíveis — altura fixa para não saltar ao trocar datas */}
           <div className="mt-3">
-            <Label>Hora disponível</Label>
+            <Label>{t("ui.hora")}</Label>
             <div className="mt-2 max-h-[calc(100dvh-34rem)] overflow-y-auto md:h-[148px] md:max-h-none">
               {!date ? (
                 <p className="text-ink-faint text-[13px] p-3.5 text-center">
-                  Escolhe uma data primeiro.
+                  {t("booking.sem_data")}
                 </p>
               ) : loadingSlots ? (
                 <div className="flex justify-center py-4">
@@ -416,7 +418,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
                 </div>
               ) : free.length === 0 ? (
                 <p className="text-ink-faint text-[13px] p-3.5 text-center bg-paper rounded-[10px]">
-                  Sem horários disponíveis.
+                  {t("booking.sem_horarios")}
                 </p>
               ) : (
                 <div className="grid grid-cols-[repeat(auto-fill,minmax(68px,1fr))] gap-1.5 pr-0.5">
@@ -440,7 +442,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
 
           <div className="flex gap-2 mt-4">
             <Button variant="ghost" onClick={back}>
-              ← Voltar
+              {t("ui.voltar")}
             </Button>
             <Button
               variant="primary"
@@ -448,7 +450,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
               onClick={next}
               className="flex-1"
             >
-              Continuar →
+              {t("ui.continuar")}
             </Button>
           </div>
         </div>
@@ -460,34 +462,34 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
           <div className="bg-paper rounded-[10px] p-4 border border-line mb-3.5">
             <div className="flex justify-between items-center mb-2.5">
               <span className="text-[11px] text-ink-faint font-semibold tracking-wider uppercase">
-                Resumo
+                {t("booking.resumo.titulo")}
               </span>
               <span className="text-lg font-bold text-navy">€{svc.price}</span>
             </div>
             <div className="flex flex-col gap-1.5 text-[13.5px]">
               <div>
-                <span className="text-ink-faint">Serviço:</span>{" "}
+                <span className="text-ink-faint">{t("booking.resumo.servico")}</span>{" "}
                 <span className="text-ink font-medium">{svc.name}</span>
               </div>
               <div>
-                <span className="text-ink-faint">Data:</span>{" "}
+                <span className="text-ink-faint">{t("booking.resumo.data")}</span>{" "}
                 <span className="text-ink font-medium">{fmtDate(date)}</span>
               </div>
               <div>
-                <span className="text-ink-faint">Hora:</span>{" "}
+                <span className="text-ink-faint">{t("booking.resumo.hora")}</span>{" "}
                 <span className="text-ink font-medium">{slot}</span>
               </div>
               <div>
-                <span className="text-ink-faint">Cliente:</span>{" "}
+                <span className="text-ink-faint">{t("booking.resumo.cliente")}</span>{" "}
                 <span className="text-ink font-medium">{user.name}</span>
               </div>
             </div>
           </div>
 
           <div className="flex flex-col gap-1.5 mb-3.5">
-            <Label>Notas (opcional)</Label>
+            <Label>{t("ui.notas_opcional")}</Label>
             <Textarea
-              placeholder="Algum pedido especial?"
+              placeholder={t("ui.notas.placeholder")}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             />
@@ -501,7 +503,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
 
           <div className="flex gap-2">
             <Button variant="ghost" onClick={back}>
-              ← Voltar
+              {t("ui.voltar")}
             </Button>
             <Button
               variant="primary"
@@ -509,7 +511,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
               disabled={confirmM.isPending}
               className="flex-1"
             >
-              {confirmM.isPending ? <Spinner /> : "Confirmar marcação"}
+              {confirmM.isPending ? <Spinner /> : t("booking.confirmar")}
             </Button>
           </div>
         </div>

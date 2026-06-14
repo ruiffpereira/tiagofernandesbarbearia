@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../AuthContext.jsx";
+import { useCms } from "../context/CmsContext.jsx";
 import { profileFormSchema, firstZodError } from "../lib/formSchemas.ts";
 import {
   useGetBookingMyAppointments,
@@ -16,6 +17,7 @@ const FOCUSABLE =
 
 export default function DashboardPage() {
   const { user, logout, updateProfile } = useAuth();
+  const { t } = useCms();
   const navigate = useNavigate();
   const qc = useQueryClient();
 
@@ -101,7 +103,7 @@ export default function DashboardPage() {
         });
         setCancelId(null);
       },
-      onError: (e) => alert(e.message || "Erro ao cancelar"),
+      onError: (e) => alert(e.message || t("cancel.erro")),
     },
   });
 
@@ -130,21 +132,21 @@ export default function DashboardPage() {
       setEditOk(true);
       setEditing(false);
     } catch (e) {
-      setEditErr(e.message || "Erro ao guardar. Tenta novamente.");
+      setEditErr(e.message || t("auth.erro.generico"));
     } finally {
       setEditLoading(false);
     }
   }
 
   const account = [
-    ["Nome", user.name],
-    ["Email", user.email],
-    ["Telemóvel", user.phone || "—"],
-    ["NIF", user.nif || "—"],
+    [t("ui.nome"), user.name],
+    [t("ui.email"), user.email],
+    [t("ui.telemovel"), user.phone || "—"],
+    [t("ui.nif"), user.nif || "—"],
   ];
 
   return (
-    <main aria-label="A minha conta" className="min-h-[calc(100vh-64px)]">
+    <main aria-label={t("nav.conta")} className="min-h-[calc(100vh-64px)]">
       <header className="bg-cream-dark border-b border-line px-5 sm:px-10 lg:px-16 py-7">
         <div className="max-w-4xl mx-auto">
           <button
@@ -152,19 +154,19 @@ export default function DashboardPage() {
             aria-label="Voltar à página inicial"
             className="text-ink-faint text-[13px] font-medium mb-3.5 inline-flex items-center gap-1.5"
           >
-            <span aria-hidden="true">←</span> Página inicial
+            <span aria-hidden="true">←</span> {t("ui.voltar")}
           </button>
           <div className="flex justify-between items-end flex-wrap gap-4">
             <div>
               <h1 className="text-[clamp(22px,3vw,32px)] font-extrabold text-navy tracking-tight">
-                Olá,{" "}
+                {t("dashboard.ola")}{" "}
                 <span className="text-maroon">{user.name.split(" ")[0]}</span>
               </h1>
               <p className="text-ink-faint text-[13px] mt-1">{user.email}</p>
             </div>
             <div className="flex gap-2">
               <Button variant="primary" onClick={() => navigate("/")}>
-                + Nova marcação
+                {t("dashboard.nova_marcacao")}
               </Button>
               <Button
                 variant="surface"
@@ -173,7 +175,7 @@ export default function DashboardPage() {
                   navigate("/");
                 }}
               >
-                Sair
+                {t("ui.sair")}
               </Button>
             </div>
           </div>
@@ -185,11 +187,11 @@ export default function DashboardPage() {
         <section aria-labelledby="upcoming-heading" className="mb-10">
           <div className="flex items-center gap-2.5 mb-1.5">
             <h2 id="upcoming-heading" className="text-xl font-bold text-navy">
-              Próximas marcações
+              {t("dashboard.proximas.titulo")}
             </h2>
             {upcoming.length > 0 && (
               <span
-                aria-label={`${upcoming.length} marcações`}
+                aria-label={`${upcoming.length} ${t("dashboard.proximas.titulo").toLowerCase()}`}
                 className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold
                 tracking-wider uppercase bg-emerald-500/15 text-emerald-600"
               >
@@ -199,14 +201,14 @@ export default function DashboardPage() {
           </div>
           <p className="text-ink-faint text-[13px] mb-4" aria-live="polite">
             {upcoming.length === 0 && !loadingUp
-              ? "Nenhuma agendada."
-              : "Podes cancelar até à data."}
+              ? t("dashboard.nenhuma")
+              : t("dashboard.pode_cancelar")}
           </p>
 
           {loadingUp ? (
             <div
               className="flex justify-center py-8"
-              aria-label="A carregar marcações…"
+              aria-label={t("dashboard.carregando")}
               role="status"
             >
               <Spinner />
@@ -216,24 +218,24 @@ export default function DashboardPage() {
               role="alert"
               className="bg-maroon/[0.08] border border-maroon/25 rounded-[10px] px-3.5 py-2.5 text-maroon text-[13px]"
             >
-              Erro ao carregar marcações:{" "}
-              {upErr?.message || "tenta recarregar a página."}
+              {t("dashboard.erro")}{" "}
+              {upErr?.message || t("dashboard.erro.reload")}
             </div>
           ) : upcoming.length === 0 ? (
             <div className="bg-paper border-[1.5px] border-dashed border-line-strong rounded-xl2 py-10 px-6 text-center">
               <div aria-hidden="true" className="text-3xl mb-2.5 opacity-40">
                 📅
               </div>
-              <p className="text-ink-faint mb-4 text-sm">Sem marcações</p>
+              <p className="text-ink-faint mb-4 text-sm">{t("dashboard.sem_marcacoes")}</p>
               <Button variant="primary" size="sm" onClick={() => navigate("/")}>
-                Marcar agora
+                {t("dashboard.marcar_agora")}
               </Button>
             </div>
           ) : (
             <div
               className="flex flex-col gap-2.5"
               role="list"
-              aria-label="Próximas marcações"
+              aria-label={t("dashboard.proximas.titulo")}
             >
               {upcoming.map((b) => (
                 <BookingCard
@@ -256,12 +258,12 @@ export default function DashboardPage() {
               id="history-heading"
               className="text-xl font-bold text-navy mb-1.5"
             >
-              Histórico
+              {t("dashboard.historico.titulo")}
             </h2>
             {loadingPast ? (
               <div
                 className="flex justify-center py-4"
-                aria-label="A carregar histórico…"
+                aria-label={t("dashboard.historico.carregando")}
                 role="status"
               >
                 <Spinner />
@@ -269,12 +271,12 @@ export default function DashboardPage() {
             ) : (
               <>
                 <p className="text-ink-faint text-[13px] mb-4">
-                  {past.length} marcação(ões)
+                  {past.length} {t("dashboard.historico.contagem")}
                 </p>
                 <div
                   className="flex flex-col gap-2.5"
                   role="list"
-                  aria-label="Histórico de marcações"
+                  aria-label={t("dashboard.historico.titulo")}
                 >
                   {past.map((b) => (
                     <BookingCard
@@ -299,7 +301,7 @@ export default function DashboardPage() {
               id="account-heading"
               className="text-[17px] font-bold text-navy"
             >
-              Dados da conta
+              {t("dashboard.conta.titulo")}
             </h2>
             <Button
               variant="ghost"
@@ -311,7 +313,7 @@ export default function DashboardPage() {
                 setEditOk(false);
               }}
             >
-              {editing ? "Cancelar" : "Editar"}
+              {editing ? t("ui.cancelar") : t("ui.editar")}
             </Button>
           </div>
 
@@ -321,7 +323,7 @@ export default function DashboardPage() {
               aria-live="polite"
               className="mb-4 px-3.5 py-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-[10px] text-emerald-400 text-[13px]"
             >
-              Perfil actualizado com sucesso.
+              {t("dashboard.sucesso")}
             </div>
           )}
 
@@ -334,7 +336,7 @@ export default function DashboardPage() {
             >
               <div className="grid sm:grid-cols-2 gap-3.5">
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="edit-name">Nome *</Label>
+                  <Label htmlFor="edit-name">{t("ui.nome")}</Label>
                   <Input
                     id="edit-name"
                     value={editForm.name}
@@ -346,7 +348,7 @@ export default function DashboardPage() {
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="edit-email">Email *</Label>
+                  <Label htmlFor="edit-email">{t("ui.email")}</Label>
                   <Input
                     id="edit-email"
                     type="email"
@@ -359,7 +361,7 @@ export default function DashboardPage() {
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="edit-phone">Telemóvel *</Label>
+                  <Label htmlFor="edit-phone">{t("ui.telemovel")}</Label>
                   <Input
                     id="edit-phone"
                     type="tel"
@@ -373,7 +375,7 @@ export default function DashboardPage() {
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="edit-nif">NIF</Label>
+                  <Label htmlFor="edit-nif">{t("ui.nif")}</Label>
                   <Input
                     id="edit-nif"
                     placeholder="000000000"
@@ -409,10 +411,10 @@ export default function DashboardPage() {
               >
                 {editLoading ? (
                   <>
-                    <Spinner /> A guardar…
+                    <Spinner /> {t("ui.a_guardar")}
                   </>
                 ) : (
-                  "Guardar alterações"
+                  t("ui.guardar")
                 )}
               </Button>
             </form>
@@ -454,13 +456,13 @@ export default function DashboardPage() {
               id="cancel-dialog-title"
               className="text-lg font-bold text-navy mb-2"
             >
-              Cancelar marcação
+              {t("dashboard.cancelar_dialog.titulo")}
             </h3>
             <p
               className="text-ink-soft text-sm leading-relaxed mb-5"
               id="cancel-dialog-desc"
             >
-              Tens a certeza? Esta ação não pode ser revertida.
+              {t("dashboard.cancelar_dialog.texto")}
             </p>
             <div className="flex gap-2">
               <Button
@@ -474,10 +476,10 @@ export default function DashboardPage() {
               >
                 {cancelM.isPending ? (
                   <>
-                    <Spinner /> A cancelar…
+                    <Spinner /> {t("ui.a_cancelar")}
                   </>
                 ) : (
-                  "Sim, cancelar"
+                  t("dashboard.cancelar_dialog.sim")
                 )}
               </Button>
               <Button
@@ -485,7 +487,7 @@ export default function DashboardPage() {
                 className="flex-1"
                 onClick={() => setCancelId(null)}
               >
-                Voltar
+                {t("dashboard.cancelar_dialog.nao")}
               </Button>
             </div>
           </div>

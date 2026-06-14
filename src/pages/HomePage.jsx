@@ -74,6 +74,12 @@ export default function HomePage() {
     whatsapp: t("redes.whatsapp"),
   };
 
+  const morada = [t("contacto.morada1"), t("contacto.morada2")]
+    .filter(Boolean)
+    .join(", ");
+  // URL do mapa preenchido pelo cliente no backoffice (chave contacto.mapa_url)
+  const mapsUrl = t("contacto.mapa_url") || null;
+
   return (
     <main>
       <section
@@ -130,7 +136,7 @@ export default function HomePage() {
                   className="inline-block w-8 h-0.5 bg-navy rounded-full"
                 />
                 <span className="text-[11px] font-bold tracking-[0.1em] uppercase text-navy">
-                  Contacto &amp; Horário
+                  {t("home.contacto.titulo")}
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-3.5 mb-4">
@@ -139,20 +145,34 @@ export default function HomePage() {
                     aria-hidden="true"
                     className="flex items-center gap-1.5 text-ink-faint text-[11px] font-semibold tracking-wider uppercase mb-1"
                   >
-                    <PinIcon /> Morada
+                    <PinIcon /> {t("home.contacto.morada.label")}
                   </div>
-                  <p className="text-sm text-ink font-medium leading-snug">
-                    {t("contacto.morada1")}
-                    <br />
-                    {t("contacto.morada2")}
-                  </p>
+                  {mapsUrl ? (
+                    <a
+                      href={mapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Abrir ${morada} no Google Maps`}
+                      className="text-sm text-ink font-medium leading-snug hover:text-navy transition-colors"
+                    >
+                      {t("contacto.morada1")}
+                      <br />
+                      {t("contacto.morada2")}
+                    </a>
+                  ) : (
+                    <p className="text-sm text-ink font-medium leading-snug">
+                      {t("contacto.morada1")}
+                      <br />
+                      {t("contacto.morada2")}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <div
                     aria-hidden="true"
                     className="flex items-center gap-1.5 text-ink-faint text-[11px] font-semibold tracking-wider uppercase mb-1"
                   >
-                    <ClockIcon /> Horário
+                    <ClockIcon /> {t("home.contacto.horario.label")}
                   </div>
                   <p className="text-sm text-ink font-medium leading-snug">
                     <time>{t("contacto.horario.dias")}</time>
@@ -181,6 +201,8 @@ export default function HomePage() {
                       key={name}
                       role="listitem"
                       href={socials[name.toLowerCase()]}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       aria-label={`${name} da ${t("hero.titulo")}`}
                       className="w-8 h-8 rounded-lg bg-cream-dark text-navy flex items-center justify-center transition-colors hover:bg-navy hover:text-cream"
                     >
@@ -236,13 +258,13 @@ export default function HomePage() {
                   aria-hidden="true"
                   className="text-[11px] font-bold tracking-[0.1em] uppercase text-maroon"
                 >
-                  Marcar
+                  {t("home.booking.eyebrow")}
                 </span>
               </div>
               <h2 className="text-[22px] font-extrabold text-navy tracking-tight leading-tight">
-                Marca o teu corte
+                {t("home.booking.titulo")}
                 <br />
-                em 3 passos
+                {t("home.booking.subtitulo")}
               </h2>
             </div>
             <BookingWidget

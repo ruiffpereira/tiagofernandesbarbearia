@@ -27,6 +27,7 @@ function toUser(data) {
     email: data.email,
     phone: data.contact,
     nif: data.nif ?? null,
+    defaultLanguage: data.defaultLanguage ?? null,
   }
 }
 
@@ -100,6 +101,11 @@ export function AuthProvider({ children }) {
     return u
   }, [user, updateM])
 
+  const setUserLanguage = useCallback((lang) => {
+    if (!user) return
+    persist({ ...user, defaultLanguage: lang })
+  }, [user])
+
   const forgotPassword = useCallback(async (email) => {
     await forgotM.mutateAsync({ data: { email } })
   }, [forgotM])
@@ -109,7 +115,7 @@ export function AuthProvider({ children }) {
   }, [resetM])
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, updateProfile, forgotPassword, resetPassword }}>
+    <AuthContext.Provider value={{ user, login, register, logout, updateProfile, setUserLanguage, forgotPassword, resetPassword }}>
       {children}
     </AuthContext.Provider>
   )

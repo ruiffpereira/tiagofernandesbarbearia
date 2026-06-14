@@ -24,7 +24,7 @@ export default function GalleryPage() {
               {src && (
                 <img
                   src={src}
-                  alt={`Trabalho ${i + 1}`}
+                  alt={`${t('galeria.alt_trabalho')} ${i + 1}`}
                   width="1000"
                   height="1150"
                   loading="lazy"

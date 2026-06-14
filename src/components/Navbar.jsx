@@ -3,17 +3,18 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "./ui.jsx";
 import { usePwaInstall } from "../hooks/usePwaInstall.js";
 import { useCms } from "../context/CmsContext.jsx";
-
-const NAV = [
-  { label: "Início", path: "/", icon: HomeIcon },
-  { label: "Trabalhos", path: "/galeria", icon: GridIcon },
-  { label: "Sobre", path: "/sobre", icon: InfoIcon },
-];
+import LanguageSwitcher from "./LanguageSwitcher.jsx";
 
 export default function Navbar({ user, onLogin, onLogout }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useCms();
+
+  const NAV = [
+    { label: t("nav.inicio"), path: "/", icon: HomeIcon },
+    { label: t("nav.trabalhos"), path: "/galeria", icon: GridIcon },
+    { label: t("nav.sobre"), path: "/sobre", icon: InfoIcon },
+  ];
   const go = (path) => navigate(path);
   const isActive = (path) =>
     path === "/"
@@ -71,6 +72,7 @@ export default function Navbar({ user, onLogin, onLogout }) {
 
         {/* Desktop nav */}
         <div className="hidden lg:flex items-center gap-7" role="list">
+          <LanguageSwitcher />
           {NAV.map(({ label, path }) => (
             <button
               key={path}
@@ -100,25 +102,26 @@ export default function Navbar({ user, onLogin, onLogout }) {
                 onClick={() => go("/dashboard")}
                 aria-current={isActive("/dashboard") ? "page" : undefined}
               >
-                Conta
+                {t("nav.conta")}
               </Button>
               <Button variant="surface" size="sm" onClick={onLogout}>
-                Sair
+                {t("ui.sair")}
               </Button>
             </div>
           ) : (
             <Button variant="primary" size="sm" onClick={onLogin}>
-              Entrar
+              {t("ui.entrar")}
             </Button>
           )}
         </div>
 
         {/* Mobile/tablet — botão de login/conta (top right) */}
-        <div className="lg:hidden">
+        <div className="lg:hidden flex items-center gap-2">
+          <LanguageSwitcher />
           {user ? (
             <button
               onClick={() => go("/dashboard")}
-              aria-label="A minha conta"
+              aria-label={t("nav.conta")}
               aria-current={isActive("/dashboard") ? "page" : undefined}
               className={`flex flex-col items-center gap-0.5 p-2 rounded-lg transition-colors
                 ${isActive("/dashboard") ? "text-electric" : "text-ink-soft"}`}
@@ -128,10 +131,10 @@ export default function Navbar({ user, onLogin, onLogout }) {
           ) : (
             <button
               onClick={onLogin}
-              aria-label="Entrar na conta"
+              aria-label={t("ui.entrar")}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-maroon text-white text-[13px] font-semibold"
             >
-              Entrar
+              {t("ui.entrar")}
             </button>
           )}
         </div>
@@ -167,7 +170,7 @@ export default function Navbar({ user, onLogin, onLogout }) {
           <button
             onClick={() => go("/dashboard")}
             aria-current={isActive("/dashboard") ? "page" : undefined}
-            aria-label="A minha conta"
+            aria-label={t("nav.conta")}
             className={`flex flex-col items-center gap-1 ${itemPad} py-2 rounded-xl transition-colors
               ${isActive("/dashboard") ? "text-electric" : "text-ink-faint"}`}
           >
@@ -180,13 +183,13 @@ export default function Navbar({ user, onLogin, onLogout }) {
               className="text-[10px] font-semibold tracking-wide"
               aria-hidden="true"
             >
-              Conta
+              {t("nav.conta")}
             </span>
           </button>
         ) : (
           <button
             onClick={onLogin}
-            aria-label="Entrar na conta"
+            aria-label={t("ui.entrar")}
             className={`flex flex-col items-center gap-1 ${itemPad} py-2 rounded-xl text-ink-faint transition-colors`}
           >
             <LoginIcon size={22} aria-hidden="true" />
@@ -194,7 +197,7 @@ export default function Navbar({ user, onLogin, onLogout }) {
               className="text-[10px] font-semibold tracking-wide"
               aria-hidden="true"
             >
-              Entrar
+              {t("ui.entrar")}
             </span>
           </button>
         )}
@@ -206,10 +209,10 @@ export default function Navbar({ user, onLogin, onLogout }) {
               onClick={handleInstall}
               aria-label={
                 pwa.isIos
-                  ? "Como instalar a app"
+                  ? t("nav.instalar.titulo")
                   : pwa.ready
-                    ? "Instalar app"
-                    : "Instalar app (a aguardar…)"
+                    ? t("nav.instalar")
+                    : t("ui.a_carregar")
               }
               aria-expanded={pwa.isIos ? showIosHint : undefined}
               className={`flex flex-col items-center gap-1 ${itemPad} py-2 rounded-xl transition-colors
@@ -220,7 +223,7 @@ export default function Navbar({ user, onLogin, onLogout }) {
                 className="text-[10px] font-semibold tracking-wide"
                 aria-hidden="true"
               >
-                Instalar
+                {t("nav.instalar")}
               </span>
             </button>
 
@@ -239,14 +242,14 @@ export default function Navbar({ user, onLogin, onLogout }) {
                     bg-navy text-cream rounded-xl shadow-lift p-4 text-[13px] leading-relaxed"
                 >
                   <p className="font-semibold mb-1.5">
-                    Instalar no iPhone / iPad
+                    {t("nav.instalar.titulo")}
                   </p>
                   <p className="text-cream/80">
-                    No Safari, toca em{" "}
-                    <strong className="text-cream">Partilhar</strong>{" "}
-                    <span aria-hidden="true">⎙</span> e depois em{" "}
+                    {t("pwa.ios.texto_pre")}{" "}
+                    <strong className="text-cream">{t("nav.instalar.ios.partilhar")}</strong>{" "}
+                    <span aria-hidden="true">⎙</span> {t("pwa.ios.texto_mid")}{" "}
                     <strong className="text-cream">
-                      "Adicionar ao ecrã inicial"
+                      "{t("nav.instalar.ios.ecra")}"
                     </strong>
                     .
                   </p>

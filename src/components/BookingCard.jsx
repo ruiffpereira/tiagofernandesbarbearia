@@ -1,15 +1,18 @@
 import { fmtDate } from '../utils.js'
 import { Button } from './ui.jsx'
-
-const STATUS = {
-  confirmed: { label: 'Confirmado', cls: 'bg-emerald-500/15 text-emerald-600' },
-  cancelled: { label: 'Cancelado', cls: 'bg-maroon/12 text-maroon' },
-  pending:   { label: 'Pendente', cls: 'bg-amber-500/15 text-amber-600' },
-  completed: { label: 'Concluído', cls: 'bg-ink/8 text-ink-soft' },
-}
+import { useCms } from '../context/CmsContext.jsx'
 
 export default function BookingCard({ booking: b, isPast, onEdit, onCancel }) {
+  const { t } = useCms()
   const cancelled = b.status === 'cancelled'
+
+  const STATUS = {
+    confirmed: { label: t('ui.status.confirmada'), cls: 'bg-emerald-500/15 text-emerald-600' },
+    cancelled: { label: t('ui.status.cancelada'), cls: 'bg-maroon/12 text-maroon' },
+    pending:   { label: t('ui.status.pendente'), cls: 'bg-amber-500/15 text-amber-600' },
+    completed: { label: t('ui.status.concluida'), cls: 'bg-ink/8 text-ink-soft' },
+  }
+
   const st = STATUS[b.status] || STATUS.confirmed
 
   return (
@@ -34,8 +37,8 @@ export default function BookingCard({ booking: b, isPast, onEdit, onCancel }) {
         <span className="text-navy font-bold text-lg">€{b.servicePrice}</span>
         {!isPast && !cancelled && (
           <div className="flex gap-1.5">
-            {onEdit && <Button variant="ghost" size="sm" onClick={() => onEdit(b)}>Editar</Button>}
-            {onCancel && <Button variant="danger" size="sm" onClick={() => onCancel(b.id)}>Cancelar</Button>}
+            {onEdit && <Button variant="ghost" size="sm" onClick={() => onEdit(b)}>{t('ui.editar')}</Button>}
+            {onCancel && <Button variant="danger" size="sm" onClick={() => onCancel(b.id)}>{t('ui.cancelar')}</Button>}
           </div>
         )}
       </div>

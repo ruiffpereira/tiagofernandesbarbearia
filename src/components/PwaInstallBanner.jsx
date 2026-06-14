@@ -52,10 +52,10 @@ export default function PwaInstallBanner() {
           />
           <div className="flex-1 min-w-0">
             <p className="text-[13px] font-bold leading-tight">
-              Instalar a App
+              {t("pwa.titulo")}
             </p>
             <p className="text-[11px] text-cream/70 mt-0.5 leading-tight">
-              Acesso rápido, sem abrir o browser.
+              {t("pwa.subtitulo")}
             </p>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
@@ -64,7 +64,7 @@ export default function PwaInstallBanner() {
               aria-expanded={isIosOrNotReady ? hint : undefined}
               className="bg-maroon text-cream text-xs font-semibold px-3 py-1.5 rounded-lg"
             >
-              {pwa.isIos ? "Como?" : "Instalar"}
+              {pwa.isIos ? t("pwa.como") : t("pwa.instalar")}
             </button>
             <button
               onClick={dismiss}
@@ -80,20 +80,16 @@ export default function PwaInstallBanner() {
           <p className="text-[12px] text-cream/80 mt-3 leading-relaxed border-t border-cream/10 pt-3">
             {pwa.isIos ? (
               <>
-                No Safari, toca em{" "}
-                <strong className="text-cream">Partilhar</strong>{" "}
-                <span aria-hidden="true">⎙</span> e depois em{" "}
+                {t("pwa.ios.texto_pre")}{" "}
+                <strong className="text-cream">{t("pwa.ios.partilhar")}</strong>{" "}
+                <span aria-hidden="true">⎙</span> {t("pwa.ios.texto_mid")}{" "}
                 <strong className="text-cream">
-                  "Adicionar ao ecrã inicial"
+                  "{t("pwa.ios.ecra")}"
                 </strong>
                 .
               </>
             ) : (
-              <>
-                Abre este site no{" "}
-                <strong className="text-cream">Google Chrome</strong> e volta a
-                tentar — o Chrome permite instalar a app directamente.
-              </>
+              t("pwa.chrome.mensagem")
             )}
           </p>
         )}
