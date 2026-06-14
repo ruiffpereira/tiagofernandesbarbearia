@@ -53,4 +53,22 @@ export default defineConfig([
       }),
     ],
   },
+  {
+    root: '.',
+    input: {
+      path: `${BASE}-docs/websites/content.json?key=${TOKEN}`,
+    },
+    output: {
+      path: './src/servers/cms',
+      clean: true,
+    },
+    plugins: [
+      ...sharedPlugins,
+      pluginReactQuery({
+        output: { path: './hooks' },
+        infinite: false,
+        client: { baseURL: BASE },
+      }),
+    ],
+  },
 ])

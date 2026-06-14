@@ -14,39 +14,36 @@ import DashboardPage from "./pages/DashboardPage.jsx";
 import CancelPage from "./pages/CancelPage.jsx";
 import PwaInstallBanner from "./components/PwaInstallBanner.jsx";
 
-const SITE_URL = "https://barbearia-tiago.pt";
-const SHARE_IMAGE = `${SITE_URL}/pwa-512x512.png`;
-
-const SEO = {
-  home:    { path: "/" },
-  gallery: { path: "/galeria" },
-  about:   { path: "/sobre" },
+const PAGE_PATHS = {
+  home:    "/",
+  gallery: "/galeria",
+  about:   "/sobre",
 };
 
 function Seo({ page, title, description, noindex = false }) {
-  const data = page ? SEO[page] : null;
-  const seoTitle = title ?? data?.title;
-  const seoDescription = description ?? data?.description;
-  const canonical = data ? `${SITE_URL}${data.path}` : null;
+  const { t } = useCms();
+  const siteUrl = t('site.url');
+  const ogImage = t('seo.og_image');
+  const canonical = page ? `${siteUrl}${PAGE_PATHS[page]}` : null;
 
   return (
     <Helmet>
-      {seoTitle && <title>{seoTitle}</title>}
-      {seoDescription && <meta name="description" content={seoDescription} />}
+      {title && <title>{title}</title>}
+      {description && <meta name="description" content={description} />}
       {noindex && <meta name="robots" content="noindex, nofollow" />}
       {canonical && <link rel="canonical" href={canonical} />}
-      {seoTitle && <meta property="og:title" content={seoTitle} />}
-      {seoDescription && (
-        <meta property="og:description" content={seoDescription} />
+      {title && <meta property="og:title" content={title} />}
+      {description && (
+        <meta property="og:description" content={description} />
       )}
       {canonical && <meta property="og:url" content={canonical} />}
-      <meta property="og:image" content={SHARE_IMAGE} />
+      {ogImage && <meta property="og:image" content={ogImage} />}
       <meta name="twitter:card" content="summary" />
-      {seoTitle && <meta name="twitter:title" content={seoTitle} />}
-      {seoDescription && (
-        <meta name="twitter:description" content={seoDescription} />
+      {title && <meta name="twitter:title" content={title} />}
+      {description && (
+        <meta name="twitter:description" content={description} />
       )}
-      <meta name="twitter:image" content={SHARE_IMAGE} />
+      {ogImage && <meta name="twitter:image" content={ogImage} />}
     </Helmet>
   );
 }

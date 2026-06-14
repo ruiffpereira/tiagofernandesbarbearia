@@ -106,6 +106,13 @@ export function AuthProvider({ children }) {
     persist({ ...user, defaultLanguage: lang })
   }, [user])
 
+  // Atualiza o localStorage sem disparar re-render (usado por LanguageContext
+  // para evitar a race condition no useEffect de inicialização de língua)
+  const silentUpdateLanguage = useCallback((lang) => {
+    if (!user) return
+    localStorage.setItem(USER_KEY, JSON.stringify({ ...user, defaultLanguage: lang }))
+  }, [user])
+
   const forgotPassword = useCallback(async (email) => {
     await forgotM.mutateAsync({ data: { email } })
   }, [forgotM])
@@ -115,7 +122,7 @@ export function AuthProvider({ children }) {
   }, [resetM])
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, updateProfile, setUserLanguage, forgotPassword, resetPassword }}>
+    <AuthContext.Provider value={{ user, login, register, logout, updateProfile, setUserLanguage, silentUpdateLanguage, forgotPassword, resetPassword }}>
       {children}
     </AuthContext.Provider>
   )
