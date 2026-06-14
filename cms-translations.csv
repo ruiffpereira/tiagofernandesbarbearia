@@ -347,6 +347,8 @@ seo.cancelar.titulo,pt,Cancelar marcação,text,SEO,
 seo.cancelar.titulo,en,Cancel booking,text,SEO,
 app.bem_vindo,pt,Bem-vindo,text,App,
 app.bem_vindo,en,Welcome,text,App,
+app.a_mudar_lingua,pt,A mudar de língua…,text,App,
+app.a_mudar_lingua,en,Switching language…,text,App,
 hero.logo,en,/logo.png,image,Hero,Homepage
 hero.stat1.valor,en,7+,text,Hero,Homepage
 hero.stat2.valor,en,2k+,text,Hero,Homepage
