@@ -6,6 +6,7 @@ import { DayPicker } from "react-day-picker";
 import { pt } from "react-day-picker/locale";
 import { useAuth } from "../AuthContext.jsx";
 import { useCms } from "../context/CmsContext.jsx";
+import { useLanguage } from "../context/LanguageContext.jsx";
 import {
   useGetBookingServices,
   useGetBookingSlots,
@@ -19,6 +20,7 @@ import { Button, Spinner, Label, Textarea } from "./ui.jsx";
 export default function BookingWidget({ onRequireLogin, onBooked }) {
   const { user } = useAuth();
   const { t } = useCms();
+  const { currentLang } = useLanguage();
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -31,7 +33,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
 
   const { data: services = [], isLoading: loadingServices } =
     useGetBookingServices(
-      {},
+      { locale: currentLang },
       { query: { staleTime: 5 * 60 * 1000 } },
     );
 
