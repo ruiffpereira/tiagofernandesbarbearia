@@ -24,12 +24,17 @@ function Seo({ page, title, description, noindex = false }) {
   const { t } = useCms();
   const siteUrl = t('site.url');
   const ogImage = t('seo.og_image');
+  // Favicon vindo do CMS (com fallback para o logótipo). Substitui o ícone
+  // estático do index.html assim que o conteúdo do CMS carrega.
+  const favicon = t('seo.favicon') || t('hero.logo');
   const canonical = page ? `${siteUrl}${PAGE_PATHS[page]}` : null;
 
   return (
     <Helmet>
       {title && <title>{title}</title>}
       {description && <meta name="description" content={description} />}
+      {favicon && <link rel="icon" href={favicon} />}
+      {favicon && <link rel="apple-touch-icon" href={favicon} />}
       {noindex && <meta name="robots" content="noindex, nofollow" />}
       {canonical && <link rel="canonical" href={canonical} />}
       {title && <meta property="og:title" content={title} />}
