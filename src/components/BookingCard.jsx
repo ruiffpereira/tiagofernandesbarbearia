@@ -1,9 +1,12 @@
-import { fmtDate } from '../utils.js'
+import { fmtDate, langToLocale } from '../utils.js'
 import { Button } from './ui.jsx'
 import { useCms } from '../context/CmsContext.jsx'
+import { useLanguage } from '../context/LanguageContext.jsx'
 
 export default function BookingCard({ booking: b, isPast, onEdit, onCancel }) {
   const { t } = useCms()
+  const { currentLang } = useLanguage()
+  const dateLocale = langToLocale(currentLang)
   const cancelled = b.status === 'cancelled'
 
   const STATUS = {
@@ -28,7 +31,7 @@ export default function BookingCard({ booking: b, isPast, onEdit, onCancel }) {
             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold
               tracking-wider uppercase ${st.cls}`}>{st.label}</span>
           </div>
-          <p className="text-ink-soft text-[13px] mb-0.5">{fmtDate(b.date)} · {b.time}</p>
+          <p className="text-ink-soft text-[13px] mb-0.5">{fmtDate(b.date, dateLocale)} · {b.time}</p>
           <p className="text-ink-faint text-xs">{b.barberName}</p>
           {b.notes && <p className="text-ink-faint text-xs mt-1 italic">"{b.notes}"</p>}
         </div>

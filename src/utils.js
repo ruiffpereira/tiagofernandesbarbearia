@@ -32,17 +32,30 @@ export function nextWorkdays(count = 6) {
   return out
 }
 
-export function fmtDate(s) {
-  return new Date(s + 'T12:00:00').toLocaleDateString('pt-PT', {
+// Mapa código de língua → locale BCP-47 (para formatação de datas)
+const LANG_TO_LOCALE = {
+  pt: 'pt-PT', br: 'pt-BR', en: 'en-GB', es: 'es-ES', fr: 'fr-FR',
+  de: 'de-DE', it: 'it-IT', nl: 'nl-NL', pl: 'pl-PL', ru: 'ru-RU',
+  uk: 'uk-UA', zh: 'zh-CN', ja: 'ja-JP', ar: 'ar-SA', ro: 'ro-RO',
+  hu: 'hu-HU', cs: 'cs-CZ', tr: 'tr-TR', sv: 'sv-SE', da: 'da-DK',
+  fi: 'fi-FI', nb: 'nb-NO',
+}
+
+export function langToLocale(lang) {
+  return LANG_TO_LOCALE[lang] ?? 'pt-PT'
+}
+
+export function fmtDate(s, locale = 'pt-PT') {
+  return new Date(s + 'T12:00:00').toLocaleDateString(locale, {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   })
 }
 
-export function fmtShort(s) {
+export function fmtShort(s, locale = 'pt-PT') {
   const d = new Date(s + 'T12:00:00')
   return {
-    day: d.toLocaleDateString('pt-PT', { weekday: 'short' }).replace('.', ''),
+    day: d.toLocaleDateString(locale, { weekday: 'short' }).replace('.', ''),
     num: d.getDate(),
-    mon: d.toLocaleDateString('pt-PT', { month: 'short' }).replace('.', ''),
+    mon: d.toLocaleDateString(locale, { month: 'short' }).replace('.', ''),
   }
 }

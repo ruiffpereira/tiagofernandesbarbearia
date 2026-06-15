@@ -3,7 +3,6 @@ import { createPortal } from "react-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { DayPicker } from "react-day-picker";
-import { pt } from "react-day-picker/locale";
 import { useAuth } from "../AuthContext.jsx";
 import { useCms } from "../context/CmsContext.jsx";
 import { useLanguage } from "../context/LanguageContext.jsx";
@@ -14,13 +13,54 @@ import {
   getBookingSlotsQueryKey,
   getBookingMyAppointmentsQueryKey,
 } from "../servers/booking/index.ts";
-import { nextWorkdays, fmtDate, fmtShort } from "../utils.js";
+import { nextWorkdays, fmtDate, fmtShort, langToLocale } from "../utils.js";
 import { Button, Spinner, Label, Textarea } from "./ui.jsx";
+
+// Loaders lazy dos locales do react-day-picker (1 chunk por locale, carregado on-demand).
+// Cobre as línguas suportadas pela API; cai para pt se a língua não tiver locale.
+const DP_LOADERS = {
+  pt: () => import("react-day-picker/locale/pt"),
+  br: () => import("react-day-picker/locale/pt-BR"),
+  en: () => import("react-day-picker/locale/en-GB"),
+  es: () => import("react-day-picker/locale/es"),
+  fr: () => import("react-day-picker/locale/fr"),
+  de: () => import("react-day-picker/locale/de"),
+  it: () => import("react-day-picker/locale/it"),
+  nl: () => import("react-day-picker/locale/nl"),
+  pl: () => import("react-day-picker/locale/pl"),
+  ru: () => import("react-day-picker/locale/ru"),
+  uk: () => import("react-day-picker/locale/uk"),
+  zh: () => import("react-day-picker/locale/zh-CN"),
+  ja: () => import("react-day-picker/locale/ja"),
+  ar: () => import("react-day-picker/locale/ar-SA"),
+  ro: () => import("react-day-picker/locale/ro"),
+  hu: () => import("react-day-picker/locale/hu"),
+  cs: () => import("react-day-picker/locale/cs"),
+  tr: () => import("react-day-picker/locale/tr"),
+  sv: () => import("react-day-picker/locale/sv"),
+  da: () => import("react-day-picker/locale/da"),
+  fi: () => import("react-day-picker/locale/fi"),
+  nb: () => import("react-day-picker/locale/nb"),
+};
 
 export default function BookingWidget({ onRequireLogin, onBooked }) {
   const { user } = useAuth();
   const { t } = useCms();
   const { currentLang } = useLanguage();
+  const dateLocale = langToLocale(currentLang);
+  const [dpLocale, setDpLocale] = useState(undefined);
+  useEffect(() => {
+    let cancelled = false;
+    const load = DP_LOADERS[currentLang] ?? DP_LOADERS.pt;
+    load()
+      .then((mod) => {
+        if (!cancelled) setDpLocale(Object.values(mod)[0]);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [currentLang]);
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -170,7 +210,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
         </h3>
         <p className="text-ink-soft text-sm mb-1">{done.serviceName}</p>
         <p className="text-ink-soft text-sm mb-2">
-          {fmtDate(done.date)} · {done.time}
+          {fmtDate(done.date, dateLocale)} · {done.time}
         </p>
         <p className="text-[12px] text-ink-faint mb-5">
           {t("booking.sucesso.mensagem")}
@@ -288,7 +328,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
           <div className="relative mt-2 mb-1">
             <div className="flex gap-1.5">
               {quickDays.map((d) => {
-                const f = fmtShort(d);
+                const f = fmtShort(d, dateLocale);
                 const active = date === d;
                 return (
                   <button
@@ -346,7 +386,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
             {date && !dateIsQuick && (
               <div className="mt-1.5 flex items-center gap-2">
                 <span className="text-[12px] font-medium text-electric">
-                  {fmtDate(date)}
+                  {fmtDate(date, dateLocale)}
                 </span>
                 <button
                   onClick={() => {
@@ -377,7 +417,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
                     >
                       <DayPicker
                         mode="single"
-                        locale={pt}
+                        locale={dpLocale}
                         selected={selectedDateObj}
                         onSelect={handleCalendarSelect}
                         fromDate={tomorrow}
@@ -475,7 +515,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
               </div>
               <div>
                 <span className="text-ink-faint">{t("booking.resumo.data")}</span>{" "}
-                <span className="text-ink font-medium">{fmtDate(date)}</span>
+                <span className="text-ink font-medium">{fmtDate(date, dateLocale)}</span>
               </div>
               <div>
                 <span className="text-ink-faint">{t("booking.resumo.hora")}</span>{" "}

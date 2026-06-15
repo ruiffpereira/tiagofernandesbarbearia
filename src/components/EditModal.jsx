@@ -1,11 +1,14 @@
 import { useState } from 'react'
 import { storage } from '../storage.js'
-import { generateSlots, nextWorkdays, fmtShort } from '../utils.js'
+import { generateSlots, nextWorkdays, fmtShort, langToLocale } from '../utils.js'
 import { Button, Spinner, Modal, Label, Textarea } from './ui.jsx'
 import { useCms } from '../context/CmsContext.jsx'
+import { useLanguage } from '../context/LanguageContext.jsx'
 
 export default function EditModal({ booking, onClose, onSaved }) {
   const { t } = useCms()
+  const { currentLang } = useLanguage()
+  const dateLocale = langToLocale(currentLang)
   const [date, setDate] = useState(booking.date)
   const [slot, setSlot] = useState(booking.time)
   const [notes, setNotes] = useState(booking.notes || '')
@@ -38,7 +41,7 @@ export default function EditModal({ booking, onClose, onSaved }) {
           <Label>{t('edit.nova_data')}</Label>
           <div className="flex gap-2 flex-wrap mt-2.5">
             {avail.map((d) => {
-              const f = fmtShort(d); const active = date === d
+              const f = fmtShort(d, dateLocale); const active = date === d
               return (
                 <button key={d} onClick={() => { setDate(d); setSlot('') }}
                   className={`px-3.5 py-2 rounded-full border-[1.5px] text-[13px] font-medium transition-all

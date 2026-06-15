@@ -4,12 +4,15 @@ import { useGetBookingAppointmentByToken } from '../servers/booking/hooks/useGet
 import { usePatchBookingAppointmentCancel } from '../servers/booking/hooks/usePatchBookingAppointmentCancel.ts'
 import { Button, Spinner } from '../components/ui.jsx'
 import { useCms } from '../context/CmsContext.jsx'
-import { fmtDate } from '../utils.js'
+import { useLanguage } from '../context/LanguageContext.jsx'
+import { fmtDate, langToLocale } from '../utils.js'
 
 export default function CancelPage() {
   const { token: cancelToken } = useParams()
   const [done, setDone] = useState(false)
   const { t } = useCms()
+  const { currentLang } = useLanguage()
+  const dateLocale = langToLocale(currentLang)
 
   const STATUS_LABEL = {
     pending: t('ui.status.pendente'),
@@ -65,7 +68,7 @@ export default function CancelPage() {
 
                   <div className="rounded-xl bg-cream-dark border border-line p-4 space-y-2.5 mb-6">
                     <Row label={t('ui.servico')} value={appt.service?.name ?? '—'} />
-                    <Row label={t('ui.data')} value={appt.date ? fmtDate(appt.date) : '—'} />
+                    <Row label={t('ui.data')} value={appt.date ? fmtDate(appt.date, dateLocale) : '—'} />
                     <Row label={t('ui.hora')} value={appt.time ?? '—'} />
                     {appt.service?.price != null && (
                       <Row label={t('ui.preco')} value={`€${Number(appt.service.price).toFixed(2)}`} />
