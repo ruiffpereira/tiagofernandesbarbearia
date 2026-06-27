@@ -13,6 +13,7 @@ import AboutPage from "./pages/AboutPage.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
 import CancelPage from "./pages/CancelPage.jsx";
 import PwaInstallBanner from "./components/PwaInstallBanner.jsx";
+import CookieConsent from "./components/CookieConsent.jsx";
 
 const PAGE_PATHS = {
   home:    "/",
@@ -237,6 +238,7 @@ export default function App() {
       <LanguageProvider>
         <CmsProvider>
           <AppRoutes />
+          <CookieConsent />
         </CmsProvider>
       </LanguageProvider>
     </AuthProvider>
