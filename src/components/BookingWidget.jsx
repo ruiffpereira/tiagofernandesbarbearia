@@ -15,6 +15,7 @@ import {
 } from "../servers/booking/index.ts";
 import { nextWorkdays, fmtDate, fmtShort, langToLocale } from "../utils.js";
 import { Button, Spinner, Label, Textarea } from "./ui.jsx";
+import AddToCalendar from "./AddToCalendar.jsx";
 
 // Loaders lazy dos locales do react-day-picker (1 chunk por locale, carregado on-demand).
 // Cobre as línguas suportadas pela API; cai para pt se a língua não tiver locale.
@@ -215,6 +216,18 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
         <p className="text-[12px] text-ink-faint mb-5">
           {t("booking.sucesso.mensagem")}
         </p>
+        <div className="mb-5 flex justify-center">
+          <AddToCalendar
+            booking={{
+              serviceName: done.serviceName,
+              date: done.date,
+              time: done.time,
+              duration: done.duration,
+              cancelToken: done.cancelToken,
+            }}
+            compact
+          />
+        </div>
         <div className="flex flex-col gap-2">
           <Button variant="primary" size="sm" onClick={() => navigate('/dashboard')}>
             {t("booking.sucesso.ver")}

@@ -10,8 +10,12 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { HelmetProvider } from 'react-helmet-async'
+import { initPlausible } from './lib/plausible.js'
 import App from './App.jsx'
 import './index.css'
+
+// Estatísticas (Plausible, cookieless) — no-op sem env configurado.
+initPlausible()
 
 const queryClient = new QueryClient({
   defaultOptions: {

@@ -1,5 +1,6 @@
 import { fmtDate, langToLocale } from '../utils.js'
 import { Button } from './ui.jsx'
+import AddToCalendar from './AddToCalendar.jsx'
 import { useCms } from '../context/CmsContext.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
 
@@ -34,6 +35,17 @@ export default function BookingCard({ booking: b, isPast, onEdit, onCancel }) {
           <p className="text-ink-soft text-[13px] mb-0.5">{fmtDate(b.date, dateLocale)} · {b.time}</p>
           <p className="text-ink-faint text-xs">{b.barberName}</p>
           {b.notes && <p className="text-ink-faint text-xs mt-1 italic">"{b.notes}"</p>}
+          {!isPast && !cancelled && (
+            <AddToCalendar
+              booking={{
+                serviceName: b.serviceName,
+                date: b.date,
+                time: b.time,
+                duration: b.duration,
+                cancelToken: b.cancelToken,
+              }}
+            />
+          )}
         </div>
       </div>
       <div className="flex items-center gap-3.5">
