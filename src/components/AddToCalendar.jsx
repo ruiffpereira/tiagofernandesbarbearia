@@ -30,6 +30,10 @@ export default function AddToCalendar({ booking, compact = false }) {
     duration: booking.duration || 30,
   })
   const icsUrl = booking.cancelToken ? appointmentIcsUrl(booking.cancelToken, currentLang) : null
+  // Feed pessoal que auto-atualiza (webcal). Vem na resposta da marcação (booking.calendar)
+  // ou pode ser passado diretamente em booking.subscribeUrl.
+  const subscribeUrl =
+    booking.calendar?.webcalUrl || booking.calendar?.subscribeUrl || booking.subscribeUrl || null
 
   const linkCls =
     'inline-flex items-center gap-1.5 text-[13px] font-medium text-electric hover:underline'
@@ -48,6 +52,12 @@ export default function AddToCalendar({ booking, compact = false }) {
         {icsUrl && (
           <a href={icsUrl} className={linkCls}>
             <span aria-hidden="true">⬇</span> {t('calendar.download') || 'Descarregar (.ics)'}
+          </a>
+        )}
+        {subscribeUrl && (
+          <a href={subscribeUrl} className={linkCls}>
+            <span aria-hidden="true">🔔</span>{' '}
+            {t('calendar.subscribe') || 'Subscrever (atualiza sozinho)'}
           </a>
         )}
       </div>

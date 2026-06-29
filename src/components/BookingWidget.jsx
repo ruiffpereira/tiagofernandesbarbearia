@@ -224,6 +224,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
               time: done.time,
               duration: done.duration,
               cancelToken: done.cancelToken,
+              calendar: done.calendar,
             }}
             compact
           />
