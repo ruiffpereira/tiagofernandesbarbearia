@@ -41,23 +41,37 @@ export default function AddToCalendar({ booking, compact = false }) {
   return (
     <div className={compact ? '' : 'mt-2'}>
       {!compact && (
-        <p className="text-[11px] font-bold tracking-wider uppercase text-ink-faint mb-1.5">
+        <p className="text-[11px] font-bold tracking-wider uppercase text-ink-faint mb-2">
           {t('calendar.add') || 'Adicionar ao calendário'}
         </p>
       )}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
+
+      {/* Recomendado: subscrever uma vez → as próximas marcações aparecem sozinhas */}
+      {subscribeUrl && (
+        <a
+          href={subscribeUrl}
+          className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-electric hover:underline"
+        >
+          <span aria-hidden="true">🔔</span>{' '}
+          {t('calendar.subscribe') || 'Subscrever — as próximas aparecem sozinhas'}
+        </a>
+      )}
+
+      {/* Manual: adiciona só esta marcação (snapshot, não se atualiza) */}
+      <div
+        className={`flex flex-wrap items-center gap-x-3 gap-y-1.5 ${subscribeUrl ? 'mt-1.5' : ''}`}
+      >
+        {subscribeUrl && (
+          <span className="text-[12px] text-ink-faint">
+            {t('calendar.once') || 'Só esta marcação:'}
+          </span>
+        )}
         <a href={googleUrl} target="_blank" rel="noopener noreferrer" className={linkCls}>
           <span aria-hidden="true">📅</span> {t('calendar.google') || 'Google Calendar'}
         </a>
         {icsUrl && (
           <a href={icsUrl} className={linkCls}>
             <span aria-hidden="true">⬇</span> {t('calendar.download') || 'Descarregar (.ics)'}
-          </a>
-        )}
-        {subscribeUrl && (
-          <a href={subscribeUrl} className={linkCls}>
-            <span aria-hidden="true">🔔</span>{' '}
-            {t('calendar.subscribe') || 'Subscrever (atualiza sozinho)'}
           </a>
         )}
       </div>
