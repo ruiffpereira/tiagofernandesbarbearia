@@ -10,6 +10,7 @@ import { Spinner } from "./components/ui.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import GalleryPage from "./pages/GalleryPage.jsx";
 import AboutPage from "./pages/AboutPage.jsx";
+import PrivacyPage from "./pages/PrivacyPage.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
 import CancelPage from "./pages/CancelPage.jsx";
 import PwaInstallBanner from "./components/PwaInstallBanner.jsx";
@@ -191,6 +192,21 @@ function AppRoutes() {
             <>
               <Seo page="about" title={t("seo.sobre.titulo")} description={t("seo.sobre.descricao")} />
               <AboutPage />
+            </>
+          }
+        />
+        <Route
+          path="/privacidade"
+          element={
+            <>
+              <Seo
+                title={
+                  [t("privacy.title") || "Política de Privacidade", t("hero.titulo")]
+                    .filter(Boolean)
+                    .join(" - ")
+                }
+              />
+              <PrivacyPage />
             </>
           }
         />
