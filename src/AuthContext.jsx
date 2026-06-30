@@ -27,6 +27,7 @@ function toUser(data) {
     email: data.email,
     phone: data.contact,
     nif: data.nif ?? null,
+    wantsInvoice: data.wantsInvoice ?? false,
     defaultLanguage: data.defaultLanguage ?? null,
   }
 }
@@ -91,10 +92,10 @@ export function AuthProvider({ children }) {
     persist(null)
   }, [])
 
-  const updateProfile = useCallback(async ({ name, email, phone, nif }) => {
+  const updateProfile = useCallback(async ({ name, email, phone, nif, wantsInvoice }) => {
     if (!user) return
     const data = await updateM.mutateAsync({
-      data: { name, email, contact: phone, nif },
+      data: { name, email, contact: phone, nif, ...(wantsInvoice !== undefined && { wantsInvoice }) },
     })
     const u = toUser(data)
     persist(u)

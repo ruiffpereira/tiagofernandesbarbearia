@@ -44,6 +44,7 @@ export default function DashboardPage() {
     email: user.email,
     phone: user.phone || "",
     nif: user.nif || "",
+    wantsInvoice: user.wantsInvoice ?? false,
   });
   const [editLoading, setEditLoading] = useState(false);
   const [editErr, setEditErr] = useState("");
@@ -128,6 +129,7 @@ export default function DashboardPage() {
         email: editForm.email,
         phone: editForm.phone,
         nif: editForm.nif || null,
+        wantsInvoice: editForm.wantsInvoice,
       });
       setEditOk(true);
       setEditing(false);
@@ -143,6 +145,10 @@ export default function DashboardPage() {
     [t("ui.email"), user.email],
     [t("ui.telemovel"), user.phone || "—"],
     [t("ui.nif"), user.nif || "—"],
+    [
+      t("dashboard.contribuinte.label") || "Fatura com contribuinte",
+      user.wantsInvoice ? (t("ui.sim") || "Sim") : (t("ui.nao") || "Não"),
+    ],
   ];
 
   return (
@@ -390,6 +396,28 @@ export default function DashboardPage() {
                     inputMode="numeric"
                   />
                 </div>
+              </div>
+              <div className="flex items-center justify-between gap-3 rounded-[10px] border border-line px-3.5 py-3">
+                <div>
+                  <span className="block text-[14px] font-medium text-navy">
+                    {t("dashboard.contribuinte.label") || "Quero fatura com contribuinte"}
+                  </span>
+                  <span className="block text-[12px] text-ink-soft mt-0.5">
+                    {t("dashboard.contribuinte.hint") || "Emitir as faturas com o meu NIF."}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={editForm.wantsInvoice}
+                  aria-label={t("dashboard.contribuinte.label") || "Quero fatura com contribuinte"}
+                  onClick={() => setEditForm((f) => ({ ...f, wantsInvoice: !f.wantsInvoice }))}
+                  className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-navy/40 ${editForm.wantsInvoice ? "bg-navy" : "bg-line-strong"}`}
+                >
+                  <span
+                    className={`inline-block h-5 w-5 transform rounded-full bg-paper shadow transition-transform ${editForm.wantsInvoice ? "translate-x-[22px]" : "translate-x-0.5"}`}
+                  />
+                </button>
               </div>
               {editErr && (
                 <div
