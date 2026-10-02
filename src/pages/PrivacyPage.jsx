@@ -119,7 +119,7 @@ function DefaultPolicy({ negocio, email }) {
         <p>
           Usamos apenas cookies <b>essenciais</b> ao funcionamento do site. Para
           estatísticas usamos uma ferramenta <b>sem cookies e anónima</b>
-          (Plausible, auto-hospedado), que <b>não</b> rastreia os visitantes
+          (Umami, auto-hospedado), que <b>não</b> rastreia os visitantes
           entre sites nem cria perfis individuais. Pode gerir as suas
           preferências no banner de cookies.
         </p>

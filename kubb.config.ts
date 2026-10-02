@@ -95,4 +95,16 @@ export default defineConfig([
       }),
     ],
   },
+  // Estatísticas: o par {websiteId, src} do Umami deste tenant.
+  {
+    root: '.',
+    input: {
+      path: await fetchSpec(`${BASE}-docs/websites/analytics.json?key=${TOKEN}`, 'spec.analytics.json'),
+    },
+    output: {
+      path: './src/servers/analytics',
+      clean: true,
+    },
+    plugins: sharedPlugins,
+  },
 ])
