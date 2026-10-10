@@ -26,9 +26,11 @@ function Seo({ page, title, description, noindex = false }) {
   const { t } = useCms();
   const siteUrl = t('site.url');
   const ogImage = t('seo.og_image');
-  // Favicon vindo do CMS (com fallback para o logótipo). Substitui o ícone
+  // Favicon vindo do CMS. `site.icon` é o ícone que o dono carrega no Backoffice
+  // (Conteúdos → Site público → Ícone do site, PNG quadrado 512×512); `seo.favicon`
+  // e o logótipo ficam como fallback. Substitui o ícone
   // estático do index.html assim que o conteúdo do CMS carrega.
-  const favicon = t('seo.favicon') || t('hero.logo');
+  const favicon = t('site.icon') || t('seo.favicon') || t('hero.logo');
   const canonical = page ? `${siteUrl}${PAGE_PATHS[page]}` : null;
 
   return (
