@@ -7,6 +7,7 @@ import {
   usePutWebsitesCustomersAutenticationProfile,
   usePostWebsitesCustomersAutenticationForgotPassword,
   usePostWebsitesCustomersAutenticationResetPassword,
+  postWebsitesCustomersGoogleExchange,
   getCsrfToken,
   postWebsitesCustomersAutenticationLogout,
 } from './servers/customers/index.ts'
@@ -66,6 +67,15 @@ export function AuthProvider({ children }) {
     return u
   }, [loginM])
 
+  // Troca o código do Google pela sessão (mesma resposta do /login)
+  const loginWithGoogleCode = useCallback(async (code) => {
+    const data = await postWebsitesCustomersGoogleExchange({ code })
+    tokenStore.saveAccess(data.accessToken)
+    const u = toUser(data)
+    persist(u)
+    return u
+  }, [])
+
   const register = useCallback(async (name, email, phone, password) => {
     await registerM.mutateAsync({
       data: { name, email, contact: phone, password },
@@ -123,7 +133,7 @@ export function AuthProvider({ children }) {
   }, [resetM])
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, updateProfile, setUserLanguage, silentUpdateLanguage, forgotPassword, resetPassword }}>
+    <AuthContext.Provider value={{ user, login, loginWithGoogleCode, register, logout, updateProfile, setUserLanguage, silentUpdateLanguage, forgotPassword, resetPassword }}>
       {children}
     </AuthContext.Provider>
   )

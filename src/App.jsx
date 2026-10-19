@@ -13,6 +13,7 @@ import AboutPage from "./pages/AboutPage.jsx";
 import PrivacyPage from "./pages/PrivacyPage.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
 import CancelPage from "./pages/CancelPage.jsx";
+import GoogleReturnPage from "./pages/GoogleReturnPage.jsx";
 import PwaInstallBanner from "./components/PwaInstallBanner.jsx";
 import ChatWidget from "./components/ChatWidget.jsx";
 import { enablePush } from "./lib/push.js";
@@ -281,6 +282,15 @@ function AppRoutes() {
           <>
             <Seo title={t("seo.cancelar.titulo")} noindex />
             <CancelPage />
+          </>
+        }
+      />
+      <Route
+        path="/entrar/google"
+        element={
+          <>
+            <Seo title={t("seo.home.titulo")} noindex />
+            <GoogleReturnPage />
           </>
         }
       />

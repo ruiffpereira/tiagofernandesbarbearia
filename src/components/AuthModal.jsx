@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useGetWebsitesCustomersGoogleEnabled } from '../servers/customers/index.ts'
+import { startGoogleLogin } from '../lib/googleLogin.js'
 import { useAuth } from '../AuthContext.jsx'
 import { useCms } from '../context/CmsContext.jsx'
 import { Button, Spinner, Modal, Label, Input } from './ui.jsx'
@@ -19,9 +21,27 @@ const GoogleIcon = () => (
   </svg>
 )
 
+// Botão + separador "ou"; só aparece se a API tiver o login Google ligado
+function GoogleSection({ enabled, t }) {
+  if (!enabled) return null
+  return (
+    <>
+      <Button variant="surface" type="button" onClick={startGoogleLogin}
+        className="w-full !bg-white border border-[#dadce0] !text-[#3c4043]">
+        <GoogleIcon /> {t('auth.google')}
+      </Button>
+      <div aria-hidden="true" className="flex items-center gap-3 text-[11px] tracking-wider uppercase text-ink-faint font-semibold my-4">
+        <span className="flex-1 h-px bg-line" /> {t('auth.ou')} <span className="flex-1 h-px bg-line" />
+      </div>
+    </>
+  )
+}
+
 export default function AuthModal({ onClose, onSuccess, initialMode = 'login', resetToken = null }) {
   const { login, register, forgotPassword, resetPassword } = useAuth()
   const { t } = useCms()
+  const { data: googleStatus } = useGetWebsitesCustomersGoogleEnabled({ query: { staleTime: 5 * 60_000, retry: false } })
+  const googleEnabled = googleStatus?.enabled === true
   const [mode, setMode] = useState(resetToken ? 'reset' : initialMode)
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', newPassword: '', confirmPassword: '' })
   const [err, setErr] = useState('')
@@ -99,12 +119,7 @@ export default function AuthModal({ onClose, onSuccess, initialMode = 'login', r
       {/* ── Login ──────────────────────────────────────────── */}
       {mode === 'login' && (
         <>
-          <Button variant="surface" disabled className="w-full opacity-50 cursor-not-allowed" aria-disabled="true">
-            <GoogleIcon /> {t('auth.google')}
-          </Button>
-          <div aria-hidden="true" className="flex items-center gap-3 text-[11px] tracking-wider uppercase text-ink-faint font-semibold my-4">
-            <span className="flex-1 h-px bg-line" /> {t('auth.ou')} <span className="flex-1 h-px bg-line" />
-          </div>
+          <GoogleSection enabled={googleEnabled} t={t} />
           <form onSubmit={submit} className="flex flex-col gap-3.5" noValidate aria-describedby={err ? 'auth-error' : undefined}>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="auth-email">{t('ui.email')}</Label>
@@ -138,12 +153,7 @@ export default function AuthModal({ onClose, onSuccess, initialMode = 'login', r
       {/* ── Registo ────────────────────────────────────────── */}
       {mode === 'register' && (
         <>
-          <Button variant="surface" disabled className="w-full opacity-50 cursor-not-allowed" aria-disabled="true">
-            <GoogleIcon /> {t('auth.google')}
-          </Button>
-          <div aria-hidden="true" className="flex items-center gap-3 text-[11px] tracking-wider uppercase text-ink-faint font-semibold my-4">
-            <span className="flex-1 h-px bg-line" /> {t('auth.ou')} <span className="flex-1 h-px bg-line" />
-          </div>
+          <GoogleSection enabled={googleEnabled} t={t} />
           <form onSubmit={submit} className="flex flex-col gap-3.5" noValidate aria-describedby={err ? 'auth-error' : undefined}>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="auth-name">{t('ui.nome')}</Label>

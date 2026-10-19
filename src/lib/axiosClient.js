@@ -17,6 +17,7 @@ const AUTH_ENDPOINTS = [
   '/autentication/register',
   '/autentication/refresh',
   '/autentication/logout',
+  '/google/exchange',
   '/csrf-token',
 ]
 

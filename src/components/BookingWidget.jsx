@@ -15,7 +15,7 @@ import {
   getBookingMyAppointmentsQueryKey,
 } from "../servers/booking/index.ts";
 import { nextWorkdays, fmtDate, fmtShort, langToLocale } from "../utils.js";
-import { Button, Spinner, Label, Textarea } from "./ui.jsx";
+import { Button, Spinner, Label, Textarea, Input } from "./ui.jsx";
 import { errMsg } from "../lib/errors.js";
 import AddToCalendar from "./AddToCalendar.jsx";
 
@@ -50,7 +50,8 @@ const DP_LOADERS = {
 };
 
 export default function BookingWidget({ onRequireLogin, onBooked }) {
-  const { user } = useAuth();
+  const { user, updateProfile } = useAuth();
+  const [phone, setPhone] = useState("");
   const { t } = useCms();
   const { currentLang } = useLanguage();
   const dateLocale = langToLocale(currentLang);
@@ -246,8 +247,20 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
     radioRefs.current[n]?.focus();
   }
 
-  function handleConfirm() {
+  async function handleConfirm() {
     setErr("");
+    let clientPhone = user.phone;
+    if (!clientPhone) {
+      // Cliente sem telemóvel (ex.: entrou com Google): pede-o e guarda no perfil
+      clientPhone = phone.trim();
+      if (!clientPhone) { setErr(t("booking.erro.telemovel")); return; }
+      try {
+        await updateProfile({ name: user.name, email: user.email, phone: clientPhone, nif: user.nif, wantsInvoice: user.wantsInvoice });
+      } catch (e) {
+        setErr(errMsg(e, t));
+        return;
+      }
+    }
     confirmM.mutate({
       data: {
         serviceId: svc.serviceId,
@@ -257,7 +270,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
         notes: notes || undefined,
         clientName: user.name,
         clientEmail: user.email,
-        clientPhone: user.phone,
+        clientPhone,
       },
     });
   }
@@ -733,6 +746,14 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
               </div>
             </div>
           </div>
+
+          {!user.phone && (
+            <div className="flex flex-col gap-1.5 mb-3.5">
+              <Label htmlFor="booking-phone">{t("ui.telemovel")}</Label>
+              <Input id="booking-phone" type="tel" value={phone} autoComplete="tel"
+                placeholder={t("auth.telemovel.placeholder")} onChange={(e) => setPhone(e.target.value)} required />
+            </div>
+          )}
 
           <div className="flex flex-col gap-1.5 mb-3.5">
             <Label>{t("ui.notas_opcional")}</Label>
