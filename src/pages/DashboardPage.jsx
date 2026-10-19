@@ -64,7 +64,11 @@ export default function DashboardPage() {
     phone: user.phone || "",
     nif: user.nif || "",
     wantsInvoice: user.wantsInvoice ?? false,
+    currentPassword: "",
   });
+  // A password actual só é pedida quando o email muda
+  const emailChanged =
+    editForm.email.trim().toLowerCase() !== (user.email || "").trim().toLowerCase();
   const [editLoading, setEditLoading] = useState(false);
   const [editErr, setEditErr] = useState("");
   const [editOk, setEditOk] = useState(false);
@@ -141,6 +145,10 @@ export default function DashboardPage() {
       setEditErr(firstZodError(r.error, t));
       return;
     }
+    if (emailChanged && !editForm.currentPassword) {
+      setEditErr(errMsg({ response: { data: { code: "CURRENT_PASSWORD_REQUIRED" } } }, t));
+      return;
+    }
     setEditLoading(true);
     try {
       await updateProfile({
@@ -149,7 +157,9 @@ export default function DashboardPage() {
         phone: editForm.phone,
         nif: editForm.nif || null,
         wantsInvoice: editForm.wantsInvoice,
+        ...(emailChanged && { currentPassword: editForm.currentPassword }),
       });
+      setEditForm((f) => ({ ...f, currentPassword: "" }));
       setEditOk(true);
       setEditing(false);
     } catch (e) {
@@ -431,6 +441,23 @@ export default function DashboardPage() {
                     autoComplete="email"
                   />
                 </div>
+                {emailChanged && (
+                  <div className="flex flex-col gap-1.5 sm:col-span-2">
+                    <Label htmlFor="edit-current-password">
+                      {t("dashboard.passwordActual.label") || "Password actual"}
+                    </Label>
+                    <Input
+                      id="edit-current-password"
+                      type="password"
+                      value={editForm.currentPassword}
+                      onChange={(e) =>
+                        setEditForm((f) => ({ ...f, currentPassword: e.target.value }))
+                      }
+                      aria-required="true"
+                      autoComplete="current-password"
+                    />
+                  </div>
+                )}
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="edit-phone">{t("ui.telemovel")}</Label>
                   <Input

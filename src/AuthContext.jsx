@@ -106,11 +106,13 @@ export function AuthProvider({ children }) {
     persist(null)
   }, [])
 
-  const updateProfile = useCallback(async ({ name, email, phone, nif, wantsInvoice }) => {
+  const updateProfile = useCallback(async ({ name, email, phone, nif, wantsInvoice, currentPassword }) => {
     if (!user) return
     const data = await updateM.mutateAsync({
-      data: { name, email, contact: phone, nif, ...(wantsInvoice !== undefined && { wantsInvoice }) },
+      data: { name, email, contact: phone, nif, ...(wantsInvoice !== undefined && { wantsInvoice }), ...(currentPassword && { currentPassword }) },
     })
+    // Mudar o email devolve um accessToken novo (as outras sessões caem): guardar como no login
+    if (data.accessToken) tokenStore.saveAccess(data.accessToken)
     const u = toUser(data)
     persist(u)
     return u
