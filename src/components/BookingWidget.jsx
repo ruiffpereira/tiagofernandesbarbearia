@@ -138,7 +138,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
         onBooked?.();
       },
       onError: (e) => {
-        if (e?.response?.status === 409) {
+        if (e?.response?.status === 409 && (!e.response.data?.code || e.response.data.code === "SLOT_TAKEN")) {
           // Hora ocupada entretanto: avisa, limpa a hora e recarrega as livres.
           setErr(t("booking.erro.ocupado") || "Essa hora acabou de ser ocupada. Escolhe outra.");
           setSlot("");

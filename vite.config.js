@@ -43,6 +43,8 @@ export default defineConfig({
       workbox: {
         skipWaiting: true,
         clientsClaim: true,
+        // Web Push do cliente (push + notificationclick) em public/push-sw.js
+        importScripts: ["push-sw.js"],
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
       },
     }),

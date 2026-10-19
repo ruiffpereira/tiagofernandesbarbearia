@@ -14,6 +14,8 @@ import PrivacyPage from "./pages/PrivacyPage.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
 import CancelPage from "./pages/CancelPage.jsx";
 import PwaInstallBanner from "./components/PwaInstallBanner.jsx";
+import ChatWidget from "./components/ChatWidget.jsx";
+import { enablePush } from "./lib/push.js";
 import CookieConsent from "./components/CookieConsent.jsx";
 
 const PAGE_PATHS = {
@@ -66,6 +68,11 @@ function Layout() {
     new URLSearchParams(window.location.search).get("token"),
   );
   const [toast, setToast] = useState(null);
+  // Chat: `wantChat` = abrir logo a seguir ao login; `?chat=1` (clique no push) abre o chat.
+  const [chatOpen, setChatOpen] = useState(false);
+  const [wantChat, setWantChat] = useState(
+    () => new URLSearchParams(window.location.search).get("chat") === "1",
+  );
 
   useEffect(() => {
     if (resetToken) {
@@ -73,6 +80,28 @@ function Layout() {
       window.history.replaceState({}, "", window.location.pathname);
     }
   }, []);
+
+  useEffect(() => {
+    if (!wantChat) return;
+    const p = new URLSearchParams(window.location.search);
+    if (p.get("chat") === "1") {
+      p.delete("chat");
+      const qs = p.toString();
+      window.history.replaceState({}, "", window.location.pathname + (qs ? "?" + qs : ""));
+    }
+    if (user) { setChatOpen(true); setWantChat(false); }
+    else if (!loading) setShowAuth(true);
+  }, [wantChat, user, loading]);
+
+  // Push do cliente com conta: regista em silêncio se a permissão já foi dada.
+  useEffect(() => {
+    if (user) enablePush();
+  }, [user]);
+
+  // Ao abrir o chat (gesto do utilizador) pede a permissão de notificações.
+  useEffect(() => {
+    if (chatOpen && user) enablePush({ ask: true });
+  }, [chatOpen, user]);
 
   useEffect(() => {
     document.body.style.overflow = showAuth ? "hidden" : "";
@@ -88,6 +117,7 @@ function Layout() {
 
   function handleLogin(u) {
     setShowAuth(false);
+    if (wantChat) { setChatOpen(true); setWantChat(false); }
     showToast(`${t("app.bem_vindo")} ${u.name.split(" ")[0]}!`);
   }
 
@@ -124,10 +154,19 @@ function Layout() {
 
       <PwaInstallBanner />
 
+      <ChatWidget
+        user={user}
+        open={chatOpen}
+        onOpen={() => setChatOpen(true)}
+        onClose={() => setChatOpen(false)}
+        onRequireLogin={() => { setWantChat(true); setShowAuth(true); }}
+      />
+
       {showAuth && (
         <AuthModal
           onClose={() => {
             setShowAuth(false);
+            setWantChat(false);
             setResetToken(null);
           }}
           onSuccess={handleLogin}
