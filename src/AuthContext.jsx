@@ -76,9 +76,13 @@ export function AuthProvider({ children }) {
     return u
   }, [])
 
-  const register = useCallback(async (name, email, phone, password) => {
+  const register = useCallback(async (name, email, phone, password, newsletter = null) => {
     await registerM.mutateAsync({
-      data: { name, email, contact: phone, password },
+      data: {
+        name, email, contact: phone, password,
+        // só envia consentimento quando a caixa foi marcada (texto exacto que o cliente viu)
+        ...(newsletter ? { newsletter: true, newsletterConsentText: newsletter } : {}),
+      },
     })
     // register returns 201 — auto-login a seguir
     const data = await loginM.mutateAsync({

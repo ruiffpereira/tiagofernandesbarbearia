@@ -12,6 +12,12 @@ import {
 import BookingCard from "../components/BookingCard.jsx";
 import { Button, Spinner, Label, Input } from "../components/ui.jsx";
 import { errMsg } from "../lib/errors.js";
+import { useNewsletterText } from "../components/NewsletterConsent.jsx";
+import {
+  useGetWebsitesCustomersNewsletter,
+  usePutWebsitesCustomersNewsletter,
+  getWebsitesCustomersNewsletterQueryKey,
+} from "../servers/customers/index.ts";
 
 const FOCUSABLE =
   'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -21,6 +27,19 @@ export default function DashboardPage() {
   const { t } = useCms();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  // Novidades por email: estado + (re)subscrever / anular
+  const nlText = useNewsletterText();
+  const { data: nl } = useGetWebsitesCustomersNewsletter({ query: { retry: false } });
+  const [nlErr, setNlErr] = useState("");
+  const nlM = usePutWebsitesCustomersNewsletter({
+    mutation: {
+      onSuccess: (data) => {
+        setNlErr("");
+        qc.setQueryData(getWebsitesCustomersNewsletterQueryKey(), data);
+      },
+      onError: (e) => setNlErr(errMsg(e, t)),
+    },
+  });
 
   const {
     data: upcoming = [],
@@ -298,6 +317,50 @@ export default function DashboardPage() {
             )}
           </section>
         )}
+
+        {/* Novidades por email (consentimento RGPD) */}
+        <section aria-labelledby="newsletter-heading" className="bg-paper border border-line rounded-xl2 p-6 mb-10">
+          <h2 id="newsletter-heading" className="text-[17px] font-bold text-navy mb-2">
+            {t("newsletter.perfil.titulo") || "Receber novidades por email"}
+          </h2>
+          {nl?.blocked ? (
+            <p className="text-ink-soft text-[13px]">
+              {t("newsletter.perfil.bloqueado") || "Não é possível subscrever este email. Contacta-nos se precisares de ajuda."}
+            </p>
+          ) : nl ? (
+            <>
+              <p className="text-ink-soft text-[13px] mb-3" role="status">
+                {nl.subscribed
+                  ? t("newsletter.perfil.ativo") || "Estás subscrito. Recebes novidades e promoções por email."
+                  : nl.status === "unsubscribed" || nl.status === "unsubscribed_by_user"
+                    ? t("newsletter.perfil.anulou") || "Anulaste a subscrição. Podes voltar a subscrever quando quiseres."
+                    : t("newsletter.perfil.inativo") || "Não estás subscrito."}
+              </p>
+              {!nl.subscribed && (
+                <p className="text-ink-faint text-[12.5px] leading-snug mb-3">
+                  {nlText}{" "}
+                  <a href="/privacidade" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 text-navy">
+                    {t("newsletter.privacidade") || "Política de Privacidade"}
+                  </a>
+                </p>
+              )}
+              {nlErr && <div role="alert" className="text-maroon text-[13px] mb-3">{nlErr}</div>}
+              <Button
+                variant={nl.subscribed ? "ghost" : "primary"}
+                size="sm"
+                disabled={nlM.isPending}
+                aria-busy={nlM.isPending}
+                onClick={() =>
+                  nlM.mutate({ data: nl.subscribed ? { subscribed: false } : { subscribed: true, consentText: nlText } })
+                }
+              >
+                {nlM.isPending ? <Spinner /> : nl.subscribed
+                  ? t("newsletter.perfil.anular") || "Anular subscrição"
+                  : t("newsletter.perfil.subscrever") || "Quero receber novidades"}
+              </Button>
+            </>
+          ) : null}
+        </section>
 
         {/* Dados da conta */}
         <section

@@ -18,6 +18,8 @@ import { nextWorkdays, fmtDate, fmtShort, langToLocale } from "../utils.js";
 import { Button, Spinner, Label, Textarea, Input } from "./ui.jsx";
 import { errMsg } from "../lib/errors.js";
 import AddToCalendar from "./AddToCalendar.jsx";
+import NewsletterConsent, { useNewsletterText } from "./NewsletterConsent.jsx";
+import { useGetWebsitesCustomersNewsletter, getWebsitesCustomersNewsletterQueryKey } from "../servers/customers/index.ts";
 
 // Loaders lazy dos locales do react-day-picker (1 chunk por locale, carregado on-demand).
 // Cobre as línguas suportadas pela API; cai para pt se a língua não tiver locale.
@@ -69,6 +71,11 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
     };
   }, [currentLang]);
   const qc = useQueryClient();
+  // Caixa de novidades: só para quem ainda não está subscrito (nunca pré-marcada)
+  const newsletterText = useNewsletterText();
+  const [newsletter, setNewsletter] = useState(false);
+  const { data: nlState } = useGetWebsitesCustomersNewsletter({ query: { enabled: !!user, retry: false, staleTime: 60_000 } });
+  const showNewsletter = !!user && !!nlState && !nlState.subscribed && !nlState.blocked;
   const navigate = useNavigate();
   // Passos por nome: service → who (só se houver profissionais) → when → confirm.
   const [stepName, setStepName] = useState("service");
@@ -136,6 +143,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
         setDone({ ...result, serviceName: svc.name });
         qc.invalidateQueries({ queryKey: slotsKey(date) });
         qc.invalidateQueries({ queryKey: getBookingMyAppointmentsQueryKey({ status: 'upcoming' }) });
+        if (newsletter) qc.invalidateQueries({ queryKey: getWebsitesCustomersNewsletterQueryKey() });
         onBooked?.();
       },
       onError: (e) => {
@@ -271,6 +279,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
         clientName: user.name,
         clientEmail: user.email,
         clientPhone,
+        ...(showNewsletter && newsletter ? { newsletter: true, newsletterConsentText: newsletterText } : {}),
       },
     });
   }
@@ -763,6 +772,12 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
               onChange={(e) => setNotes(e.target.value)}
             />
           </div>
+
+          {showNewsletter && (
+            <div className="mb-3.5">
+              <NewsletterConsent id="booking-newsletter" checked={newsletter} onChange={setNewsletter} />
+            </div>
+          )}
 
           {err && (
             <div className="bg-maroon/[0.08] border border-maroon/25 rounded-[10px] px-3.5 py-2.5 text-maroon text-[13px] mb-3">

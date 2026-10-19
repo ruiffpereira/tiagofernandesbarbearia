@@ -4,6 +4,7 @@ import { startGoogleLogin } from '../lib/googleLogin.js'
 import { useAuth } from '../AuthContext.jsx'
 import { useCms } from '../context/CmsContext.jsx'
 import { Button, Spinner, Modal, Label, Input } from './ui.jsx'
+import NewsletterConsent, { useNewsletterText } from './NewsletterConsent.jsx'
 import {
   loginFormSchema,
   registerFormSchema,
@@ -42,6 +43,8 @@ export default function AuthModal({ onClose, onSuccess, initialMode = 'login', r
   const { t } = useCms()
   const { data: googleStatus } = useGetWebsitesCustomersGoogleEnabled({ query: { staleTime: 5 * 60_000, retry: false } })
   const googleEnabled = googleStatus?.enabled === true
+  const newsletterText = useNewsletterText()
+  const [newsletter, setNewsletter] = useState(false)
   const [mode, setMode] = useState(resetToken ? 'reset' : initialMode)
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', newPassword: '', confirmPassword: '' })
   const [err, setErr] = useState('')
@@ -83,7 +86,7 @@ export default function AuthModal({ onClose, onSuccess, initialMode = 'login', r
         const u = await login(form.email, form.password)
         onSuccess(u)
       } else if (mode === 'register') {
-        const u = await register(form.name, form.email, form.phone, form.password)
+        const u = await register(form.name, form.email, form.phone, form.password, newsletter ? newsletterText : null)
         onSuccess(u)
       } else if (mode === 'forgot') {
         await forgotPassword(form.email)
@@ -175,6 +178,7 @@ export default function AuthModal({ onClose, onSuccess, initialMode = 'login', r
               <Input id="auth-password" type="password" placeholder={t('auth.password.placeholder')} value={form.password}
                 onChange={(e) => set('password', e.target.value)} required autoComplete="new-password" aria-required="true" />
             </div>
+            <NewsletterConsent id="auth-newsletter" checked={newsletter} onChange={setNewsletter} />
             {err && <div id="auth-error" role="alert" aria-live="assertive"
               className="bg-maroon/[0.08] border border-maroon/25 rounded-[10px] px-3.5 py-2.5 text-maroon text-[13px]">{err}</div>}
             <Button variant="primary" type="submit" disabled={loading} aria-busy={loading} className="w-full mt-1">

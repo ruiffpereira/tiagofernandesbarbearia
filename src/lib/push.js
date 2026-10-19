@@ -1,6 +1,9 @@
-import { axiosInstance } from '@kubb/plugin-client/clients/axios'
+import {
+  getWebsitesNotificationsPushVapidPublicKey,
+  postWebsitesNotificationsPushSubscribe,
+} from '../servers/customers/index.ts'
 
-// Web Push do cliente com conta (rotas /websites/notifications/push/*, ainda fora dos specs do Kubb).
+// Web Push do cliente com conta (cliente gerado pelo Kubb).
 function b64ToUint8(b64) {
   const pad = '='.repeat((4 - (b64.length % 4)) % 4)
   const raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/'))
@@ -21,13 +24,13 @@ export async function enablePush({ ask = false } = {}) {
       if ((await Notification.requestPermission()) !== 'granted') return false
     }
     const reg = await navigator.serviceWorker.ready
-    const { data } = await axiosInstance.get('/websites/notifications/push/vapid-public-key')
+    const data = await getWebsitesNotificationsPushVapidPublicKey()
     if (!data?.publicKey) return false
     const sub =
       (await reg.pushManager.getSubscription()) ||
       (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToUint8(data.publicKey) }))
     const json = sub.toJSON()
-    await axiosInstance.post('/websites/notifications/push/subscribe', { endpoint: json.endpoint, keys: json.keys })
+    await postWebsitesNotificationsPushSubscribe({ endpoint: json.endpoint, keys: json.keys })
     return true
   } catch {
     return false
