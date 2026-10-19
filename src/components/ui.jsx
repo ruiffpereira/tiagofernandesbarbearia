@@ -1,4 +1,5 @@
 import { useEffect, useRef, useId } from 'react'
+import { useCms } from '../context/CmsContext.jsx'
 
 const VARIANTS = {
   primary: 'bg-maroon text-white hover:bg-maroon-light shadow-soft',
@@ -32,6 +33,7 @@ const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select
 export function Modal({ title, onClose, children, maxWidth = 'max-w-md' }) {
   const dialogRef = useRef(null)
   const titleId = useId()
+  const { t } = useCms()
 
   useEffect(() => {
     const prev = document.activeElement
@@ -81,7 +83,7 @@ export function Modal({ title, onClose, children, maxWidth = 'max-w-md' }) {
           <h2 id={titleId} className="text-[19px] font-bold text-navy tracking-tight">{title}</h2>
           <button
             onClick={onClose}
-            aria-label="Fechar"
+            aria-label={t('ui.fechar') || 'Fechar'}
             className="w-8 h-8 rounded-full border border-line bg-paper text-ink-soft
               flex items-center justify-center hover:bg-cream-dark transition-colors text-[15px]"
           >

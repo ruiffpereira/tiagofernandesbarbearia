@@ -11,6 +11,7 @@ import {
 } from "../servers/booking/index.ts";
 import BookingCard from "../components/BookingCard.jsx";
 import { Button, Spinner, Label, Input } from "../components/ui.jsx";
+import { errMsg } from "../lib/errors.js";
 
 const FOCUSABLE =
   'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -25,7 +26,6 @@ export default function DashboardPage() {
     data: upcoming = [],
     isLoading: loadingUp,
     isError: errorUp,
-    error: upErr,
   } = useGetBookingMyAppointments(
     { status: "upcoming" },
     { query: { enabled: !!user, staleTime: 0, refetchOnMount: "always" } },
@@ -104,7 +104,7 @@ export default function DashboardPage() {
         });
         setCancelId(null);
       },
-      onError: (e) => alert(e.message || t("cancel.erro")),
+      onError: () => alert(t("cancel.erro") || "Erro ao cancelar. Tenta novamente."),
     },
   });
 
@@ -119,7 +119,7 @@ export default function DashboardPage() {
       nif: editForm.nif || "",
     });
     if (!r.success) {
-      setEditErr(firstZodError(r.error));
+      setEditErr(firstZodError(r.error, t));
       return;
     }
     setEditLoading(true);
@@ -134,11 +134,13 @@ export default function DashboardPage() {
       setEditOk(true);
       setEditing(false);
     } catch (e) {
-      setEditErr(e.message || t("auth.erro.generico"));
+      setEditErr(errMsg(e, t));
     } finally {
       setEditLoading(false);
     }
   }
+
+  const barberName = t("dashboard.barbeiro") || "Tiago Fernandes";
 
   const account = [
     [t("ui.nome"), user.name],
@@ -157,7 +159,7 @@ export default function DashboardPage() {
         <div className="max-w-4xl mx-auto">
           <button
             onClick={() => navigate("/")}
-            aria-label="Voltar à página inicial"
+            aria-label={t("a11y.voltar_inicio") || "Voltar à página inicial"}
             className="text-ink-faint text-[13px] font-medium mb-3.5 inline-flex items-center gap-1.5"
           >
             <span aria-hidden="true">←</span> {t("ui.voltar")}
@@ -224,8 +226,8 @@ export default function DashboardPage() {
               role="alert"
               className="bg-maroon/[0.08] border border-maroon/25 rounded-[10px] px-3.5 py-2.5 text-maroon text-[13px]"
             >
-              {t("dashboard.erro")}{" "}
-              {upErr?.message || t("dashboard.erro.reload")}
+              {t("dashboard.erro") || "Erro ao carregar."}{" "}
+              {t("dashboard.erro.reload") || "Recarrega a página."}
             </div>
           ) : upcoming.length === 0 ? (
             <div className="bg-paper border-[1.5px] border-dashed border-line-strong rounded-xl2 py-10 px-6 text-center">
@@ -246,7 +248,7 @@ export default function DashboardPage() {
               {upcoming.map((b) => (
                 <BookingCard
                   key={b.appointmentId}
-                  booking={normalise(b)}
+                  booking={normalise(b, barberName)}
                   onCancel={() => {
                     cancelTriggerRef.current = document.activeElement;
                     setCancelId(b.cancelToken);
@@ -287,7 +289,7 @@ export default function DashboardPage() {
                   {past.map((b) => (
                     <BookingCard
                       key={b.appointmentId}
-                      booking={normalise(b)}
+                      booking={normalise(b, barberName)}
                       isPast
                     />
                   ))}
@@ -371,7 +373,7 @@ export default function DashboardPage() {
                   <Input
                     id="edit-phone"
                     type="tel"
-                    placeholder="+351 9XX XXX XXX"
+                    placeholder={t("auth.telemovel.placeholder") || "+351 9XX XXX XXX"}
                     value={editForm.phone}
                     onChange={(e) =>
                       setEditForm((f) => ({ ...f, phone: e.target.value }))
@@ -384,7 +386,7 @@ export default function DashboardPage() {
                   <Label htmlFor="edit-nif">{t("ui.nif")}</Label>
                   <Input
                     id="edit-nif"
-                    placeholder="000000000"
+                    placeholder={t("dashboard.nif.placeholder") || "000000000"}
                     maxLength={9}
                     value={editForm.nif}
                     onChange={(e) =>
@@ -525,7 +527,7 @@ export default function DashboardPage() {
   );
 }
 
-function normalise(b) {
+function normalise(b, barberName) {
   return {
     id: b.appointmentId,
     serviceName: b.service?.name ?? "—",
@@ -535,7 +537,7 @@ function normalise(b) {
     status: b.status,
     cancelToken: b.cancelToken,
     notes: b.notes,
-    barberName: "Tiago Fernandes",
+    barberName,
     duration: b.service?.duration,
   };
 }

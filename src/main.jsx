@@ -10,7 +10,7 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { HelmetProvider } from 'react-helmet-async'
-import { initUmami } from './lib/umami.js'
+import { initUmami } from './lib/estatisticas.js'
 import App from './App.jsx'
 import './index.css'
 

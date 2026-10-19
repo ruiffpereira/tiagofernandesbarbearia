@@ -51,7 +51,7 @@ export default function AboutPage() {
             {t("sobre.corpo2")}
           </p>
           <ul
-            aria-label="Especialidades"
+            aria-label={t("a11y.especialidades") || "Especialidades"}
             className="flex gap-2.5 flex-wrap list-none p-0 m-0"
           >
             {especialidades.map((esp) => (

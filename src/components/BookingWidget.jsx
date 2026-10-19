@@ -15,6 +15,7 @@ import {
 } from "../servers/booking/index.ts";
 import { nextWorkdays, fmtDate, fmtShort, langToLocale } from "../utils.js";
 import { Button, Spinner, Label, Textarea } from "./ui.jsx";
+import { errMsg } from "../lib/errors.js";
 import AddToCalendar from "./AddToCalendar.jsx";
 
 // Loaders lazy dos locales do react-day-picker (1 chunk por locale, carregado on-demand).
@@ -94,7 +95,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
         onBooked?.();
       },
       onError: (e) => {
-        setErr(e.message || t("auth.erro.generico"));
+        setErr(errMsg(e, t));
       },
     },
   });
@@ -201,6 +202,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
     return (
       <div className="text-center py-3 px-1 animate-fadeUp">
         <div
+          aria-hidden="true"
           className="w-16 h-16 rounded-2xl mx-auto mb-4 bg-emerald-500/10 border border-emerald-500/30
           flex items-center justify-center text-3xl text-emerald-600"
         >
@@ -296,6 +298,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
                       ${active ? "bg-electric border-electric" : "bg-paper border-line hover:border-line-strong hover:bg-cream-dark"}`}
                     >
                       <div
+                        aria-hidden="true"
                         className={`w-9 h-9 rounded-lg flex items-center justify-center text-lg shrink-0 ${active ? "bg-white/70" : "bg-cream-dark"}`}
                       >
                         ✂️
@@ -309,7 +312,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
                         <div
                           className={`text-xs mt-0.5 ${active ? "text-white/70" : "text-ink-faint"}`}
                         >
-                          {s.duration} min
+                          {s.duration} {t("ui.min") || "min"}
                         </div>
                       </div>
                       <div
@@ -370,7 +373,8 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
                   setCalMobile(window.innerWidth < 1024);
                   setShowCalendar((c) => !c);
                 }}
-                title={t("booking.data.outra")}
+                title={t("booking.data.outra") || "Outra data"}
+                aria-label={t("booking.data.outra") || "Outra data"}
                 className={`w-10 shrink-0 rounded-[10px] border-[1.5px] flex items-center justify-center transition-all
                   ${
                     showCalendar || (!dateIsQuick && date)
@@ -381,6 +385,8 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
                 <svg
                   width="16"
                   height="16"
+                  aria-hidden="true"
+                  focusable="false"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -407,9 +413,10 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
                     setDate("");
                     setSlot("");
                   }}
+                  aria-label={t("a11y.limpar_data") || "Remover a data escolhida"}
                   className="text-ink-faint hover:text-navy text-[11px]"
                 >
-                  ✕
+                  <span aria-hidden="true">✕</span>
                 </button>
               </div>
             )}
@@ -450,7 +457,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
                 >
                   <DayPicker
                     mode="single"
-                    locale={pt}
+                    locale={dpLocale}
                     selected={selectedDateObj}
                     onSelect={handleCalendarSelect}
                     fromDate={tomorrow}

@@ -23,7 +23,7 @@ export default function BookingCard({ booking: b, isPast, onEdit, onCancel }) {
     <div className={`bg-paper border border-line rounded-xl2 px-5 py-4 flex justify-between items-center
       flex-wrap gap-3.5 transition-all hover:border-line-strong hover:shadow-soft ${cancelled ? 'opacity-60' : ''}`}>
       <div className="flex gap-3.5 items-start flex-1 min-w-[200px]">
-        <div className="w-11 h-11 rounded-lg bg-cream-dark flex items-center justify-center text-xl shrink-0">
+        <div aria-hidden="true" className="w-11 h-11 rounded-lg bg-cream-dark flex items-center justify-center text-xl shrink-0">
           💈
         </div>
         <div>

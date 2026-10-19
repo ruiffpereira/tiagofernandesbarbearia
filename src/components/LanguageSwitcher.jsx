@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useLanguage } from "../context/LanguageContext.jsx";
 import { LangFlag } from "../utils/langFlag.jsx";
+import { useCms } from "../context/CmsContext.jsx";
 
 export default function LanguageSwitcher({ className = "" }) {
   const { currentLang, languages, changeLanguage } = useLanguage();
+  const { t } = useCms();
   const [open, setOpen] = useState(false);
 
   if (languages.length <= 1) return null;
@@ -23,7 +25,7 @@ export default function LanguageSwitcher({ className = "" }) {
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        aria-label="Escolher língua"
+        aria-label={t("a11y.escolher_lingua") || "Escolher língua"}
         className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg border border-line
           hover:border-line-strong text-ink-soft hover:text-navy transition-colors"
       >
@@ -42,7 +44,7 @@ export default function LanguageSwitcher({ className = "" }) {
           />
           <ul
             role="listbox"
-            aria-label="Línguas disponíveis"
+            aria-label={t("a11y.linguas_disponiveis") || "Línguas disponíveis"}
             className="absolute right-0 top-[calc(100%+6px)] z-[920] min-w-[170px]
               bg-paper border border-line rounded-xl shadow-lift py-1 overflow-hidden animate-slideDown"
           >

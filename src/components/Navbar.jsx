@@ -40,7 +40,7 @@ export default function Navbar({ user, onLogin, onLogout }) {
     <>
       {/* ── Top bar ─────────────────────────────────────────────── */}
       <nav
-        aria-label="Navegação principal"
+        aria-label={t("a11y.nav_principal") || "Navegação principal"}
         className="lg:sticky lg:top-0 z-[900] h-16
         bg-cream-dark border-b border-line-strong
         px-4 sm:px-6 lg:px-10 flex items-center justify-between"
@@ -48,12 +48,12 @@ export default function Navbar({ user, onLogin, onLogout }) {
         {/* Logo */}
         <button
           onClick={() => go("/")}
-          aria-label={`${t("hero.titulo")} — página inicial`}
+          aria-label={(t("a11y.pagina_inicial") || "{{nome}} — página inicial").replace("{{nome}}", t("hero.titulo"))}
           className="flex items-center gap-2.5"
         >
           <img
             src={t("hero.logo")}
-            alt={`${t("hero.titulo")} — logótipo`}
+            alt={(t("a11y.logotipo") || "{{nome}} — logótipo").replace("{{nome}}", t("hero.titulo"))}
             aria-hidden="true"
             width="44"
             height="44"
@@ -142,7 +142,7 @@ export default function Navbar({ user, onLogin, onLogout }) {
 
       {/* ── Bottom nav mobile + tablet ─────────────────────────── */}
       <nav
-        aria-label="Navegação rápida"
+        aria-label={t("a11y.nav_rapida") || "Navegação rápida"}
         className="lg:hidden fixed bottom-0 left-0 right-0 z-[900] h-16
         bg-cream-dark border-t border-line flex items-center justify-around px-2 safe-area-inset-bottom"
       >

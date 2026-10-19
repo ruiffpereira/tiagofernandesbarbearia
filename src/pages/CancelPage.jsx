@@ -33,7 +33,7 @@ export default function CancelPage() {
     <div className="min-h-screen bg-cream flex items-center justify-center px-4 py-16">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <span className="text-5xl">💈</span>
+          <span aria-hidden="true" className="text-5xl">💈</span>
           <h1 className="mt-4 text-2xl font-bold text-navy tracking-tight">{t('cancel.titulo')}</h1>
         </div>
 
@@ -104,7 +104,7 @@ export default function CancelPage() {
 
           {done && (
             <div className="text-center py-4 space-y-2">
-              <p className="text-2xl">✅</p>
+              <p aria-hidden="true" className="text-2xl">✅</p>
               <p className="font-semibold text-navy">{t('cancel.sucesso.titulo')}</p>
               <p className="text-ink-soft text-sm">
                 {t('cancel.sucesso.mensagem')}

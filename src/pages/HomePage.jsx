@@ -83,7 +83,7 @@ export default function HomePage() {
   return (
     <main>
       <section
-        aria-label="Apresentação e marcação"
+        aria-label={t("a11y.apresentacao") || "Apresentação e marcação"}
         className="grid lg:grid-cols-[1.1fr_1fr] min-h-[calc(100vh-64px)]"
       >
         {/* ESQUERDA */}
@@ -107,7 +107,7 @@ export default function HomePage() {
             <div className="flex items-center gap-4 mt-6 mb-4 animate-fadeUp [animation-delay:.05s]">
               <img
                 src={t("hero.logo")}
-                alt={`${t("hero.titulo")} — logótipo`}
+                alt={(t("a11y.logotipo") || "{{nome}} — logótipo").replace("{{nome}}", t("hero.titulo"))}
                 width="80"
                 height="80"
                 loading="eager"
@@ -152,7 +152,7 @@ export default function HomePage() {
                       href={mapsUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      aria-label={`Abrir ${morada} no Google Maps`}
+                      aria-label={(t("a11y.abrir_mapa") || "Abrir {{morada}} no Google Maps").replace("{{morada}}", morada)}
                       className="text-sm text-ink font-medium leading-snug hover:text-navy transition-colors"
                     >
                       {t("contacto.morada1")}
@@ -186,7 +186,7 @@ export default function HomePage() {
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <a
                   href={`tel:${t("contacto.telefone.href")}`}
-                  aria-label={`Ligar para ${t("contacto.telefone")}`}
+                  aria-label={(t("a11y.ligar") || "Ligar para {{telefone}}").replace("{{telefone}}", t("contacto.telefone"))}
                   className="flex items-center gap-1.5 text-navy font-semibold text-sm"
                 >
                   <PhoneIcon /> {t("contacto.telefone")}
@@ -194,7 +194,7 @@ export default function HomePage() {
                 <div
                   className="flex gap-1.5"
                   role="list"
-                  aria-label="Redes sociais"
+                  aria-label={t("a11y.redes_sociais") || "Redes sociais"}
                 >
                   {Object.entries(SOCIAL_PATHS).map(([name, d]) => (
                     <a
@@ -203,7 +203,7 @@ export default function HomePage() {
                       href={socials[name.toLowerCase()]}
                       target="_blank"
                       rel="noopener noreferrer"
-                      aria-label={`${name} da ${t("hero.titulo")}`}
+                      aria-label={(t("a11y.rede_de") || "{{rede}} da {{nome}}").replace("{{rede}}", name).replace("{{nome}}", t("hero.titulo"))}
                       className="w-8 h-8 rounded-lg bg-cream-dark text-navy flex items-center justify-center transition-colors hover:bg-navy hover:text-cream"
                     >
                       <svg

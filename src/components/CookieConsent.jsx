@@ -59,7 +59,7 @@ export default function CookieConsent() {
       className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/70 p-4 backdrop-blur-sm sm:items-center"
       role="dialog"
       aria-modal="true"
-      aria-label="Consentimento de cookies"
+      aria-label={t("a11y.cookies") || "Consentimento de cookies"}
     >
       <div className="w-full max-w-md rounded-2xl border border-white/10 bg-zinc-900 p-5 text-white shadow-2xl sm:p-6">
         <h2 className="text-lg font-semibold">{title}</h2>

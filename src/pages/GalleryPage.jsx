@@ -6,7 +6,7 @@ export default function GalleryPage() {
   const photos = Array.from({ length: 9 }, (_, i) => t(`galeria.foto.${i + 1}`))
 
   return (
-    <main aria-label="Galeria de trabalhos" className="px-5 sm:px-10 lg:px-16 py-10 lg:py-16 min-h-[calc(100vh-64px)]">
+    <main aria-label={t("a11y.galeria") || "Galeria de trabalhos"} className="px-5 sm:px-10 lg:px-16 py-10 lg:py-16 min-h-[calc(100vh-64px)]">
       <div className="max-w-5xl mx-auto">
         <p aria-hidden="true" className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-maroon/[0.1] border border-maroon/25
           rounded-full text-xs font-semibold text-maroon tracking-wide mb-3.5">
@@ -18,13 +18,13 @@ export default function GalleryPage() {
         <p className="text-ink-soft text-base max-w-lg mb-9 leading-relaxed">
           {t('galeria.descricao')}
         </p>
-        <ul aria-label="Fotografias de trabalhos" className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-3.5 list-none p-0 m-0">
+        <ul aria-label={t("a11y.fotografias") || "Fotografias de trabalhos"} className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-3.5 list-none p-0 m-0">
           {photos.map((src, i) => (
             <li key={i} className="aspect-[1/1.15] bg-cream-dark rounded-xl2 border border-line overflow-hidden relative">
               {src && (
                 <img
                   src={src}
-                  alt={`${t('galeria.alt_trabalho')} ${i + 1}`}
+                  alt={`${t('galeria.alt_trabalho') || 'Trabalho'} ${i + 1}`}
                   width="1000"
                   height="1150"
                   loading="lazy"

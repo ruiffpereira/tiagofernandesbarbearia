@@ -68,7 +68,7 @@ export default function PwaInstallBanner() {
             </button>
             <button
               onClick={dismiss}
-              aria-label="Fechar"
+              aria-label={t("ui.fechar") || "Fechar"}
               className="text-cream/50 hover:text-cream text-lg leading-none px-1"
             >
               <span aria-hidden="true">✕</span>

@@ -45,16 +45,16 @@ export default function AuthModal({ onClose, onSuccess, initialMode = 'login', r
     // Validação com Zod antes de qualquer chamada à API
     if (mode === 'login') {
       const r = loginFormSchema.safeParse({ email: form.email, password: form.password })
-      if (!r.success) { setErr(firstZodError(r.error)); return }
+      if (!r.success) { setErr(firstZodError(r.error, t)); return }
     } else if (mode === 'register') {
       const r = registerFormSchema.safeParse({ name: form.name, email: form.email, phone: form.phone, password: form.password })
-      if (!r.success) { setErr(firstZodError(r.error)); return }
+      if (!r.success) { setErr(firstZodError(r.error, t)); return }
     } else if (mode === 'forgot') {
       const r = forgotFormSchema.safeParse({ email: form.email })
-      if (!r.success) { setErr(firstZodError(r.error)); return }
+      if (!r.success) { setErr(firstZodError(r.error, t)); return }
     } else if (mode === 'reset') {
       const r = resetFormSchema.safeParse({ newPassword: form.newPassword, confirmPassword: form.confirmPassword })
-      if (!r.success) { setErr(firstZodError(r.error)); return }
+      if (!r.success) { setErr(firstZodError(r.error, t)); return }
     }
 
     setLoading(true)
@@ -86,7 +86,7 @@ export default function AuthModal({ onClose, onSuccess, initialMode = 'login', r
       } else if (serverMsg) {
         setErr(serverMsg)
       } else {
-        setErr(e.message || t('auth.erro.generico'))
+        setErr(t('auth.erro.generico') || 'Ocorreu um erro. Tenta novamente.')
       }
     } finally {
       setLoading(false)
@@ -183,7 +183,7 @@ export default function AuthModal({ onClose, onSuccess, initialMode = 'login', r
         <>
           {forgotSent ? (
             <div className="text-center py-4">
-              <div className="w-14 h-14 rounded-2xl mx-auto mb-4 bg-electric/10 border border-electric/30
+              <div aria-hidden="true" className="w-14 h-14 rounded-2xl mx-auto mb-4 bg-electric/10 border border-electric/30
                 flex items-center justify-center text-2xl">
                 ✉️
               </div>
@@ -214,7 +214,7 @@ export default function AuthModal({ onClose, onSuccess, initialMode = 'login', r
               </form>
               <div className="text-center mt-4 text-[13px] text-ink-soft">
                 <button onClick={() => switchMode('login')} className="text-navy font-semibold underline">
-                  ← {t('auth.voltar_login')}
+                  <span aria-hidden="true">←</span> {t('auth.voltar_login')}
                 </button>
               </div>
             </>
@@ -227,7 +227,7 @@ export default function AuthModal({ onClose, onSuccess, initialMode = 'login', r
         <>
           {resetDone ? (
             <div className="text-center py-4">
-              <div className="w-14 h-14 rounded-2xl mx-auto mb-4 bg-emerald-500/10 border border-emerald-500/30
+              <div aria-hidden="true" className="w-14 h-14 rounded-2xl mx-auto mb-4 bg-emerald-500/10 border border-emerald-500/30
                 flex items-center justify-center text-2xl text-emerald-600">
                 ✓
               </div>
