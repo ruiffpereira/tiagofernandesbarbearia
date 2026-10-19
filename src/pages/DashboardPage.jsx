@@ -530,14 +530,16 @@ export default function DashboardPage() {
 function normalise(b, barberName) {
   return {
     id: b.appointmentId,
-    serviceName: b.service?.name ?? "—",
-    servicePrice: b.service?.price ?? 0,
+    // A API devolve serviceName/servicePrice/duration soltos (MyAppointment), não um objecto service.
+    serviceName: b.serviceName ?? "—",
+    servicePrice: Number(b.servicePrice ?? 0),
     date: b.date,
     time: b.time,
     status: b.status,
     cancelToken: b.cancelToken,
     notes: b.notes,
-    barberName,
-    duration: b.service?.duration,
+    // Profissional da marcação quando existir; senão o nome fixo do CMS.
+    barberName: b.staff?.name || barberName,
+    duration: b.duration ?? undefined,
   };
 }

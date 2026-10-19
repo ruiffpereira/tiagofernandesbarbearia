@@ -9,6 +9,7 @@ import { useLanguage } from "../context/LanguageContext.jsx";
 import {
   useGetBookingServices,
   useGetBookingSlots,
+  useGetBookingStaff,
   usePostBookingAppointment,
   getBookingSlotsQueryKey,
   getBookingMyAppointmentsQueryKey,
@@ -20,6 +21,9 @@ import AddToCalendar from "./AddToCalendar.jsx";
 
 // Loaders lazy dos locales do react-day-picker (1 chunk por locale, carregado on-demand).
 // Cobre as línguas suportadas pela API; cai para pt se a língua não tiver locale.
+// Inicial do nome, para o cartão do profissional sem foto.
+const initial = (name) => (name || "?").trim().charAt(0).toUpperCase();
+
 const DP_LOADERS = {
   pt: () => import("react-day-picker/locale/pt"),
   br: () => import("react-day-picker/locale/pt-BR"),
@@ -65,8 +69,11 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
   }, [currentLang]);
   const qc = useQueryClient();
   const navigate = useNavigate();
-  const [step, setStep] = useState(1);
+  // Passos por nome: service → who (só se houver profissionais) → when → confirm.
+  const [stepName, setStepName] = useState("service");
   const [svc, setSvc] = useState(null);
+  const [staffId, setStaffId] = useState(""); // "" = Qualquer um
+  const radioRefs = useRef([]);
   const [date, setDate] = useState(() => nextWorkdays(1)[0]);
   const [slot, setSlot] = useState("");
   const [notes, setNotes] = useState("");
@@ -79,22 +86,66 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
       { query: { staleTime: 5 * 60 * 1000 } },
     );
 
+  // Profissionais que fazem o serviço; lista vazia = o passo "Com quem?" não aparece.
+  const { data: staffData, isSuccess: staffLoaded, isError: staffFailed } =
+    useGetBookingStaff(
+      { serviceId: svc?.serviceId },
+      { query: { enabled: !!svc?.serviceId, staleTime: 60 * 1000 } },
+    );
+  const staffList = Array.isArray(staffData) ? staffData : [];
+  const hasStaff = staffList.length > 0;
+  const chosenStaff = staffList.find((p) => p.staffId === staffId) ?? null;
+
+  // Preço: do profissional escolhido; "Qualquer um" → o igual a todos, ou "desde" o mais baixo.
+  const priceOf = (p) => Number(p?.price ?? svc?.price ?? 0);
+  const anyPrices = staffList.map(priceOf);
+  const anyMin = anyPrices.length ? Math.min(...anyPrices) : Number(svc?.price ?? 0);
+  const anyVaries = anyPrices.length > 0 && Math.max(...anyPrices) !== anyMin;
+  const priceLabel = (p) =>
+    p
+      ? `€${priceOf(p)}`
+      : anyVaries
+        ? `${t("booking.preco.desde") || "desde"} €${anyMin}`
+        : `€${anyMin}`;
+
   const { data: slotsData, isLoading: loadingSlots } = useGetBookingSlots(
-    { date, serviceId: svc?.serviceId ?? "" },
-    { query: { enabled: !!date && !!svc?.serviceId && !!user } },
+    { date, serviceId: svc?.serviceId ?? "", staffId: staffId || undefined },
+    {
+      query: {
+        enabled:
+          !!date && !!svc?.serviceId && !!user &&
+          (stepName === "when" || stepName === "confirm"),
+      },
+    },
   );
+
+  // Sem profissionais (ou falha a obter a lista) → salta o passo "Com quem?".
+  useEffect(() => {
+    if (stepName === "who" && ((staffLoaded && !hasStaff) || staffFailed)) {
+      setStepName("when");
+    }
+  }, [stepName, staffLoaded, hasStaff, staffFailed]);
+
+  const slotsKey = (d) =>
+    getBookingSlotsQueryKey({ date: d, serviceId: svc?.serviceId, staffId: staffId || undefined });
 
   const confirmM = usePostBookingAppointment({
     mutation: {
       onSuccess: (result) => {
         setDone({ ...result, serviceName: svc.name });
-        qc.invalidateQueries({
-          queryKey: getBookingSlotsQueryKey({ date, serviceId: svc.serviceId }),
-        });
+        qc.invalidateQueries({ queryKey: slotsKey(date) });
         qc.invalidateQueries({ queryKey: getBookingMyAppointmentsQueryKey({ status: 'upcoming' }) });
         onBooked?.();
       },
       onError: (e) => {
+        if (e?.response?.status === 409) {
+          // Hora ocupada entretanto: avisa, limpa a hora e recarrega as livres.
+          setErr(t("booking.erro.ocupado") || "Essa hora acabou de ser ocupada. Escolhe outra.");
+          setSlot("");
+          setStepName("when");
+          qc.invalidateQueries({ queryKey: slotsKey(date) });
+          return;
+        }
         setErr(errMsg(e, t));
       },
     },
@@ -106,8 +157,8 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
   const prevUserRef = useRef(user);
 
   useEffect(() => {
-    if (!prevUserRef.current && user && step === 1 && svc) {
-      setStep(2);
+    if (!prevUserRef.current && user && stepName === "service" && svc) {
+      setStepName("who");
     }
     prevUserRef.current = user;
   }, [user]);
@@ -143,9 +194,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
     setSlot("");
     setShowCalendar(false);
     if (svc?.serviceId) {
-      qc.invalidateQueries({
-        queryKey: getBookingSlotsQueryKey({ date: d, serviceId: svc.serviceId }),
-      });
+      qc.invalidateQueries({ queryKey: slotsKey(d) });
     }
   }
 
@@ -157,21 +206,45 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
   const free = Array.isArray(slotsData) ? slotsData : [];
 
   function next() {
-    if (step === 1) {
+    if (stepName === "service") {
       if (!svc) return;
       if (!user) {
         onRequireLogin?.();
         return;
       }
+      setStepName("who");
+    } else if (stepName === "who") {
+      setStepName("when");
+    } else if (stepName === "when") {
+      if (!date || !slot) return;
+      setStepName("confirm");
     }
-    if (step === 2 && (!date || !slot)) return;
-    setStep((s) => s + 1);
   }
 
   const back = () => {
-    setStep((s) => Math.max(1, s - 1));
+    setStepName((s) =>
+      s === "confirm" ? "when" : s === "when" ? (hasStaff ? "who" : "service") : "service",
+    );
     setErr("");
   };
+
+  // Escolher profissional (ou "Qualquer um") limpa a hora escolhida.
+  function pickStaff(id) {
+    if (id === staffId) return;
+    setStaffId(id);
+    setSlot("");
+  }
+
+  // Radiogroup: setas movem a escolha e o foco.
+  function onRadioKey(e, i, ids) {
+    const d = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1
+      : e.key === "ArrowLeft" || e.key === "ArrowUp" ? -1 : 0;
+    if (!d) return;
+    e.preventDefault();
+    const n = (i + d + ids.length) % ids.length;
+    pickStaff(ids[n]);
+    radioRefs.current[n]?.focus();
+  }
 
   function handleConfirm() {
     setErr("");
@@ -180,6 +253,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
         serviceId: svc.serviceId,
         date,
         time: slot,
+        staffId: staffId || undefined,
         notes: notes || undefined,
         clientName: user.name,
         clientEmail: user.email,
@@ -189,14 +263,21 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
   }
 
   function reset() {
-    setStep(1);
+    setStepName("service");
     setSvc(null);
+    setStaffId("");
     setDate("");
     setSlot("");
     setNotes("");
     setDone(null);
     setErr("");
   }
+
+  const steps = hasStaff
+    ? ["service", "who", "when", "confirm"]
+    : ["service", "when", "confirm"];
+  // Durante o carregamento da lista ("who" ainda sem resposta) conta como passo 2.
+  const stepNum = stepName === "who" && !hasStaff ? 2 : Math.max(1, steps.indexOf(stepName) + 1);
 
   if (done) {
     return (
@@ -212,6 +293,11 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
           {t("booking.sucesso.titulo")}
         </h3>
         <p className="text-ink-soft text-sm mb-1">{done.serviceName}</p>
+        {done.staff?.name && (
+          <p className="text-ink-soft text-sm mb-1">
+            {t("booking.sucesso.com") || "Com"} {done.staff.name}
+          </p>
+        )}
         <p className="text-ink-soft text-sm mb-2">
           {fmtDate(done.date, dateLocale)} · {done.time}
         </p>
@@ -247,30 +333,31 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
     <div>
       {/* Indicador de passos */}
       <div className="flex gap-1.5 mb-4 items-center">
-        {[1, 2, 3].map((n) => (
+        {steps.map((_, i) => i + 1).map((n) => (
           <div key={n} className="flex items-center gap-1.5">
             <div
               className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold transition-all
-              ${step >= n ? "bg-electric text-white" : "bg-paper text-ink-faint border-[1.5px] border-line"}`}
+              ${stepNum >= n ? "bg-electric text-white" : "bg-paper text-ink-faint border-[1.5px] border-line"}`}
             >
               {n}
             </div>
-            {n < 3 && (
+            {n < steps.length && (
               <div
-                className={`w-6 h-0.5 transition-colors ${step > n ? "bg-electric" : "bg-line"}`}
+                className={`w-6 h-0.5 transition-colors ${stepNum > n ? "bg-electric" : "bg-line"}`}
               />
             )}
           </div>
         ))}
         <span className="ml-2.5 text-xs text-ink-faint font-medium">
-          {step === 1 && t("booking.passo.1")}
-          {step === 2 && t("booking.passo.2")}
-          {step === 3 && t("booking.passo.3")}
+          {stepName === "service" && t("booking.passo.1")}
+          {stepName === "who" && (t("booking.passo.com_quem") || "Com quem?")}
+          {stepName === "when" && t("booking.passo.2")}
+          {stepName === "confirm" && t("booking.passo.3")}
         </span>
       </div>
 
       {/* Passo 1 — serviço */}
-      {step === 1 && (
+      {stepName === "service" && (
         <div className="animate-fadeUp">
           {loadingServices ? (
             <div className="flex justify-center py-8">
@@ -287,11 +374,15 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
                     <button
                       key={s.serviceId}
                       onClick={() => {
+                        if (svc?.serviceId !== s.serviceId) {
+                          setStaffId("");
+                          setSlot("");
+                        }
                         setSvc(s);
                         if (!user) {
                           onRequireLogin?.();
                         } else {
-                          setStep(2);
+                          setStepName("who");
                         }
                       }}
                       className={`flex items-center gap-3 p-3 rounded-[10px] border-[1.5px] text-left w-full transition-all
@@ -336,8 +427,83 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
         </div>
       )}
 
-      {/* Passo 2 — data e hora */}
-      {step === 2 && (
+      {/* Passo "Com quem?" — só com profissionais; "Qualquer um" primeiro e por omissão */}
+      {stepName === "who" && (
+        <div className="animate-fadeUp">
+          {!staffLoaded ? (
+            <div className="flex justify-center py-8">
+              <Spinner />
+            </div>
+          ) : (
+            <>
+              <div
+                role="radiogroup"
+                aria-label={t("booking.passo.com_quem") || "Com quem?"}
+                className="flex flex-col gap-2 max-h-[calc(100dvh-26rem)] overflow-y-auto pr-1"
+              >
+                {[null, ...staffList].map((p, i, arr) => {
+                  const id = p?.staffId ?? "";
+                  const active = staffId === id;
+                  const ids = arr.map((x) => x?.staffId ?? "");
+                  return (
+                    <button
+                      key={id || "any"}
+                      type="button"
+                      role="radio"
+                      aria-checked={active}
+                      tabIndex={active ? 0 : -1}
+                      ref={(el) => (radioRefs.current[i] = el)}
+                      onClick={() => pickStaff(id)}
+                      onKeyDown={(e) => onRadioKey(e, i, ids)}
+                      className={`flex items-center gap-3 p-3 rounded-[10px] border-[1.5px] text-left w-full transition-all
+                      ${active ? "bg-electric border-electric" : "bg-paper border-line hover:border-line-strong hover:bg-cream-dark"}`}
+                    >
+                      {p?.photo ? (
+                        <img
+                          src={p.photo}
+                          alt=""
+                          loading="lazy"
+                          className="w-10 h-10 rounded-full object-cover shrink-0"
+                        />
+                      ) : (
+                        <div
+                          aria-hidden="true"
+                          style={p?.color ? { backgroundColor: p.color } : undefined}
+                          className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-base shrink-0
+                          ${p?.color ? "text-white" : active ? "bg-white/70 text-navy" : "bg-cream-dark text-navy"}`}
+                        >
+                          {p ? initial(p.name) : "★"}
+                        </div>
+                      )}
+                      <div
+                        className={`flex-1 min-w-0 font-semibold text-sm truncate ${active ? "text-white" : "text-ink"}`}
+                      >
+                        {p ? p.name : t("booking.staff.qualquer") || "Qualquer um"}
+                      </div>
+                      <div
+                        className={`font-bold text-[15px] shrink-0 ${active ? "text-white" : "text-navy"}`}
+                      >
+                        {priceLabel(p)}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="flex gap-2 mt-4">
+                <Button variant="ghost" onClick={back}>
+                  {t("ui.voltar")}
+                </Button>
+                <Button variant="primary" onClick={next} className="flex-1">
+                  {t("ui.continuar")}
+                </Button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Passo — data e hora */}
+      {stepName === "when" && (
         <div className="animate-fadeUp">
           <Label>{t("ui.data")}</Label>
 
@@ -490,7 +656,7 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
                       key={sl}
                       onClick={() => {
                         setSlot(sl);
-                        setStep(3);
+                        setStepName("confirm");
                       }}
                       className={`py-2.5 px-1 rounded-[10px] border-[1.5px] text-[13px] font-medium transition-all
                         ${slot === sl ? "bg-electric border-electric text-white" : "bg-paper border-line text-ink hover:border-line-strong"}`}
@@ -502,6 +668,15 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
               )}
             </div>
           </div>
+
+          {err && (
+            <div
+              role="alert"
+              className="bg-maroon/[0.08] border border-maroon/25 rounded-[10px] px-3.5 py-2.5 text-maroon text-[13px] mt-3"
+            >
+              {err}
+            </div>
+          )}
 
           <div className="flex gap-2 mt-4">
             <Button variant="ghost" onClick={back}>
@@ -520,20 +695,30 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
       )}
 
       {/* Passo 3 — confirmar */}
-      {step === 3 && (
+      {stepName === "confirm" && (
         <div className="animate-fadeUp">
           <div className="bg-paper rounded-[10px] p-4 border border-line mb-3.5">
             <div className="flex justify-between items-center mb-2.5">
               <span className="text-[11px] text-ink-faint font-semibold tracking-wider uppercase">
                 {t("booking.resumo.titulo")}
               </span>
-              <span className="text-lg font-bold text-navy">€{svc.price}</span>
+              <span className="text-lg font-bold text-navy">
+                {hasStaff ? priceLabel(chosenStaff) : `€${svc.price}`}
+              </span>
             </div>
             <div className="flex flex-col gap-1.5 text-[13.5px]">
               <div>
                 <span className="text-ink-faint">{t("booking.resumo.servico")}</span>{" "}
                 <span className="text-ink font-medium">{svc.name}</span>
               </div>
+              {hasStaff && (
+                <div>
+                  <span className="text-ink-faint">{t("booking.resumo.profissional") || "Profissional:"}</span>{" "}
+                  <span className="text-ink font-medium">
+                    {chosenStaff ? chosenStaff.name : t("booking.staff.qualquer") || "Qualquer um"}
+                  </span>
+                </div>
+              )}
               <div>
                 <span className="text-ink-faint">{t("booking.resumo.data")}</span>{" "}
                 <span className="text-ink font-medium">{fmtDate(date, dateLocale)}</span>
