@@ -7,7 +7,7 @@ Construído com **React + Vite + TailwindCSS**.
 
 - **Página inicial focada na marcação** — layout split-screen (info à esquerda, marcação à direita). Em telemóvel a marcação aparece primeiro.
 - **Marcação em 3 passos** — escolher serviço → data/hora → confirmar.
-- **Registo / Login** — por email + palavra-passe ou "Continuar com Google" (simulado).
+- **Registo / Login** — por email + palavra-passe ou "Continuar com Google" (fluxo real, quando a API o tem ligado).
 - **Área de cliente** — ver próximas marcações, histórico, editar e cancelar.
 - **Páginas** — Início, Trabalhos (galeria), Sobre.
 - **Responsivo** — desktop, tablet e telemóvel.
