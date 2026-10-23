@@ -4,7 +4,7 @@
 // Os textos visíveis (título/descrição) NÃO são hardcoded aqui: vêm já
 // traduzidos do CMS (passados pelo caller); estes helpers só montam URLs.
 
-const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3001/api').replace(/\/+$/, '')
+import { API_BASE_URL as API_BASE } from '../lib/env.js'
 
 const pad = (n) => String(n).padStart(2, '0')
 
@@ -35,5 +35,5 @@ export function googleCalendarUrl({ title, details, date, time, duration = 30 })
 
 /** URL de download do .ics de UMA marcação (por cancelToken), na língua dada. */
 export function appointmentIcsUrl(cancelToken, locale = 'pt') {
-  return `${API_BASE}/websites/booking/appointment/${cancelToken}/calendar.ics?locale=${encodeURIComponent(locale)}`
+  return `${API_BASE}/websites/booking/appointments/${cancelToken}/calendar.ics?locale=${encodeURIComponent(locale)}`
 }

@@ -1,4 +1,6 @@
 // Login com Google: começa por navegação do browser, regressa a /entrar/google com ?code=
+import { API_BASE_URL } from './env.js'
+
 const STORE_KEY = 'btf_google_login'
 export const GOOGLE_RETURN_PATH = '/entrar/google'
 
@@ -17,7 +19,7 @@ export function startGoogleLogin() {
   const state = randomState()
   const returnTo = safePath(window.location.pathname + window.location.search)
   sessionStorage.setItem(STORE_KEY, JSON.stringify({ state, returnTo }))
-  const base = String(import.meta.env.VITE_API_BASE_URL).replace(/\/$/, '')
+  const base = API_BASE_URL
   const params = new URLSearchParams({
     return_to: window.location.origin + GOOGLE_RETURN_PATH,
     client_state: state,

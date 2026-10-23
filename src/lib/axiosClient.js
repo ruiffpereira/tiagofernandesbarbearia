@@ -1,22 +1,22 @@
 import axios from 'axios'
 import { axiosInstance } from '@kubb/plugin-client/clients/axios'
 import { getCsrfToken } from '../servers/customers/clients/getCsrfToken.ts'
-import { postWebsitesCustomersAutenticationRefresh } from '../servers/customers/clients/postWebsitesCustomersAutenticationRefresh.ts'
+import { postWebsitesCustomersAuthenticationRefresh } from '../servers/customers/clients/postWebsitesCustomersAuthenticationRefresh.ts'
 import { tokenStore } from './api.js'
 
-const SITE_TOKEN = import.meta.env.VITE_SITE_TOKEN ?? ''
+import { API_BASE_URL, SITE_TOKEN } from './env.js'
 
-axiosInstance.defaults.baseURL = import.meta.env.VITE_API_BASE_URL
+axiosInstance.defaults.baseURL = API_BASE_URL
 axiosInstance.defaults.withCredentials = true
 axios.defaults.withCredentials = true
 
 let refreshing = null
 
 const AUTH_ENDPOINTS = [
-  '/autentication/login',
-  '/autentication/register',
-  '/autentication/refresh',
-  '/autentication/logout',
+  '/authentication/login',
+  '/authentication/register',
+  '/authentication/refresh',
+  '/authentication/logout',
   '/google/exchange',
   '/csrf-token',
 ]
@@ -54,7 +54,7 @@ const responseErrorInterceptor = async (error) => {
     if (!refreshing) {
       refreshing = getCsrfHeader()
         .then((headers) =>
-          postWebsitesCustomersAutenticationRefresh({ headers }),
+          postWebsitesCustomersAuthenticationRefresh({ headers }),
         )
         .then((data) => {
           if (!data?.accessToken) throw new Error('Refresh sem accessToken')

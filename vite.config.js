@@ -2,11 +2,23 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// Falha o build de produção se faltar uma env obrigatória (sem default silencioso).
+const requireBuildEnv = () => ({
+  name: 'require-build-env',
+  configResolved(config) {
+    if (config.command !== 'build') return
+    for (const k of ['VITE_API_BASE_URL', 'VITE_SITE_TOKEN']) {
+      if (!config.env[k]) throw new Error(`Env em falta no build: ${k}`)
+    }
+  },
+})
+
 export default defineConfig({
   server: {
     historyApiFallback: true,
   },
   plugins: [
+    requireBuildEnv(),
     react(),
     VitePWA({
       registerType: 'autoUpdate',

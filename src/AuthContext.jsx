@@ -2,14 +2,14 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
 import { tokenStore, USER_KEY } from './lib/api.js'
 import {
-  usePostWebsitesCustomersAutenticationLogin,
-  usePostWebsitesCustomersAutenticationRegister,
-  usePutWebsitesCustomersAutenticationProfile,
-  usePostWebsitesCustomersAutenticationForgotPassword,
-  usePostWebsitesCustomersAutenticationResetPassword,
+  usePostWebsitesCustomersAuthenticationLogin,
+  usePostWebsitesCustomersAuthenticationRegister,
+  usePutWebsitesCustomersAuthenticationProfile,
+  usePostWebsitesCustomersAuthenticationForgotPassword,
+  usePostWebsitesCustomersAuthenticationResetPassword,
   postWebsitesCustomersGoogleExchange,
   getCsrfToken,
-  postWebsitesCustomersAutenticationLogout,
+  postWebsitesCustomersAuthenticationLogout,
 } from './servers/customers/index.ts'
 
 const AuthContext = createContext(null)
@@ -42,11 +42,11 @@ export function AuthProvider({ children }) {
     setUser(u)
   }
 
-  const loginM        = usePostWebsitesCustomersAutenticationLogin()
-  const registerM     = usePostWebsitesCustomersAutenticationRegister()
-  const updateM       = usePutWebsitesCustomersAutenticationProfile()
-  const forgotM       = usePostWebsitesCustomersAutenticationForgotPassword()
-  const resetM        = usePostWebsitesCustomersAutenticationResetPassword()
+  const loginM        = usePostWebsitesCustomersAuthenticationLogin()
+  const registerM     = usePostWebsitesCustomersAuthenticationRegister()
+  const updateM       = usePutWebsitesCustomersAuthenticationProfile()
+  const forgotM       = usePostWebsitesCustomersAuthenticationForgotPassword()
+  const resetM        = usePostWebsitesCustomersAuthenticationResetPassword()
 
   useEffect(() => {
     function onSessionExpired() {
@@ -97,7 +97,7 @@ export function AuthProvider({ children }) {
   const logout = useCallback(async () => {
     await getCsrfToken()
       .then(({ csrfToken }) =>
-        postWebsitesCustomersAutenticationLogout({
+        postWebsitesCustomersAuthenticationLogout({
           headers: csrfToken ? { 'x-csrf-token': csrfToken } : {},
         }),
       )

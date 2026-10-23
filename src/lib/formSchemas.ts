@@ -49,12 +49,12 @@ export const registerFormSchema = z.object({
   password: z.string().min(6, V.passMin6),
 })
 
-// Mirrors: postWebsitesCustomersAutenticationForgotPasswordMutationRequestSchema
+// Mirrors: postWebsitesCustomersAuthenticationForgotPasswordMutationRequestSchema
 export const forgotFormSchema = z.object({
   email: z.email(V.email),
 })
 
-// Mirrors: postWebsitesCustomersAutenticationResetPasswordMutationRequestSchema
+// Mirrors: postWebsitesCustomersAuthenticationResetPasswordMutationRequestSchema
 export const resetFormSchema = z.object({
   newPassword:     z.string().min(8, V.passMin8),
   confirmPassword: z.string().min(1, V.confirmar),
