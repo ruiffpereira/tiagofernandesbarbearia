@@ -1,4 +1,5 @@
 # CLAUDE.md — tifas-barber
+> **Lê-se:** as sessões e agentes que trabalham nesse repo · **Verdadeiro por:** `coerencia.test.mjs` (caminhos)
 
 Site **externo** de marcações da **Barbearia Tiago Fernandes** (Braga). Não tem backend próprio: serviços, horários,
 marcações, clientes, textos (CMS) e estatísticas vêm da API central (`API-FullStack`), identificado pelo **site

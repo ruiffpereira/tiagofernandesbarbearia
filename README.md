@@ -1,4 +1,5 @@
 # Barbearia Tiago Fernandes 💈
+> **Lê-se:** quem instala ou corre o repo · **Verdadeiro por:** `coerencia.test.mjs` (caminhos)
 
 Website de marcações online para a Barbearia Tiago Fernandes (Braga).
 Construído com **React + Vite + TailwindCSS**.
