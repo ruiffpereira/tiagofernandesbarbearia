@@ -155,6 +155,12 @@ export default function BookingWidget({ onRequireLogin, onBooked }) {
           qc.invalidateQueries({ queryKey: slotsKey(date) });
           return;
         }
+        if (e?.response?.status === 409) {
+          // 409 «CONFLICT» (ex. pausa de almoço): mostra a mensagem da API e deixa escolher outra hora.
+          setSlot("");
+          setStepName("when");
+          qc.invalidateQueries({ queryKey: slotsKey(date) });
+        }
         setErr(errMsg(e, t));
       },
     },

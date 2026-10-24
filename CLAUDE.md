@@ -3,7 +3,7 @@
 Site **externo** de marcações da **Barbearia Tiago Fernandes** (Braga). Não tem backend próprio: serviços, horários,
 marcações, clientes, textos (CMS) e estatísticas vêm da API central (`API-FullStack`), identificado pelo **site
 token** do tenant. Repo Git independente. Contexto geral, regra cross-repo e regras de negócio:
-[`../CLAUDE.md`](../CLAUDE.md) · produção/secrets: [`../docs/INFRA.md`](../docs/INFRA.md).
+[`../CLAUDE.md`](../CLAUDE.md) · produção/secrets: [3.1 producao](<../docs/3 - Infra/3.1 - producao.md>).
 
 ## Stack
 React 18 + Vite + Tailwind (JS/JSX; `.ts` só em `formSchemas.ts` e no código gerado) · React Query · react-router 7 ·
@@ -38,5 +38,5 @@ com o passo **"Com quem?"** (profissionais que fazem o serviço; lista vazia ⇒
 ## Deploy
 `.github/workflows/deploy.yml` (push na `main`, se `vars.DEPLOY_ENABLED == 'true'`): WireGuard (peer `ci-sites`,
 secret `WIREGUARD_CONFIG`) → webhook do Coolify (`COOLIFY_DEPLOY_HOOK`, `COOLIFY_TOKEN`) → acompanha o deploy até
-`finished` (log se falhar) → confirma `SITE_URL` (variable, opcional). Domínios e apps: `../docs/INFRA.md`.
+`finished` (log se falhar) → confirma `SITE_URL` (variable, opcional). Domínios e apps: `../docs/3 - Infra/3.1 - producao.md`.
 Ordem: **API primeiro, site depois**. Commit ⇒ push na `main` do dono; não mexer em produção daqui.

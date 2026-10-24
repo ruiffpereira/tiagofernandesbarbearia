@@ -127,7 +127,7 @@ export default function DashboardPage() {
         });
         setCancelId(null);
       },
-      onError: () => alert(t("cancel.erro") || "Erro ao cancelar. Tenta novamente."),
+      onError: (e) => alert(e?.response?.data?.message || t("cancel.erro") || "Erro ao cancelar. Tenta novamente."),
     },
   });
 

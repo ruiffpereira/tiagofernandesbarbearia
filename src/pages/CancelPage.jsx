@@ -58,6 +58,10 @@ export default function CancelPage() {
                 <div className="text-center py-4">
                   <p className="text-ink-soft font-medium mb-1">{t('cancel.ja_cancelada')}</p>
                 </div>
+              ) : appt.status === 'no_show' ? (
+                <div className="text-center py-4">
+                  <p className="text-ink-soft font-medium mb-1">{t('cancel.nao_cancelavel') || 'Esta marcação já não pode ser cancelada.'}</p>
+                </div>
               ) : appt.status === 'completed' ? (
                 <div className="text-center py-4">
                   <p className="text-ink-soft font-medium mb-1">{t('cancel.ja_concluida')}</p>
@@ -81,7 +85,7 @@ export default function CancelPage() {
 
                   {cancelMutation.isError && (
                     <p className="text-maroon text-sm mb-4 text-center">
-                      {t('cancel.erro')}
+                      {cancelMutation.error?.response?.data?.message || t('cancel.erro')}
                     </p>
                   )}
 
