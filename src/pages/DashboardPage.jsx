@@ -127,7 +127,7 @@ export default function DashboardPage() {
         });
         setCancelId(null);
       },
-      onError: (e) => alert(e?.response?.data?.message || t("cancel.erro") || "Erro ao cancelar. Tenta novamente."),
+      onError: (e) => alert(e?.response?.data?.code === "APPOINTMENT_PAID" ? (t("cancel.paga") || "Esta marcação já está paga — para a cancelar, contacta o estabelecimento.") : e?.response?.data?.message || t("cancel.erro") || "Erro ao cancelar. Tenta novamente."),
     },
   });
 
@@ -627,6 +627,7 @@ function normalise(b, barberName) {
     time: b.time,
     status: b.status,
     cancelToken: b.cancelToken,
+    paid: b.notCancellableReason === "paid", // B62: paga → só o negócio cancela
     notes: b.notes,
     // Profissional da marcação quando existir; senão o nome fixo do CMS.
     barberName: b.staff?.name || barberName,

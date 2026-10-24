@@ -62,6 +62,10 @@ export default function CancelPage() {
                 <div className="text-center py-4">
                   <p className="text-ink-soft font-medium mb-1">{t('cancel.nao_cancelavel') || 'Esta marcação já não pode ser cancelada.'}</p>
                 </div>
+              ) : appt.notCancellableReason === 'paid' ? (
+                <div className="text-center py-4">
+                  <p className="text-ink-soft font-medium mb-1">{t('cancel.paga') || 'Esta marcação já está paga — para a cancelar, contacta o estabelecimento.'}</p>
+                </div>
               ) : appt.status === 'completed' ? (
                 <div className="text-center py-4">
                   <p className="text-ink-soft font-medium mb-1">{t('cancel.ja_concluida')}</p>
@@ -85,7 +89,9 @@ export default function CancelPage() {
 
                   {cancelMutation.isError && (
                     <p className="text-maroon text-sm mb-4 text-center">
-                      {cancelMutation.error?.response?.data?.message || t('cancel.erro')}
+                      {cancelMutation.error?.response?.data?.code === 'APPOINTMENT_PAID'
+                        ? (t('cancel.paga') || 'Esta marcação já está paga — para a cancelar, contacta o estabelecimento.')
+                        : (cancelMutation.error?.response?.data?.message || t('cancel.erro'))}
                     </p>
                   )}
 

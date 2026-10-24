@@ -53,7 +53,8 @@ export default function BookingCard({ booking: b, isPast, onEdit, onCancel }) {
         {!isPast && !cancelled && (
           <div className="flex gap-1.5">
             {onEdit && <Button variant="ghost" size="sm" onClick={() => onEdit(b)}>{t('ui.editar')}</Button>}
-            {onCancel && <Button variant="danger" size="sm" onClick={() => onCancel(b.id)}>{t('ui.cancelar')}</Button>}
+            {onCancel && !b.paid && <Button variant="danger" size="sm" onClick={() => onCancel(b.id)}>{t('ui.cancelar')}</Button>}
+            {onCancel && b.paid && (<span className="text-ink-faint text-xs max-w-[220px] self-center">{t('cancel.paga') || 'Esta marcação já está paga — para a cancelar, contacta o estabelecimento.'}</span>)}
           </div>
         )}
       </div>
